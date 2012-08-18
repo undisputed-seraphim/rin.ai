@@ -8,13 +8,14 @@ html {
 }
 
 #tiles { position: absolute; width: 300px; top: 20px; left: 20px; height: 180px; border-bottom: 1px solid black; }
-	#tiles>ul { padding: 2px; position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px; border: 1px solid black; list-style-type: none; }
+	#tiles>ul { padding: 2px; position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px; border: 1px solid black;
+		list-style-type: none; overflow-y: scroll;}
 	#tiles>ul>li { display: inline-block; margin: 2px; border: 1px solid black; }
 	.tile { display: inline-block; background-size: 100%; width: 30px; height: 30px; }
 	.tile_drop { display: inline-block; width: 30px; height: 30px; border: 1px solid black; margin-top: -1px; margin-right: -1px; }
 #output { position: absolute; width: 300px; top: 200px; bottom: 20px; left: 20px; border-right: 1px solid black; text-align: center; }
 	#output>input { margin: 0px auto; margin-top: 10px; }
-	#output>textarea { text-align: left; position: absolute; top: 40px; bottom: 10px; left: 10px; right: 10px; }
-#outer_canvas { position: absolute; left: 320px; top: 20px; bottom: 20px; right: 20px; border-left: 1px solid black; min-width: 350px; }
+	#output>textarea { text-align: left; position: absolute; top: 40px; bottom: 10px; left: 10px; right: 10px; overflow: hidden; }
+#outer_canvas { position: absolute; left: 320px; top: 20px; bottom: 20px; right: 20px; border-left: 1px solid black; min-width: 350px; overflow: scroll; }
 	#canvas { width: 2000px; height: 2000px; }
-		#map { margin: 0px auto; }
+		#map { position: absolute; }

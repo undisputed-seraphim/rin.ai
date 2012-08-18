@@ -11,12 +11,17 @@
 
 <body id="body">
 	<div id="tiles"><ul></ul></div>
-	<div id="output"><input type="button" value="Convert" /><textarea></textarea></div>
+	<div id="output">
+		<input type="button" id="convert" value="Save" />
+		<input type="button" id="rebuild" value="Load" />
+		<input type="button" id="clear" value="Clear" />
+		<textarea wrap="off"></textarea>
+	</div>
 	<div id="outer_canvas"><div id="canvas">
     	<div id="map">
     		<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr><br />
         	<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr><br />
-        	<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr>
+        	<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr><br />
         </div>
     </div></div>
 </body>
