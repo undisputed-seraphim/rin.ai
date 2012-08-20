@@ -1098,7 +1098,7 @@ var _rin = {
 function loaded() {
 	//console.log("done");
 	$("#wait").remove();
-	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {name:"baron", x:17, y:29});} });
+	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {name:"world", x:8, y:6});} });
 	var terraEsper = _rin.character.create("terra esper", { afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	var shadow = _rin.character.create("shadow", {afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	$(".tile").mouseenter( function(){
