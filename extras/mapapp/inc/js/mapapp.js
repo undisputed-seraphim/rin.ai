@@ -66,11 +66,17 @@ function clear() {
 	$("#map").append('<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr><br />');
 	$("#map").append('<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr><br />');
 	$("#map").append('<nobr><div class="tile_drop"></div><div class="tile_drop"></div><div class="tile_drop"></div></nobr><br />');
+	$("#canvas").css({width:"2060px",height:"2060px"});
 	initDropAndDrag();
+	$("#outer_canvas").scrollLeft( ($("#canvas").width() / 2) - ($("#outer_canvas").width() / 2) );
+	$("#outer_canvas").scrollTop( ($("#canvas").height() / 2) - ($("#outer_canvas").height() / 2) );
+	$("#map").css({position: "absolute", "left": parseInt($("#canvas").width() / 2)-parseInt($("#map").width()/2),
+		"top": parseInt($("#canvas").height() / 2)-parseInt($("#map").height()/2) });
 }
 
 function rebuild() {
 	var map = {};
+	$("#canvas").css({width:"2000px",height:"2000px"});
 	var temp = $("textarea")[0].value.replace(/^\s\s*/, '').replace(/\s\s*$/, '').replace(/\t/g, '').replace(/\"/g, '').split(",\n");
 	for(var i in temp) {
 		var current = temp[i].substring(0, temp[i].indexOf(":"));
@@ -79,12 +85,16 @@ function rebuild() {
 	}
 	$("#map").empty();
 	for(var j in map) {
+		$("#canvas").css("height","+=20");
 		$("#map").append('<nobr></nobr><br/>');
+		var width = 0;
 		for(var k in map[j]) {
+			width+=20;
 			if(map[j][k] == "empty") $($("#map").children("nobr")[j]).append('<div class="tile_drop"></div>');
 			else $($("#map").children("nobr")[j]).append('<div class="tile_drop"><div class="tile" alt="'+map[j][k]+
 				'" style="display: block; background-image: url(../../inc/maps/default/tile/'+map[j][k]+'.png);"></div></div>');
 		}
+		$("#canvas").css("width", parseInt(2000+width)+"px");
 	}
 	initDropAndDrag();
 }

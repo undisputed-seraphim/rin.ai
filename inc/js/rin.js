@@ -794,15 +794,15 @@ var _rin = {
 						if( !_rin.getCurrentMap().map.walkCheck(char.currentX+1, char.currentY) ) break;
 						if(char.isMoving){ break;}
 						char.isMoving = true; char.currentX++; _rin.vars.c.moved = 0;
-						_rin.character.moveRight(char);
-						/*$(_rin.getCurrentMap().element).animate({left:parseInt(_rin.getCurrentMap().style("left")) - _rin.getCurrentMap().map.tileSize.width},
+						//_rin.character.moveRight(char);
+						$(_rin.getCurrentMap().element).animate({left:parseInt(_rin.getCurrentMap().style("left")) - _rin.getCurrentMap().map.tileSize.width},
 							_rin.getCurrentMap().map.tileSize.width*char.walkSpeed, function(){
 							char.isMoving = false;
 							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
 							if(_rin.controls.down("RIGHT_ARROW")) {
 								_rin.character.move(char, "right");
 							} else if(_rin.controls.none()) char.sprite("right_1");
-						});*/
+						});
 					} else if(char != _rin.vars.p.main) {
 						char.sprite("right");
 						if( _rin.getCurrentMap().map.walkCheck(char.currentX+1, char.currentY)) {
