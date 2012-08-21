@@ -899,6 +899,11 @@ var _rin = {
 						_rin.character.move(_rin.vars.p.main, "right");
 					}
 					break;
+				case _rin.controls.MENU:
+					if(!_rin.vars.p.main.isMoving) {
+						console.log("goto menu");
+					}
+					break;
 			}
 		},
 		upListener: function(ev) {
@@ -954,7 +959,8 @@ var _rin = {
 				for( var j in el.map.map[i] ) {
 					var tile = new _rin.ui.element("tile", el.map.map[i][j]);
 					tile.style({width:el.map.tileSize.width+"px",height:el.map.tileSize.height+"px"});
-					if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url(inc/maps/default/tile/"+el.map.map[i][j]+".png)"});
+					//if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url(inc/maps/default/tile/"+el.map.map[i][j]+".png)"});
+					if(el.map.map[i][j]!="empty")tile.append('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image width="100%" height="100%" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image></svg>');
 					nobr.appendChild(tile.element);
 				}
 				nobr.appendChild(document.createElement("br"));
