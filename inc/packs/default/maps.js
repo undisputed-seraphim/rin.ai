@@ -1,6 +1,6 @@
 var _maps = {
 	"baron inn": {
-		tileSize: {width: 40, height: 40},
+		tileSize: {width: 48, height: 48},
 		battleStep: function(){ return 100000; },
 		map: {
 0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
@@ -68,7 +68,7 @@ var _maps = {
 	},
 	baron: {
 		name: "baron",
-		tileSize: {width: 40, height: 40},
+		tileSize: {width: 48, height: 48},
 		battleStep: function() { return 100000; },
 		map: {
 			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
@@ -154,7 +154,7 @@ var _maps = {
 	},
 	world: {
 		name: "world",
-		tileSize: {width: 46, height: 46},
+		tileSize: {width: 48, height: 48},
 		battleStep: function() { return Math.ceil(Math.max(parseInt((Math.random()*4).toString().substring(2,3)),2)*2.5); },
 		movement: "grid",
 		center: "character",

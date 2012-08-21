@@ -657,11 +657,12 @@ var _rin = {
 		place: function(char, x,y) {
 			if(char.element.parentNode == null) char.appendTo("body");
 			var tile = $($($("#world").children("nobr")[y]).children()[x]);
+			tile = $($("#world svg").children()[(_rin.getCurrentMap().map.map[y].length * y) + (x+1) -1]);
 			if(char.name==_rin.vars.p.main.name) {
-				_rin.getCurrentMap().style({"left":parseInt($("html").width()/2-(tile.width()/2)-(tile.width()*(x)))+"px",
-					"top":parseInt($("html").height()/2-(tile.height()/2)-(tile.height()*(y)))+"px"});
-				var newPosX = (tile.width() - parseInt(char.style("width"))) / 2;
-				var newPosY = (tile.height() - parseInt(char.style("height"))) / 2;
+				_rin.getCurrentMap().style({"left":parseInt($("html").width()/2-(_rin.getCurrentMap().map.tileSize.width/2)-(_rin.getCurrentMap().map.tileSize.width*(x)))+"px",
+					"top":parseInt($("html").height()/2-(_rin.getCurrentMap().map.tileSize.height/2)-(_rin.getCurrentMap().map.tileSize.height*(y)))+"px"});
+				var newPosX = (_rin.getCurrentMap().map.tileSize.width - parseInt(char.style("width"))) / 2;
+				var newPosY = (_rin.getCurrentMap().map.tileSize.height - parseInt(char.style("height"))) / 2;
 				char.style({"left":tile.offset().left+newPosX+"px","top":tile.offset().top+newPosY+"px"});
 				char.nextBattle = _rin.getCurrentMap().map.battleStep();
 				char.sprite("right_1");
@@ -724,7 +725,15 @@ var _rin = {
 						if( !_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY-1) ) break;
 						if(char.isMoving){ break;}
 						char.isMoving = true; char.currentY--; _rin.vars.c.moved = 0;
-						_rin.character.moveUp(char);
+						//_rin.character.moveUp(char);
+						$(_rin.getCurrentMap().element).animate({top:parseInt(_rin.getCurrentMap().style("top")) + _rin.getCurrentMap().map.tileSize.height},
+							_rin.getCurrentMap().map.tileSize.height*char.walkSpeed, function(){
+							char.isMoving = false;
+							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
+							if(_rin.controls.down("UP_ARROW")) {
+								_rin.character.move(char, "up");
+							} else if(_rin.controls.none()) char.sprite("up_1");
+						});
 					} else if(char != _rin.vars.p.main) {
 						char.sprite("up");
 						if(_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY-1)) {
@@ -742,15 +751,15 @@ var _rin = {
 						if( !_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY+1) ) break;
 						if(char.isMoving){ break;}
 						char.isMoving = true; char.currentY++; _rin.vars.c.moved = 0;
-						_rin.character.moveDown(char);
-						/*$(_rin.getCurrentMap().element).animate({top:parseInt(_rin.getCurrentMap().style("top")) - _rin.getCurrentMap().map.tileSize.height},
+						//_rin.character.moveDown(char);
+						$(_rin.getCurrentMap().element).animate({top:parseInt(_rin.getCurrentMap().style("top")) - _rin.getCurrentMap().map.tileSize.height},
 							_rin.getCurrentMap().map.tileSize.height*char.walkSpeed, function(){
 							char.isMoving = false;
 							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
 							if(_rin.controls.down("DOWN_ARROW")) {
 								_rin.character.move(char, "down");
 							} else if(_rin.controls.none()) char.sprite("down_1");
-						});*/
+						});
 					} else if(char != _rin.vars.p.main) {
 						char.sprite("down");
 						if(_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY+1)) {
@@ -768,15 +777,15 @@ var _rin = {
 						if( !_rin.getCurrentMap().map.walkCheck(char.currentX-1, char.currentY) ) break;
 						if(char.isMoving){ break;}
 						char.isMoving = true; char.currentX--; _rin.vars.c.moved = 0;
-						_rin.character.moveLeft(char);
-						/*$(_rin.getCurrentMap().element).animate({left:parseInt(_rin.getCurrentMap().style("left")) + _rin.getCurrentMap().map.tileSize.width},
+						//_rin.character.moveLeft(char);
+						$(_rin.getCurrentMap().element).animate({left:parseInt(_rin.getCurrentMap().style("left")) + _rin.getCurrentMap().map.tileSize.width},
 							_rin.getCurrentMap().map.tileSize.width*char.walkSpeed, function(){
 							char.isMoving = false;
 							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
 							if(_rin.controls.down("LEFT_ARROW")) {
 								_rin.character.move(char, "left");
 							} else if(_rin.controls.none()) char.sprite("left_1");
-						});*/
+						});
 					} else if(char != _rin.vars.p.main) {
 						char.sprite("left");
 						if( _rin.getCurrentMap().map.walkCheck(char.currentX-1, char.currentY)) {
@@ -954,18 +963,30 @@ var _rin = {
 			return el;
 		},
 		fillMap: function( el ) {
+			var x = 0; var y = 0;
+			var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 			for( var i in el.map.map ) {
-				var nobr = document.createElement("nobr");
+				x = 0;
+				for( var j in el.map.map[i] ) {
+					if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image>';
+					else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
+					x = parseInt(x + parseInt(el.map.tileSize.width));
+				}
+				y = parseInt(y + el.map.tileSize.height);
+				/*var nobr = document.createElement("nobr");
 				for( var j in el.map.map[i] ) {
 					var tile = new _rin.ui.element("tile", el.map.map[i][j]);
 					tile.style({width:el.map.tileSize.width+"px",height:el.map.tileSize.height+"px"});
-					//if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url(inc/maps/default/tile/"+el.map.map[i][j]+".png)"});
+					if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url(inc/maps/default/tile/"+el.map.map[i][j]+".png)"});
 					if(el.map.map[i][j]!="empty")tile.append('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image width="100%" height="100%" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image></svg>');
 					nobr.appendChild(tile.element);
 				}
 				nobr.appendChild(document.createElement("br"));
-				el.append(nobr);
+				el.append(nobr);*/
 			}
+			mapString += '</svg>';
+			el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
+			el.append(mapString);
 		},
 		battleParty: function() {
 			var current = 150; var currentTop = 3; var currentY = 150;
