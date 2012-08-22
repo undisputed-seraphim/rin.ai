@@ -1148,29 +1148,8 @@ function loaded() {
 	});
 	//var shadow = _rin.character.create("shadow").addToParty();
 	//_rin.goto("battle");
-	$("body").append('<div id="backdrop" style="position: absolute; height: 20%; width: 120%; top: 0px; left: -100px;"></div><div id="ground" style="position: absolute; height: 80%; width: 120%; bottom: 0px; left: -100px;"></div>');
-	$("#backdrop").append('<img src="inc/maps/default/battle/desert_back.png" />');
-	$("#ground").append('<img src="inc/maps/default/battle/desert_ground.png" />');
-	$("#backdrop>img").css({"width":"100%","height":"100%","-webkit-transform":"skewX(0deg)"});
-	$("#ground>img").css({"width":"100%","height":"100%","-webkit-transform":"skewX(20deg) scaleX(1)"});
-	_rin.vars.q.timer = setInterval(turnBattle, 100);
-	_rin.vars.w.rotationX = 0;
-	_rin.vars.w.rotationY = 20;
-	_rin.vars.w.current = 1;
 }
 
-function turnBattle() {
-	_rin.vars.w.rotationX--;
-	_rin.vars.w.rotationY+=1.1;
-	_rin.vars.w.current += 0.015;
-	if( _rin.vars.w.rotationX >= -15) {
-		$("#backdrop").css({"height":_rin.vars.w.rotationY+"%"});
-		$("#ground").css({"height":100-_rin.vars.w.rotationY+"%"});
-	}
-	$("#backdrop>img").css({"-webkit-transform":"skewX("+_rin.vars.w.rotationX+"deg)"});
-	$("#ground>img").css({"-webkit-transform":"skewX("+_rin.vars.w.rotationY+"deg) scaleX("+_rin.vars.w.current+")"});
-	if(_rin.vars.w.rotationX <= -40) clearInterval(_rin.vars.q.timer);
-}
 
 function increaseRotation() {
 	if(_rin.vars.w.rotationY >= 800) { clearInterval(_rin.vars.q.timer); _rin.vars.w.rotationX = 1; _rin.vars.w.rotationY = 0; }
