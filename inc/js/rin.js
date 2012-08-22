@@ -719,110 +719,96 @@ var _rin = {
 				_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
 			} else{ _rin.character.moveRight(char); }
 		},
-		move: function( char, dir ) {			
+		move: function( char, dir ) {	
+			var main = _rin.vars.p.main; var down = _rin.controls.down; var move = _rin.character.move; var map = _rin.getCurrentMap();
+			var tileHeight = map.map.tileSize.height; var tileWidth = map.map.tileSize.width;
 			switch( dir ) {
 				case "random": _rin.character.randomMove(char); break;
 				case "up":
-					if(_rin.controls.down("UP_ARROW") && char == _rin.vars.p.main) {
+					if(down("UP_ARROW") && char == main) {
 						char.sprite("up");
-						if( !_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY-1) ) break;
-						if(char.isMoving){ break;}
-						char.isMoving = true; char.currentY--; _rin.vars.c.moved = 0;
+						if( !map.map.walkCheck(char.currentX, char.currentY-1) ) break;
+						//if(char.isMoving){ break;}
+						char.isMoving = true; char.currentY--;
 						//_rin.character.moveUp(char);
-						$(_rin.getCurrentMap().element).animate({top:parseInt(_rin.getCurrentMap().style("top")) + _rin.getCurrentMap().map.tileSize.height},
-							_rin.getCurrentMap().map.tileSize.height*char.walkSpeed, function(){
-							char.isMoving = false;
-							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-							if(_rin.controls.down("UP_ARROW")) {
-								_rin.character.move(char, "up");
-							} else if(_rin.controls.none()) char.sprite("up_1");
+						$(map.element).animate({top:parseInt(map.style("top")) + tileHeight}, tileHeight*char.walkSpeed, 'linear', function(){
+							map.map.checkTriggers(char.currentX, char.currentY);
+							if(down("UP_ARROW")) move(char, "up");
+							else if(down("RIGHT_ARROW")) move(char, "right"); else if(down("LEFT_ARROW")) move(char, "left");
+							else if(down("DOWN_ARROW")) move(char, "down"); else { char.isMoving = false; char.sprite("up_1"); }
 						});
-					} else if(char != _rin.vars.p.main) {
+					} else if(char != main) {
 						char.sprite("up");
-						if(_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY-1)) {
-							$(char.element).animate({top:parseInt(char.style("top")) - _rin.getCurrentMap().map.tileSize.height},
-								{queue:false,duration:_rin.getCurrentMap().map.tileSize.height*char.walkSpeed, complete:function(){
-									char.currentY--;
-									char.sprite("up_1");
-								}});
+						if(map.map.walkCheck(char.currentX, char.currentY-1)) {
+							$(char.element).animate({top:parseInt(char.style("top")) - tileHeight},
+								{queue:false,duration:tileHeight*char.walkSpeed, complete:function(){
+									char.currentY--; char.sprite("up_1"); }});
 						} else char.sprite("up_1");
 					}
 					break;
 				case "down":
-					if(_rin.controls.down("DOWN_ARROW")&& char == _rin.vars.p.main) {
+					if(down("DOWN_ARROW")&& char == main) {
 						char.sprite("down");
-						if( !_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY+1) ) break;
-						if(char.isMoving){ break;}
-						char.isMoving = true; char.currentY++; _rin.vars.c.moved = 0;
+						if( !map.map.walkCheck(char.currentX, char.currentY+1) ) break;
+						//if(char.isMoving){ break;}
+						char.isMoving = true; char.currentY++;
 						//_rin.character.moveDown(char);
-						$(_rin.getCurrentMap().element).animate({top:parseInt(_rin.getCurrentMap().style("top")) - _rin.getCurrentMap().map.tileSize.height},
-							_rin.getCurrentMap().map.tileSize.height*char.walkSpeed, function(){
-							char.isMoving = false;
-							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-							if(_rin.controls.down("DOWN_ARROW")) {
-								_rin.character.move(char, "down");
-							} else if(_rin.controls.none()) char.sprite("down_1");
+						$(map.element).animate({top:parseInt(map.style("top")) - tileHeight}, tileHeight*char.walkSpeed, 'linear', function(){
+							map.map.checkTriggers(char.currentX, char.currentY);
+							if(down("DOWN_ARROW")) move(char, "down");
+							else if(down("RIGHT_ARROW")) move(char, "right"); else if(down("LEFT_ARROW")) move(char, "left");
+							else if(down("UP_ARROW")) move(char, "up"); else { char.isMoving = false; char.sprite("down_1"); }
 						});
-					} else if(char != _rin.vars.p.main) {
+					} else if(char != main) {
 						char.sprite("down");
-						if(_rin.getCurrentMap().map.walkCheck(char.currentX, char.currentY+1)) {
-							$(char.element).animate({top:parseInt(char.style("top")) + _rin.getCurrentMap().map.tileSize.height},
-								{queue:false, duration:_rin.getCurrentMap().map.tileSize.height*char.walkSpeed, complete:function(){
-									char.currentY++;
-									char.sprite("down_1");
-								}});
+						if(map.map.walkCheck(char.currentX, char.currentY+1)) {
+							$(char.element).animate({top:parseInt(char.style("top")) + tileHeight},
+								{queue:false, duration:tileHeight*char.walkSpeed, complete:function(){
+									char.currentY++; char.sprite("down_1"); }});
 						} else char.sprite("down_1");
 					}
 					break;
 				case "left":
-					if(_rin.controls.down("LEFT_ARROW")&& char == _rin.vars.p.main) {
+					if(down("LEFT_ARROW")&& char == main) {
 						char.sprite("left");
-						if( !_rin.getCurrentMap().map.walkCheck(char.currentX-1, char.currentY) ) break;
-						if(char.isMoving){ break;}
-						char.isMoving = true; char.currentX--; _rin.vars.c.moved = 0;
+						if( !map.map.walkCheck(char.currentX-1, char.currentY) ) break;
+						//if(char.isMoving){ break;}
+						char.isMoving = true; char.currentX--;
 						//_rin.character.moveLeft(char);
-						$(_rin.getCurrentMap().element).animate({left:parseInt(_rin.getCurrentMap().style("left")) + _rin.getCurrentMap().map.tileSize.width},
-							_rin.getCurrentMap().map.tileSize.width*char.walkSpeed, function(){
-							char.isMoving = false;
-							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-							if(_rin.controls.down("LEFT_ARROW")) {
-								_rin.character.move(char, "left");
-							} else if(_rin.controls.none()) char.sprite("left_1");
+						$(map.element).animate({left:parseInt(map.style("left")) + tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
+							map.map.checkTriggers(char.currentX, char.currentY);
+							if(down("LEFT_ARROW")) move(char, "left");
+							else if(down("UP_ARROW")) move(char, "up"); else if(down("DOWN_ARROW")) move(char, "down");
+							else if(down("RIGHT_ARROW")) move(char, "right"); else { char.isMoving = false; char.sprite("left_1"); }
 						});
-					} else if(char != _rin.vars.p.main) {
+					} else if(char != main) {
 						char.sprite("left");
-						if( _rin.getCurrentMap().map.walkCheck(char.currentX-1, char.currentY)) {
-							$(char.element).animate({left:parseInt(char.style("left")) - _rin.getCurrentMap().map.tileSize.width},
-								{queue:false, duration:_rin.getCurrentMap().map.tileSize.width*char.walkSpeed, complete:function(){
-									char.currentX--;
-									char.sprite("left_1");
-								}});
+						if( map.map.walkCheck(char.currentX-1, char.currentY)) {
+							$(char.element).animate({left:parseInt(char.style("left")) - tileWidth},
+								{queue:false, duration:tileWidth*char.walkSpeed, complete:function(){
+									char.currentX--; char.sprite("left_1"); }});
 						} else char.sprite("left_1");
 					}
 					break;
 				case "right":
-					if(_rin.controls.down("RIGHT_ARROW")&& char == _rin.vars.p.main) {
+					if(down("RIGHT_ARROW")&& char == main) {
 						char.sprite("right");
-						if( !_rin.getCurrentMap().map.walkCheck(char.currentX+1, char.currentY) ) break;
-						if(char.isMoving){ break;}
-						char.isMoving = true; char.currentX++; _rin.vars.c.moved = 0;
+						if( !map.map.walkCheck(char.currentX+1, char.currentY) ) break;
+						//if(char.isMoving){ break;}
+						char.isMoving = true; char.currentX++;
 						//_rin.character.moveRight(char);
-						$(_rin.getCurrentMap().element).animate({left:parseInt(_rin.getCurrentMap().style("left")) - _rin.getCurrentMap().map.tileSize.width},
-							_rin.getCurrentMap().map.tileSize.width*char.walkSpeed, function(){
-							char.isMoving = false;
-							_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-							if(_rin.controls.down("RIGHT_ARROW")) {
-								_rin.character.move(char, "right");
-							} else if(_rin.controls.none()) char.sprite("right_1");
+						$(map.element).animate({left:parseInt(map.style("left")) - tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
+							map.map.checkTriggers(char.currentX, char.currentY);
+							if(down("RIGHT_ARROW")) move(char, "right");
+							else if(down("UP_ARROW")) move(char, "up"); else if(down("DOWN_ARROW")) move(char, "down");
+							else if(down("LEFT_ARROW")) move(char, "left"); else { char.isMoving = false; char.sprite("right_1"); }
 						});
-					} else if(char != _rin.vars.p.main) {
+					} else if(char != main) {
 						char.sprite("right");
-						if( _rin.getCurrentMap().map.walkCheck(char.currentX+1, char.currentY)) {
-							$(char.element).animate({left:parseInt(char.style("left")) + _rin.getCurrentMap().map.tileSize.width},
-								{queue:false, duration:_rin.getCurrentMap().map.tileSize.width*char.walkSpeed, complete:function(){
-									char.currentX++;
-									char.sprite("right_1");
-								}});
+						if( map.map.walkCheck(char.currentX+1, char.currentY)) {
+							$(char.element).animate({left:parseInt(char.style("left")) + tileWidth},
+								{queue:false, duration:tileWidth*char.walkSpeed, complete:function(){
+									char.currentX++; char.sprite("right_1"); }});
 						} else char.sprite("right_1");
 					}
 					break;
@@ -889,32 +875,33 @@ var _rin = {
 			switch( ev.keyCode ) {
 				case _rin.controls.UP_ARROW:
 					_rin.vars.keysDown[_rin.controls.UP_ARROW] = true;
-					if( _rin.controls.only("UP_ARROW") ) {
+					if( !_rin.vars.p.main.isMoving ) {
 						_rin.character.move(_rin.vars.p.main, "up");
 					}
 					break;
 				case _rin.controls.DOWN_ARROW:
 					_rin.vars.keysDown[_rin.controls.DOWN_ARROW] = true;
-					if( _rin.controls.only("DOWN_ARROW") ) {
+					if( !_rin.vars.p.main.isMoving ) {
 						_rin.character.move(_rin.vars.p.main, "down");
 					}
 					break;
 				case _rin.controls.LEFT_ARROW:
 					_rin.vars.keysDown[_rin.controls.LEFT_ARROW] = true;
-					if( _rin.controls.only("LEFT_ARROW") ) {
+					if( !_rin.vars.p.main.isMoving ) {
 						_rin.character.move(_rin.vars.p.main, "left");
 					}
 					break;
 				case _rin.controls.RIGHT_ARROW:
 					_rin.vars.keysDown[_rin.controls.RIGHT_ARROW] = true;
-					if( _rin.controls.only("RIGHT_ARROW") ) {
+					if( !_rin.vars.p.main.isMoving ) {
 						_rin.character.move(_rin.vars.p.main, "right");
 					}
 					break;
 				case _rin.controls.MENU:
-					if(!_rin.vars.p.main.isMoving) {
-						console.log("goto menu");
-					}
+					if(!_rin.vars.p.main.isMoving) { console.log("goto menu"); }
+					break;
+				case _rin.controls.CANCEL:
+					_rin.vars.p.main.walkSpeed = 5;
 					break;
 			}
 		},
@@ -922,23 +909,18 @@ var _rin = {
 			switch( ev.keyCode ) {
 				case _rin.controls.UP_ARROW:
 					_rin.vars.keysDown[_rin.controls.UP_ARROW] = false;
-					if(!$(_rin.getCurrentMap().element).is(":animated"))
-						_rin.vars.p.main.attribute("src", "img/"+_rin.vars.p.main.name+"/up_1.gif");
 					break;
 				case _rin.controls.DOWN_ARROW:
 					_rin.vars.keysDown[_rin.controls.DOWN_ARROW] = false;
-					if(!$(_rin.getCurrentMap().element).is(":animated"))
-						_rin.vars.p.main.attribute("src", "img/"+_rin.vars.p.main.name+"/down_1.gif");
 					break;
 				case _rin.controls.LEFT_ARROW:
 					_rin.vars.keysDown[_rin.controls.LEFT_ARROW] = false;
-					if(!$(_rin.getCurrentMap().element).is(":animated"))
-						_rin.vars.p.main.attribute("src", "img/"+_rin.vars.p.main.name+"/left_1.gif");
 					break;
 				case _rin.controls.RIGHT_ARROW:
 					_rin.vars.keysDown[_rin.controls.RIGHT_ARROW] = false;
-					if(!$(_rin.getCurrentMap().element).is(":animated"))
-						_rin.vars.p.main.attribute("src", "img/"+_rin.vars.p.main.name+"/right_1.gif");
+					break;
+				case _rin.controls.CANCEL:
+					_rin.vars.p.main.walkSpeed = 10;
 					break;
 			}
 		}

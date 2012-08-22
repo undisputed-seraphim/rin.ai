@@ -9,7 +9,7 @@ html {
 	/*opacity: 0;*/
 }
 /*body { height: 100%; width: 100%; }*/
-
+#wait { color: black; }
 #overall{ position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; }
 #world { position: absolute; z-index: -10; }
 #battle{ position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; min-width: 770px; min-height: 580px; }
