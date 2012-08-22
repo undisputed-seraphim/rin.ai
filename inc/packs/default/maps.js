@@ -1,7 +1,7 @@
 var _maps = {
 	"baron inn": {
 		tileSize: {width: 48, height: 48},
-		battleStep: function(){ return 100000; },
+		battleStep: function(){ return 0; },
 		map: {
 0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
 1: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
@@ -38,16 +38,6 @@ var _maps = {
 					default: return false;
 				}
 			},
-			battle: function(name) {
-				switch(name) {
-					default: return "grass.png"; break;
-				}
-			},
-			enemies: function(name) {
-				switch(name) {
-					default: return ["goblin"]; break;
-				}
-			}
 		},
 		walkCheck: function(x, y) {
 			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
@@ -60,16 +50,12 @@ var _maps = {
 		},
 		checkTriggers: function(x, y) {
 			if(x == 15 && y == 18) this.triggers.enterBaron();
-			else {
-				_rin.vars.p.main.nextBattle--;
-				if(_rin.vars.p.main.nextBattle == 0) _rin.goto("battle");
-			}
 		}
 	},
 	baron: {
 		name: "baron",
 		tileSize: {width: 48, height: 48},
-		battleStep: function() { return 100000; },
+		battleStep: function() { return 0; },
 		map: {
 			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
 			1: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "t_wall1_top_left_cont", "t_wall1_front_top", "t_wall1_front_top", "t_wall1_front_top", "t_wall1_front_top", "t_wall1_front_top", "t_wall1_front_top", "t_wall1_front_top", "t_wall1_top_right_cont", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
@@ -113,22 +99,6 @@ var _maps = {
 					default: return false;
 				}
 			},
-			battle: function(name) {
-				switch(name) {
-					case "grass": return "grass.png"; break;
-					case "shallow": return "shallow.png"; break;
-					case "dirt": return "dirt.png"; break;
-					case "swamp": return "swamp.png"; break;
-					case "forest": return "forest.png"; break;
-					default: return "grass.png"; break;
-				}
-			},
-			enemies: function(name) {
-				switch(name) {
-					case "grass": return ["goblin"]; break;
-					default: return ["goblin"]; break;
-				}
-			}
 		},
 		walkCheck: function(x, y) {
 			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
@@ -145,11 +115,7 @@ var _maps = {
 		},
 		checkTriggers: function(x, y) {
 			if(x == 21 && y == 25) this.triggers.enterBaronInn();
-			if( (x == 17 || x == 16 || x == 18) && ( y >= 29 ) ) this.triggers.exitBaron()
-			else {
-				_rin.vars.p.main.nextBattle--;
-				if(_rin.vars.p.main.nextBattle == 0) _rin.goto("battle");
-			}
+			else if( (x == 17 || x == 16 || x == 18) && ( y >= 29 ) ) this.triggers.exitBaron()
 		}
 	},
 	world: {

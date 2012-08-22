@@ -517,8 +517,9 @@ var _rin = {
 					break;
 				case "world":
 					if( document.getElementById("world") !== null ) document.body.removeChild(document.getElementById("world"));
-					this.element = document.createElement("div");
+					this.element = document.createElement("canvas");
 					this.element.setAttribute("id","world");
+					this.ctx = this.element.getContext('2d');
 					this.map = _maps[data];
 					_rin.vars.currentMap = this;
 					_rin.functions.fillMap( this );
@@ -536,7 +537,7 @@ var _rin = {
 				case "character":
 					this.name = data["n"];
 					this.type = "character";
-					this.walkSpeed = 15;
+					this.walkSpeed = 10;
 					this.memory = { menu: 0, battle: 0, target: 0 };
 					this.speed = 1;
 					this.critical = false;
@@ -663,7 +664,9 @@ var _rin = {
 					"top":parseInt($("html").height()/2-(_rin.getCurrentMap().map.tileSize.height/2)-(_rin.getCurrentMap().map.tileSize.height*(y)))+"px"});
 				var newPosX = (_rin.getCurrentMap().map.tileSize.width - parseInt(char.style("width"))) / 2;
 				var newPosY = (_rin.getCurrentMap().map.tileSize.height - parseInt(char.style("height"))) / 2;
-				char.style({"left":tile.offset().left+newPosX+"px","top":tile.offset().top+newPosY+"px"});
+				//char.style({"left":tile.offset().left+newPosX+"px","top":tile.offset().top+newPosY+"px"});
+				char.style({left:$(_rin.getCurrentMap().element).offset().left+(x*_rin.getCurrentMap().map.tileSize.width)+newPosX+"px"});
+				char.style({top:$(_rin.getCurrentMap().element).offset().top+(y*_rin.getCurrentMap().map.tileSize.height)+newPosY+"px"});
 				char.nextBattle = _rin.getCurrentMap().map.battleStep();
 				char.sprite("right_1");
 			}
@@ -963,13 +966,20 @@ var _rin = {
 			return el;
 		},
 		fillMap: function( el ) {
-			var x = 0; var y = 0;
-			var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
+			var x = 0; var y = 0; var h = 0;
+			for(var i in el.map.map) { h++; }
+			//el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
+			//var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 			for( var i in el.map.map ) {
 				x = 0;
 				for( var j in el.map.map[i] ) {
-					if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image>';
-					else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
+					if(el.map.map[i][j] != "empty") {
+						var img = new Image();
+						img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,48,48); } }(el,x,y));
+						img.src = 'inc/maps/default/tile/'+el.map.map[i][j]+'.png'
+					}
+					//if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image>';
+					//else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
 					x = parseInt(x + parseInt(el.map.tileSize.width));
 				}
 				y = parseInt(y + el.map.tileSize.height);
@@ -984,9 +994,14 @@ var _rin = {
 				nobr.appendChild(document.createElement("br"));
 				el.append(nobr);*/
 			}
-			mapString += '</svg>';
-			el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
-			el.append(mapString);
+			//mapString += '</svg>';
+			//el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
+			el.element.width = x;
+			el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
+			console.log(el.element.toDataURL());
+			el.ctx.webkitImageSmoothingEnabled = false;
+			el.ctx.mozImageSmoothingEnabled = false;
+			//el.append(mapString);
 		},
 		battleParty: function() {
 			var current = 150; var currentTop = 3; var currentY = 150;
@@ -1133,6 +1148,28 @@ function loaded() {
 	});
 	//var shadow = _rin.character.create("shadow").addToParty();
 	//_rin.goto("battle");
+	$("body").append('<div id="backdrop" style="position: absolute; height: 20%; width: 120%; top: 0px; left: -100px;"></div><div id="ground" style="position: absolute; height: 80%; width: 120%; bottom: 0px; left: -100px;"></div>');
+	$("#backdrop").append('<img src="inc/maps/default/battle/desert_back.png" />');
+	$("#ground").append('<img src="inc/maps/default/battle/desert_ground.png" />');
+	$("#backdrop>img").css({"width":"100%","height":"100%","-webkit-transform":"skewX(0deg)"});
+	$("#ground>img").css({"width":"100%","height":"100%","-webkit-transform":"skewX(20deg) scaleX(1)"});
+	_rin.vars.q.timer = setInterval(turnBattle, 100);
+	_rin.vars.w.rotationX = 0;
+	_rin.vars.w.rotationY = 20;
+	_rin.vars.w.current = 1;
+}
+
+function turnBattle() {
+	_rin.vars.w.rotationX--;
+	_rin.vars.w.rotationY+=1.1;
+	_rin.vars.w.current += 0.015;
+	if( _rin.vars.w.rotationX >= -15) {
+		$("#backdrop").css({"height":_rin.vars.w.rotationY+"%"});
+		$("#ground").css({"height":100-_rin.vars.w.rotationY+"%"});
+	}
+	$("#backdrop>img").css({"-webkit-transform":"skewX("+_rin.vars.w.rotationX+"deg)"});
+	$("#ground>img").css({"-webkit-transform":"skewX("+_rin.vars.w.rotationY+"deg) scaleX("+_rin.vars.w.current+")"});
+	if(_rin.vars.w.rotationX <= -40) clearInterval(_rin.vars.q.timer);
 }
 
 function increaseRotation() {
