@@ -975,7 +975,7 @@ var _rin = {
 				for( var j in el.map.map[i] ) {
 					if(el.map.map[i][j] != "empty") {
 						var img = new Image();
-						img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,48,48); } }(el,x,y));
+						img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,eel.map.tileSize.width,eel.map.tileSize.width); } }(el,x,y));
 						img.src = 'inc/maps/default/tile/'+el.map.map[i][j]+'.png'
 					}
 					//if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image>';
@@ -998,7 +998,7 @@ var _rin = {
 			//el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
 			el.element.width = x;
 			el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
-			console.log(el.element.toDataURL());
+			//console.log(el.element.toDataURL());
 			el.ctx.webkitImageSmoothingEnabled = false;
 			el.ctx.mozImageSmoothingEnabled = false;
 			//el.append(mapString);
@@ -1139,6 +1139,7 @@ var _rin = {
 
 function loaded() {
 	//console.log("done");
+	$("#html").css("opacity","0");
 	$("#wait").remove();
 	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {name:"world", x:8, y:6});} });
 	var terraEsper = _rin.character.create("terra esper", { afterload: function(){ this.style({position:"absolute"}).addToParty() } });
