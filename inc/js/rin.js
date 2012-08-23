@@ -953,42 +953,42 @@ var _rin = {
 			return el;
 		},
 		fillMap: function( el ) {
-			//var x = 0; var y = 0; var h = 0;
-			//for(var i in el.map.map) { h++; }
-			//el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
-			//var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
+			var x = 0; var y = 0; var h = 0;
+			for(var i in el.map.map) { h++; }
+			el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
+			var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 			for( var i in el.map.map ) {
-				//x = 0;
+				x = 0;
 				for( var j in el.map.map[i] ) {
 					/*if(el.map.map[i][j] != "empty") {
 						var img = new Image();
 						img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,eel.map.tileSize.width,eel.map.tileSize.width); } }(el,x,y));
 						img.src = 'inc/maps/default/tile/'+el.map.map[i][j]+'.png'
 					}*/
-					//if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image>';
-					//else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
-					//x = parseInt(x + parseInt(el.map.tileSize.width));
+					if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="'+_rin.vars.w.tiles[el.map.map[i][j]]+'"></image>';
+					else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
+					x = parseInt(x + parseInt(el.map.tileSize.width));
 				}
-				//y = parseInt(y + el.map.tileSize.height);
-				var nobr = document.createElement("nobr");
+				y = parseInt(y + el.map.tileSize.height);
+				/*var nobr = document.createElement("nobr");
 				for( var j in el.map.map[i] ) {
 					var tile = new _rin.ui.element("tile", el.map.map[i][j]);
 					tile.style({width:el.map.tileSize.width+"px",height:el.map.tileSize.height+"px"});
-					if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url("+_rin.vars.w.tiles[el.map.map[i][j]]+")"});
-					//if(el.map.map[i][j]!="empty")tile.append('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image width="100%" height="100%" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image></svg>');
+					//if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url("+_rin.vars.w.tiles[el.map.map[i][j]]+")"});
+					if(el.map.map[i][j]!="empty")tile.append('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image width="100%" height="100%" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image></svg>');
 					nobr.appendChild(tile.element);
 				}
 				nobr.appendChild(document.createElement("br"));
-				el.append(nobr);
+				el.append(nobr);*/
 			}
-			//mapString += '</svg>';
-			//el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
+			mapString += '</svg>';
+			el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
 			//el.element.width = x;
 			//el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
 			//console.log(el.element.toDataURL());
 			//el.ctx.webkitImageSmoothingEnabled = false;
 			//el.ctx.mozImageSmoothingEnabled = false;
-			//el.append(mapString);
+			el.append(mapString);
 		},
 		battleParty: function() {
 			var current = 150; var currentTop = 3; var currentY = 150;

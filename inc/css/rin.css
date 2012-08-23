@@ -8,7 +8,7 @@ html {
 	font-weight: bold;
 	/*opacity: 0;*/
 }
-/*body { height: 100%; width: 100%; }*/
+body { position: relative; }
 #wait { color: black; }
 #overall{ position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; }
 #world { position: absolute; z-index: -10; }
