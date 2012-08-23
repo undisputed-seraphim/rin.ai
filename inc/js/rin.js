@@ -12,11 +12,19 @@ var _rin = {
 		}
 	},
 	goto: function( state, data ) {
+		if(_rin.vars.mode === undefined ) {
+			if(data !== undefined)
+				if(data['mode']!== undefined)
+					_rin.vars.mode = data['mode'];
+				else _rin.vars.mode = 'svg';
+			else _rin.vars.mode = 'svg';
+		}
 		switch( state ) {
 			case "battle": return _rin.states.battle(); break;
 			case "dialog": return _rin.states.dialog(); break;
-			default: _rin.states.world(state, {name: data===undefined?"world":data["name"],
-				mode: data === undefined ? "svg" : data["mode"] === undefined ? "svg" : data["mode"],
+			default: _rin.states.world(state, {
+				name: data===undefined?"world":data["name"],
+				mode: _rin.vars.mode,
 				x:data === undefined ? undefined : data["x"],
 				y:data === undefined ? undefined : data["y"]}); break;
 		}
@@ -1190,7 +1198,7 @@ function loaded() {
 	//console.log("done");
 	$("#html").css("opacity","0");
 	$("#wait").remove();
-	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {mode:"img",name:"world", x:8, y:6});} });
+	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {mode:"svg",name:"world", x:8, y:6});} });
 	var terraEsper = _rin.character.create("terra esper", { afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	var shadow = _rin.character.create("shadow", {afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	$(".tile").mouseenter( function(){
