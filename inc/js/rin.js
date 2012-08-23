@@ -15,7 +15,8 @@ var _rin = {
 		switch( state ) {
 			case "battle": return _rin.states.battle(); break;
 			case "dialog": return _rin.states.dialog(); break;
-			default: return _rin.states.world(state, {name: data===undefined?"world":data["name"], 
+			default: _rin.states.world(state, {name: data===undefined?"world":data["name"],
+				mode: data === undefined ? "svg" : data["mode"] === undefined ? "svg" : data["mode"],
 				x:data === undefined ? undefined : data["x"],
 				y:data === undefined ? undefined : data["y"]}); break;
 		}
@@ -51,7 +52,7 @@ var _rin = {
 		world: function(world, data) {
 			if(_rin.vars.state != "") _rin.controls.disable(_rin.vars.state);
 			_rin.vars.state = "world";
-			var world = new _rin.ui.element("world", data["name"]).appendTo("body").style({"position":"absolute",
+			var world = new _rin.ui.element("world", {name: data["name"], mode:data["mode"] }).appendTo("body").style({"position":"absolute",
 				"left":parseInt($("html").width()/2-$("#world").width()/2)+"px","top":parseInt($("html").height()/2-$("#world").height()/2)+"px"});
 			if( data["x"] !== undefined && data["y"] !== undefined ) {
 				_rin.vars.p.main.style({"width":parseInt(_rin.vars.p.main.originalWidth*_rin.vars.p.main.character.scale.world)+"px",
@@ -518,11 +519,12 @@ var _rin = {
 				case "world":
 					if( document.getElementById("world") !== null ) document.body.removeChild(document.getElementById("world"));
 					this.element = document.createElement("div");
+					if(data["mode"] == "canvas") this.element = document.createElement("canvas");
 					this.element.setAttribute("id","world");
-					//this.ctx = this.element.getContext('2d');
-					this.map = _maps[data];
+					this.ctx = data["mode"] == "canvas" ? this.element.getContext('2d') : null;
+					this.map = _maps[data["name"]];
 					_rin.vars.currentMap = this;
-					_rin.functions.fillMap( this );
+					_rin.functions.fillMap( this, data["mode"] );
 					break;
 				case "dialog":
 					this.currentString = ">empty";
@@ -952,24 +954,25 @@ var _rin = {
 			el.write();
 			return el;
 		},
-		fillMap: function( el ) {
-			var x = 0; var y = 0; var h = 0;
-			for(var i in el.map.map) { h++; }
-			el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
-			var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
-			for( var i in el.map.map ) {
-				x = 0;
-				for( var j in el.map.map[i] ) {
-					/*if(el.map.map[i][j] != "empty") {
-						var img = new Image();
-						img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,eel.map.tileSize.width,eel.map.tileSize.width); } }(el,x,y));
-						img.src = 'inc/maps/default/tile/'+el.map.map[i][j]+'.png'
-					}*/
-					if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="'+_rin.vars.w.tiles[el.map.map[i][j]]+'"></image>';
-					else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
-					x = parseInt(x + parseInt(el.map.tileSize.width));
-				}
-				y = parseInt(y + el.map.tileSize.height);
+		fillMap: function( el, mode ) {
+			if(mode == "canvas") {
+				var x = 0; var y = 0; var h = 0;
+				for(var i in el.map.map) { h++; }
+				//el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
+				//var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
+				for( var i in el.map.map ) {
+					x = 0;
+					for( var j in el.map.map[i] ) {
+						if(el.map.map[i][j] != "empty") {
+							var img = new Image();
+							img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,eel.map.tileSize.width,eel.map.tileSize.width); } }(el,x,y));
+							img.src = 'inc/maps/default/tile/'+el.map.map[i][j]+'.png';
+						}
+					//if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="'+_rin.vars.w.tiles[el.map.map[i][j]]+'"></image>';
+					//else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
+						x = parseInt(x + parseInt(el.map.tileSize.width));
+					}
+					y = parseInt(y + el.map.tileSize.height);
 				/*var nobr = document.createElement("nobr");
 				for( var j in el.map.map[i] ) {
 					var tile = new _rin.ui.element("tile", el.map.map[i][j]);
@@ -980,15 +983,47 @@ var _rin = {
 				}
 				nobr.appendChild(document.createElement("br"));
 				el.append(nobr);*/
+				}
+				//mapString += '</svg>';
+				//el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
+				el.element.width = x;
+				el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
+				//console.log(el.element.toDataURL());
+				el.ctx.webkitImageSmoothingEnabled = false;
+				el.ctx.mozImageSmoothingEnabled = false;
+				//el.append(mapString);
 			}
-			mapString += '</svg>';
-			el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
-			//el.element.width = x;
-			//el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
-			//console.log(el.element.toDataURL());
-			//el.ctx.webkitImageSmoothingEnabled = false;
-			//el.ctx.mozImageSmoothingEnabled = false;
-			el.append(mapString);
+			else if ( mode == "svg" ) {
+				var x = 0; var y = 0; var h = 0;
+				for(var i in el.map.map) { h++; }
+				el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
+				var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
+				for( var i in el.map.map ) {
+					x = 0;
+					for( var j in el.map.map[i] ) {
+						if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="'+_rin.vars.w.tiles[el.map.map[i][j]]+'"></image>';
+						else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
+						x = parseInt(x + parseInt(el.map.tileSize.width));
+					}
+					y = parseInt(y + el.map.tileSize.height);
+				}
+				mapString += '</svg>';
+				el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
+				el.append(mapString);
+			}
+			else if( mode == "img" ) {
+				for( var i in el.map.map ) {
+					var nobr = document.createElement("nobr");
+					for( var j in el.map.map[i] ) {
+						var tile = new _rin.ui.element("tile", el.map.map[i][j]);
+						tile.style({width:el.map.tileSize.width+"px",height:el.map.tileSize.height+"px"});
+						if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url("+_rin.vars.w.tiles[el.map.map[i][j]]+")"});
+						nobr.appendChild(tile.element);
+					}
+					nobr.appendChild(document.createElement("br"));
+					el.append(nobr);
+				}
+			}
 		},
 		battleParty: function() {
 			var current = 150; var currentTop = 3; var currentY = 150;
@@ -1155,7 +1190,7 @@ function loaded() {
 	//console.log("done");
 	$("#html").css("opacity","0");
 	$("#wait").remove();
-	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {name:"world", x:8, y:6});} });
+	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {mode:"img",name:"world", x:8, y:6});} });
 	var terraEsper = _rin.character.create("terra esper", { afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	var shadow = _rin.character.create("shadow", {afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	$(".tile").mouseenter( function(){
