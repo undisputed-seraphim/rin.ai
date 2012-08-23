@@ -517,9 +517,9 @@ var _rin = {
 					break;
 				case "world":
 					if( document.getElementById("world") !== null ) document.body.removeChild(document.getElementById("world"));
-					this.element = document.createElement("canvas");
+					this.element = document.createElement("div");
 					this.element.setAttribute("id","world");
-					this.ctx = this.element.getContext('2d');
+					//this.ctx = this.element.getContext('2d');
 					this.map = _maps[data];
 					_rin.vars.currentMap = this;
 					_rin.functions.fillMap( this );
@@ -860,6 +860,7 @@ var _rin = {
 				case "world":
 					document.removeEventListener( "keydown", _rin.controls.downListener );
 					document.removeEventListener( "keyup", _rin.controls.upListener );
+					_rin.vars.p.main.walkSpeed = 10;
 					break;
 				case "battle":
 					document.removeEventListener( "keydown", _rin.battle.downListener );
@@ -952,41 +953,41 @@ var _rin = {
 			return el;
 		},
 		fillMap: function( el ) {
-			var x = 0; var y = 0; var h = 0;
-			for(var i in el.map.map) { h++; }
+			//var x = 0; var y = 0; var h = 0;
+			//for(var i in el.map.map) { h++; }
 			//el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
 			//var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 			for( var i in el.map.map ) {
-				x = 0;
+				//x = 0;
 				for( var j in el.map.map[i] ) {
-					if(el.map.map[i][j] != "empty") {
+					/*if(el.map.map[i][j] != "empty") {
 						var img = new Image();
 						img.onload = (function(eel, ex, ey) { return function() { eel.ctx.drawImage(this,ex,ey,eel.map.tileSize.width,eel.map.tileSize.width); } }(el,x,y));
 						img.src = 'inc/maps/default/tile/'+el.map.map[i][j]+'.png'
-					}
+					}*/
 					//if(el.map.map[i][j]!="empty") mapString += '<image image-rendering="optimizeSpeed" x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image>';
 					//else mapString += '<image x="'+x+'" y="'+y+'" width="'+el.map.tileSize.width+'px" height="'+el.map.tileSize.height+'px"></image>';
-					x = parseInt(x + parseInt(el.map.tileSize.width));
+					//x = parseInt(x + parseInt(el.map.tileSize.width));
 				}
-				y = parseInt(y + el.map.tileSize.height);
-				/*var nobr = document.createElement("nobr");
+				//y = parseInt(y + el.map.tileSize.height);
+				var nobr = document.createElement("nobr");
 				for( var j in el.map.map[i] ) {
 					var tile = new _rin.ui.element("tile", el.map.map[i][j]);
 					tile.style({width:el.map.tileSize.width+"px",height:el.map.tileSize.height+"px"});
-					if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url(inc/maps/default/tile/"+el.map.map[i][j]+".png)"});
-					if(el.map.map[i][j]!="empty")tile.append('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image width="100%" height="100%" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image></svg>');
+					if(el.map.map[i][j]!="empty")tile.style({"background-size":"100%","background-image":"url("+_rin.vars.w.tiles[el.map.map[i][j]]+")"});
+					//if(el.map.map[i][j]!="empty")tile.append('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image width="100%" height="100%" xlink:href="inc/maps/default/tile/'+el.map.map[i][j]+'.png"></image></svg>');
 					nobr.appendChild(tile.element);
 				}
 				nobr.appendChild(document.createElement("br"));
-				el.append(nobr);*/
+				el.append(nobr);
 			}
 			//mapString += '</svg>';
 			//el.style({width:x+"px",height:parseInt(y-parseInt(el.map.tileSize.height))+"px"});
-			el.element.width = x;
-			el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
+			//el.element.width = x;
+			//el.element.height = parseInt(y-parseInt(el.map.tileSize.height));
 			//console.log(el.element.toDataURL());
-			el.ctx.webkitImageSmoothingEnabled = false;
-			el.ctx.mozImageSmoothingEnabled = false;
+			//el.ctx.webkitImageSmoothingEnabled = false;
+			//el.ctx.mozImageSmoothingEnabled = false;
 			//el.append(mapString);
 		},
 		battleParty: function() {
@@ -1084,11 +1085,13 @@ var _rin = {
 			case 2: var current = "inc/packs/"+name+"/characters.js"; $("#wait").text("loading characters..."); break;
 			case 3: var current = "inc/packs/"+name+"/enemies.js"; $("#wait").text("loading enemies..."); break;
 		}
+		_rin.vars.pack = name;
 		var head = document.getElementsByTagName('head')[0];
 		var script = document.createElement('script');
 		script.type = 'text/javascript';
 		script.src = current;
-		if(position == 3) { script.onreadystatechange = loaded; script.onload = loaded; _rin.vars.pack = name; }
+		if(position == 0) { script.onreadystatechange = preloadTiles; script.onload = preloadTiles; }
+		else if(position == 3) { script.onreadystatechange = loaded; script.onload = loaded; }
 		else {
 			script.onreadystatechange = function(){ _rin.loadPack(name,position+1); };
 			script.onload = function(){ _rin.loadPack(name,position+1); };
@@ -1101,7 +1104,7 @@ var _rin = {
 		q: { queue: [], interval: false, done: false, timer: null },
 		u: { mouseDown: false, pageX: 0, pageY: 0 },
 		p: { main: "" },
-		w: { rotationX: 1, rotationY: 0, current: "" },
+		w: { rotationX: 1, rotationY: 0, current: "", tiles: {} },
 		c: { moved: 0, movement: "" },
 		pack: "",
 		battleSpeed: 1.8,
@@ -1121,6 +1124,31 @@ var _rin = {
 		step: 48,
 		keysDown: { },
 	},
+}
+
+function preloadTiles() {
+	var canvas = document.createElement("canvas");
+	var ctx = canvas.getContext('2d');
+	$("body").append(canvas);
+	for( var map in _maps ) {
+		canvas.width = _maps[map].tileSize.width;
+		canvas.height = _maps[map].tileSize.height;
+		for( var y in _maps[map].map ) {
+			for( var x in _maps[map].map[y] ) {
+				if( _rin.vars.w.tiles[_maps[map].map[y][x]] === undefined && _maps[map].map[y][x] != "empty" ) {
+					var img = new Image();
+					img.setAttribute("alt", _maps[map].map[y][x]);
+					img.onload = (function(m) { return function() {
+						ctx.drawImage(this, 0, 0, _maps[m].tileSize.width, _maps[m].tileSize.height);
+						_rin.vars.w.tiles[this.getAttribute("alt")] = canvas.toDataURL();
+					} }(map));
+					img.src = "inc/maps/default/tile/"+_maps[map].map[y][x]+".png";
+				}
+			}
+		}
+	}
+	$("canvas").remove();
+	_rin.loadPack(_rin.vars.pack,1);
 }
 
 function loaded() {
