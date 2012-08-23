@@ -727,7 +727,7 @@ var _rin = {
 				case "up":
 					if(down("UP_ARROW") && char == main) {
 						char.sprite("up");
-						if( !map.map.walkCheck(char.currentX, char.currentY-1) ) break;
+						if( !map.map.walkCheck(char.currentX, char.currentY-1) ) { char.isMoving = false; break; }
 						//if(char.isMoving){ break;}
 						char.isMoving = true; char.currentY--;
 						//_rin.character.moveUp(char);
@@ -749,7 +749,7 @@ var _rin = {
 				case "down":
 					if(down("DOWN_ARROW")&& char == main) {
 						char.sprite("down");
-						if( !map.map.walkCheck(char.currentX, char.currentY+1) ) break;
+						if( !map.map.walkCheck(char.currentX, char.currentY+1) ) { char.isMoving = false; break; }
 						//if(char.isMoving){ break;}
 						char.isMoving = true; char.currentY++;
 						//_rin.character.moveDown(char);
@@ -771,7 +771,7 @@ var _rin = {
 				case "left":
 					if(down("LEFT_ARROW")&& char == main) {
 						char.sprite("left");
-						if( !map.map.walkCheck(char.currentX-1, char.currentY) ) break;
+						if( !map.map.walkCheck(char.currentX-1, char.currentY) ) { char.isMoving = false; break; }
 						//if(char.isMoving){ break;}
 						char.isMoving = true; char.currentX--;
 						//_rin.character.moveLeft(char);
@@ -793,7 +793,7 @@ var _rin = {
 				case "right":
 					if(down("RIGHT_ARROW")&& char == main) {
 						char.sprite("right");
-						if( !map.map.walkCheck(char.currentX+1, char.currentY) ) break;
+						if( !map.map.walkCheck(char.currentX+1, char.currentY) ) { char.isMoving = false; break; }
 						//if(char.isMoving){ break;}
 						char.isMoving = true; char.currentX++;
 						//_rin.character.moveRight(char);
@@ -909,15 +909,19 @@ var _rin = {
 			switch( ev.keyCode ) {
 				case _rin.controls.UP_ARROW:
 					_rin.vars.keysDown[_rin.controls.UP_ARROW] = false;
+					if(_rin.controls.none() && !_rin.vars.p.main.isMoving) _rin.vars.p.main.sprite("up_1");
 					break;
 				case _rin.controls.DOWN_ARROW:
 					_rin.vars.keysDown[_rin.controls.DOWN_ARROW] = false;
+					if(_rin.controls.none() && !_rin.vars.p.main.isMoving) _rin.vars.p.main.sprite("down_1");
 					break;
 				case _rin.controls.LEFT_ARROW:
 					_rin.vars.keysDown[_rin.controls.LEFT_ARROW] = false;
+					if(_rin.controls.none() && !_rin.vars.p.main.isMoving) _rin.vars.p.main.sprite("left_1");
 					break;
 				case _rin.controls.RIGHT_ARROW:
 					_rin.vars.keysDown[_rin.controls.RIGHT_ARROW] = false;
+					if(_rin.controls.none() && !_rin.vars.p.main.isMoving) _rin.vars.p.main.sprite("right_1");
 					break;
 				case _rin.controls.CANCEL:
 					_rin.vars.p.main.walkSpeed = 10;
