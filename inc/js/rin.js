@@ -679,6 +679,10 @@ var _rin = {
 				char.style({top:$(_rin.getCurrentMap().element).offset().top+(y*_rin.getCurrentMap().map.tileSize.height)+newPosY+"px"});
 				char.nextBattle = _rin.getCurrentMap().map.battleStep();
 				char.sprite("right_1");
+				$(_rin.getCurrentMap().element).css({ left: "+="+x * _rin.getCurrentMap().map.tileSize.width,
+					top: "+="+y*_rin.getCurrentMap().map.tileSize.height });
+				$("#body").scrollLeft(x * _rin.getCurrentMap().map.tileSize.width);
+				$("#body").scrollTop( y * _rin.getCurrentMap().map.tileSize.height);
 			}
 			else {
 				tile.append(char.element).css("position", "relative");
@@ -785,7 +789,7 @@ var _rin = {
 						//if(char.isMoving){ break;}
 						char.isMoving = true; char.currentX--;
 						//_rin.character.moveLeft(char);
-						$(map.element).animate({left:parseInt(map.style("left")) + tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
+						$("#body").animate({scrollLeft: $("#body").scrollLeft() - tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
 							map.map.checkTriggers(char.currentX, char.currentY);
 							if(down("LEFT_ARROW")) move(char, "left");
 							else if(down("UP_ARROW")) move(char, "up"); else if(down("DOWN_ARROW")) move(char, "down");
@@ -807,7 +811,7 @@ var _rin = {
 						//if(char.isMoving){ break;}
 						char.isMoving = true; char.currentX++;
 						//_rin.character.moveRight(char);
-						$(map.element).animate({left:parseInt(map.style("left")) - tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
+						$("#body").animate({scrollLeft: $("#body").scrollLeft() + tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
 							map.map.checkTriggers(char.currentX, char.currentY);
 							if(down("RIGHT_ARROW")) move(char, "right");
 							else if(down("UP_ARROW")) move(char, "up"); else if(down("DOWN_ARROW")) move(char, "down");
@@ -963,9 +967,9 @@ var _rin = {
 			return el;
 		},
 		fillMap: function( el, mode ) {
+			for(var i in el.map.map) { h++; }
 			if(mode == "canvas") {
 				var x = 0; var y = 0; var h = 0;
-				for(var i in el.map.map) { h++; }
 				//el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
 				//var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 				for( var i in el.map.map ) {
@@ -1003,7 +1007,6 @@ var _rin = {
 			}
 			else if ( mode == "svg" ) {
 				var x = 0; var y = 0; var h = 0;
-				for(var i in el.map.map) { h++; }
 				el.style({width:parseInt(el.map.map[0].length*el.map.tileSize.width)+"px",height:parseInt(h*parseInt(el.map.tileSize.height))+"px"});
 				var mapString = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 				for( var i in el.map.map ) {
@@ -1032,6 +1035,8 @@ var _rin = {
 					el.append(nobr);
 				}
 			}
+			$("#body").height( $("#html").height() + $(el.element).height() );
+			$("#body").width( $("#html").width() + $(el.element).width() );
 		},
 		battleParty: function() {
 			var current = 150; var currentTop = 3; var currentY = 150;
@@ -1198,7 +1203,7 @@ function loaded() {
 	//console.log("done");
 	$("#html").css("opacity","0");
 	$("#wait").remove();
-	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"absolute"}).addToParty().main(); _rin.goto("world", {mode:"svg",name:"world", x:8, y:6});} });
+	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"fixed"}).addToParty().main(); _rin.goto("world", {mode:"svg",name:"world", x:8, y:6});} });
 	var terraEsper = _rin.character.create("terra esper", { afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	var shadow = _rin.character.create("shadow", {afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	$(".tile").mouseenter( function(){
