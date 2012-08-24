@@ -11,10 +11,11 @@ html {
 	/*opacity: 0;*/
 }
 body { }
-#viewport { position: fixed; left: 20%; right: 20%; top: 50px; bottom: 50px; }
+#viewport { position: fixed; left: 20%; right: 20%; top: 50px; bottom: 50px; overflow: hidden; box-shadow: inset 0px 0px 25px 15px white; }
+#canvas { position: absolute; box-shadow: inset 0px 0px 25px 15px white; }
 #wait { color: black; }
 #overall{ position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; }
-#world { position: absolute; z-index: -10; }
+#world { position: relative; z-index: -10; }
 #battle{ position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; min-width: 770px; min-height: 580px; }
 #character_area label { display: inline-block; vertical-align: middle; }
 #commands { padding: 15px; padding-left: 60px; list-style-type: none; }

@@ -8,6 +8,7 @@ var _rin = {
 	path: function(type) {
 		switch(type) {
 			case "characters": return "inc/packs/"+_rin.vars.pack+"/characters"; break;
+			case "vehicles": return "inc/packs/"+_rin.vars.pack+"/vehicles"; break;
 			case "enemies": return "inc/packs/"+_rin.vars.pack+"/enemies"; break;
 		}
 	},
@@ -60,8 +61,7 @@ var _rin = {
 		world: function(world, data) {
 			if(_rin.vars.state != "") _rin.controls.disable(_rin.vars.state);
 			_rin.vars.state = "world";
-			var world = new _rin.ui.element("world", {name: data["name"], mode:data["mode"] }).appendTo("body").style({"position":"absolute",
-				"left":parseInt($("html").width()/2-$("#world").width()/2)+"px","top":parseInt($("html").height()/2-$("#world").height()/2)+"px"});
+			var world = new _rin.ui.element("world", {name: data["name"], mode:data["mode"] }).appendTo("#canvas");
 			if( data["x"] !== undefined && data["y"] !== undefined ) {
 				_rin.vars.p.main.style({"width":parseInt(_rin.vars.p.main.originalWidth*_rin.vars.p.main.character.scale.world)+"px",
 					"height":parseInt(_rin.vars.p.main.originalHeight*_rin.vars.p.main.character.scale.world)+"px"});
@@ -524,8 +524,16 @@ var _rin = {
 					this.style("position","absolute");
 					this.append('<img src="'+data+'" style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -10;" />');
 					break;
+				case "vehicle":
+					this.element = document.createElement("img");
+					this.place = function(x,y) { return _rin.vehicle.place(this, x, y); };
+					this.sprite = function(data) { return _rin.vehicle.sprite(this,data); };
+					this.afterload = data["afterload"] || ""; this.type = "vehicle"; this.name = data["name"]; this.vehicle = _vehicles[data["name"]];
+					this.element.onload = (function(i){return function() { _rin.character.setOriginals(i); }}(this));
+					this.sprite("land_1");
+					break;
 				case "world":
-					if( document.getElementById("world") !== null ) document.body.removeChild(document.getElementById("world"));
+					if( document.getElementById("world") !== null ) document.getElementById("canvas").removeChild(document.getElementById("world"));
 					this.element = document.createElement("div");
 					if(data["mode"] == "canvas") this.element = document.createElement("canvas");
 					this.element.setAttribute("id","world");
@@ -652,7 +660,8 @@ var _rin = {
 		},
 		setOriginals: function(char) {
 			char.element.onload = "";
-			var scale = char.type=="character" ? char.character.scale[_rin.vars.state] : char.enemy[_rin.vars.state].scale;
+			var scale = char.type=="character" ? char.character.scale[_rin.vars.state] : char.type=="enemy"?char.enemy[_rin.vars.state].scale :
+				char.vehicle.scale[_rin.vars.state];
 			char.originalWidth = char.element.width;
 			char.originalHeight = char.element.height;
 			char.style({"width":parseInt(char.originalWidth*scale)+"px","height":parseInt(char.originalHeight*scale)+"px"});;
@@ -670,19 +679,19 @@ var _rin = {
 			var tile = $($($("#world").children("nobr")[y]).children()[x]);
 			tile = $($("#world svg").children()[(_rin.getCurrentMap().map.map[y].length * y) + (x+1) -1]);
 			if(char.name==_rin.vars.p.main.name) {
-				_rin.getCurrentMap().style({"left":parseInt($("html").width()/2-(_rin.getCurrentMap().map.tileSize.width/2)-(_rin.getCurrentMap().map.tileSize.width*(x)))+"px",
+				$("#canvas").css({"left":parseInt($("html").width()/2-(_rin.getCurrentMap().map.tileSize.width/2)-(_rin.getCurrentMap().map.tileSize.width*(x)))+"px",
 					"top":parseInt($("html").height()/2-(_rin.getCurrentMap().map.tileSize.height/2)-(_rin.getCurrentMap().map.tileSize.height*(y)))+"px"});
 				var newPosX = (_rin.getCurrentMap().map.tileSize.width - parseInt(char.style("width"))) / 2;
 				var newPosY = (_rin.getCurrentMap().map.tileSize.height - parseInt(char.style("height"))) / 2;
 				//char.style({"left":tile.offset().left+newPosX+"px","top":tile.offset().top+newPosY+"px"});
-				char.style({left:$(_rin.getCurrentMap().element).offset().left+(x*_rin.getCurrentMap().map.tileSize.width)+newPosX+"px"});
-				char.style({top:$(_rin.getCurrentMap().element).offset().top+(y*_rin.getCurrentMap().map.tileSize.height)+newPosY+"px"});
 				char.nextBattle = _rin.getCurrentMap().map.battleStep();
 				char.sprite("right_1");
-				$(_rin.getCurrentMap().element).css({ left: "+="+x * _rin.getCurrentMap().map.tileSize.width,
-					top: "+="+y*_rin.getCurrentMap().map.tileSize.height });
-				$("#body").scrollLeft(x * _rin.getCurrentMap().map.tileSize.width);
-				$("#body").scrollTop( y * _rin.getCurrentMap().map.tileSize.height);
+				//$(_rin.getCurrentMap().element).css({ left: "+="+x * _rin.getCurrentMap().map.tileSize.width,
+				//	top: "+="+y*_rin.getCurrentMap().map.tileSize.height });
+				//$("#viewport").scrollLeft(x * _rin.getCurrentMap().map.tileSize.width);
+				//$("#viewport").scrollTop(y * _rin.getCurrentMap().map.tileSize.height);
+				char.style({left:$(_rin.getCurrentMap().element).offset().left+(x*_rin.getCurrentMap().map.tileSize.width)+newPosX+"px"});
+				char.style({top:$(_rin.getCurrentMap().element).offset().top+(y*_rin.getCurrentMap().map.tileSize.height)+newPosY+"px"});
 			}
 			else {
 				tile.append(char.element).css("position", "relative");
@@ -701,56 +710,31 @@ var _rin = {
 			else if(test == 4 || test == 9) _rin.character.move(char, "right");
 			char.ai = setTimeout( function(){ _rin.character.randomMove(char) }, 2000*(Math.random()+2));
 		},
-		moveUp: function(char) {
-			_rin.vars.c.moved++;
-			_rin.vars.currentMap.style({top:parseInt(parseInt(_rin.vars.currentMap.style("top"))+1)+"px"});
-			if(_rin.vars.c.moved == _rin.vars.currentMap.map.tileSize.height) {
-				char.isMoving = false;
-				_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-			} else{ _rin.character.moveUp(char); }
-		},
-		moveDown: function(char) {
-			_rin.vars.c.moved++;
-			_rin.vars.currentMap.style({top:parseInt(parseInt(_rin.vars.currentMap.style("top"))-1)+"px"});
-			if(_rin.vars.c.moved == _rin.vars.currentMap.map.tileSize.height) {
-				char.isMoving = false;
-				_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-			} else{ _rin.character.moveDown(char); }
-		},
-		moveLeft: function(char) {
-			_rin.vars.c.moved++;
-			_rin.vars.currentMap.style({left:parseInt(parseInt(_rin.vars.currentMap.style("left"))+1)+"px"});
-			if(_rin.vars.c.moved == _rin.vars.currentMap.map.tileSize.width) {
-				char.isMoving = false;
-				_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-			} else{ _rin.character.moveLeft(char); }
-		},
-		moveRight: function(char) {
-			_rin.vars.c.moved++;
-			_rin.vars.currentMap.style({left:parseInt(parseInt(_rin.vars.currentMap.style("left"))-1)+"px"});
-			if(_rin.vars.c.moved == _rin.vars.currentMap.map.tileSize.width) {
-				char.isMoving = false;
-				_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
-			} else{ _rin.character.moveRight(char); }
-		},
+		op: function(mod, dir) { return 	dir=="up" ? parseInt($("#canvas").css("top")) + mod +"px": dir=="down" ? parseInt($("#canvas").css("top")) - mod +"px":
+											dir=="left" ?  parseInt($("#canvas").css("left")) + mod :  parseInt($("#canvas").css("left")) - mod; },
+		getX: function(char, dir) { return dir=="left"?char.currentX-1:dir=="right"?char.currentX+1:char.currentX },
+		getY: function(char, dir) { return dir=="up"?char.currentY-1:dir=="down"?char.currentY+1:char.currentY },
+		setPos: function(char,dir){ dir=="up"?char.currentY--:dir=="down"?char.currentY++:dir=="left"?char.currentX--:char.currentX++;},
+		stop: function(char, dir) { char.isMoving = false; char.sprite(dir+"_1"); },
+		sign: function(dir) { return dir=="up"||dir=="left"?"-":"+";}, letter: function(dir) { return dir=="up"||dir=="down"?"Y":"X"},
 		move: function( char, dir ) {	
 			var main = _rin.vars.p.main; var down = _rin.controls.down; var move = _rin.character.move; var map = _rin.getCurrentMap();
-			var tileHeight = map.map.tileSize.height; var tileWidth = map.map.tileSize.width;
+			var _rc = _rin.character; var mod = dir=="up" || dir=="down" ? map.map.tileSize.height : map.map.tileSize.width;
+			var key = dir=="up"?"UP_ARROW":dir=="down"?"DOWN_ARROW":dir=="right"?"RIGHT_ARROW":dir=="left"?"LEFT_ARROW":"null";
 			switch( dir ) {
 				case "random": _rin.character.randomMove(char); break;
-				case "up":
-					if(down("UP_ARROW") && char == main) {
-						char.sprite("up");
-						if( !map.map.walkCheck(char.currentX, char.currentY-1) ) { char.isMoving = false; break; }
-						//if(char.isMoving){ break;}
-						char.isMoving = true; char.currentY--;
-						//_rin.character.moveUp(char);
-						$(map.element).animate({top:parseInt(map.style("top")) + tileHeight}, tileHeight*char.walkSpeed, 'linear', function(){
+				default:
+					if(down(key) && char == main) {
+						char.sprite(dir);
+						if( !map.map.walkCheck(_rc.getX(char,dir), _rc.getY(char,dir)) ) { char.isMoving = false; break; }
+						char.isMoving = true; _rc.setPos(char, dir);
+						$("#canvas")[0].style.webkitTransition = '-webkit-transform '+mod*char.walkSpeed+'ms ease-out';
+						$("#canvas")[0].style.webkitTransform = 'translate'+_rc.letter(dir)+'('+_rc.sign(dir)+mod+'px)';
+						//$("#world").animate(anim, mod*char.walkSpeed, 'linear', function(){
 							map.map.checkTriggers(char.currentX, char.currentY);
-							if(down("UP_ARROW")) move(char, "up");
-							else if(down("RIGHT_ARROW")) move(char, "right"); else if(down("LEFT_ARROW")) move(char, "left");
-							else if(down("DOWN_ARROW")) move(char, "down"); else { char.isMoving = false; char.sprite("up_1"); }
-						});
+							down(key) ? move(char,dir) : down("UP_ARROW") ? move(char,"up") : down("DOWN_ARROW") ? move(char, "down") :
+								down("RIGHT_ARROW") ? move(char, "right") :	down("LEFT_ARROW") ? move(char, "left") : _rc.stop(char,dir);
+						//});
 					} else if(char != main) {
 						char.sprite("up");
 						if(map.map.walkCheck(char.currentX, char.currentY-1)) {
@@ -758,72 +742,6 @@ var _rin = {
 								{queue:false,duration:tileHeight*char.walkSpeed, complete:function(){
 									char.currentY--; char.sprite("up_1"); }});
 						} else char.sprite("up_1");
-					}
-					break;
-				case "down":
-					if(down("DOWN_ARROW")&& char == main) {
-						char.sprite("down");
-						if( !map.map.walkCheck(char.currentX, char.currentY+1) ) { char.isMoving = false; break; }
-						//if(char.isMoving){ break;}
-						char.isMoving = true; char.currentY++;
-						//_rin.character.moveDown(char);
-						$(map.element).animate({top:parseInt(map.style("top")) - tileHeight}, tileHeight*char.walkSpeed, 'linear', function(){
-							map.map.checkTriggers(char.currentX, char.currentY);
-							if(down("DOWN_ARROW")) move(char, "down");
-							else if(down("RIGHT_ARROW")) move(char, "right"); else if(down("LEFT_ARROW")) move(char, "left");
-							else if(down("UP_ARROW")) move(char, "up"); else { char.isMoving = false; char.sprite("down_1"); }
-						});
-					} else if(char != main) {
-						char.sprite("down");
-						if(map.map.walkCheck(char.currentX, char.currentY+1)) {
-							$(char.element).animate({top:parseInt(char.style("top")) + tileHeight},
-								{queue:false, duration:tileHeight*char.walkSpeed, complete:function(){
-									char.currentY++; char.sprite("down_1"); }});
-						} else char.sprite("down_1");
-					}
-					break;
-				case "left":
-					if(down("LEFT_ARROW")&& char == main) {
-						char.sprite("left");
-						if( !map.map.walkCheck(char.currentX-1, char.currentY) ) { char.isMoving = false; break; }
-						//if(char.isMoving){ break;}
-						char.isMoving = true; char.currentX--;
-						//_rin.character.moveLeft(char);
-						$("#body").animate({scrollLeft: $("#body").scrollLeft() - tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
-							map.map.checkTriggers(char.currentX, char.currentY);
-							if(down("LEFT_ARROW")) move(char, "left");
-							else if(down("UP_ARROW")) move(char, "up"); else if(down("DOWN_ARROW")) move(char, "down");
-							else if(down("RIGHT_ARROW")) move(char, "right"); else { char.isMoving = false; char.sprite("left_1"); }
-						});
-					} else if(char != main) {
-						char.sprite("left");
-						if( map.map.walkCheck(char.currentX-1, char.currentY)) {
-							$(char.element).animate({left:parseInt(char.style("left")) - tileWidth},
-								{queue:false, duration:tileWidth*char.walkSpeed, complete:function(){
-									char.currentX--; char.sprite("left_1"); }});
-						} else char.sprite("left_1");
-					}
-					break;
-				case "right":
-					if(down("RIGHT_ARROW")&& char == main) {
-						char.sprite("right");
-						if( !map.map.walkCheck(char.currentX+1, char.currentY) ) { char.isMoving = false; break; }
-						//if(char.isMoving){ break;}
-						char.isMoving = true; char.currentX++;
-						//_rin.character.moveRight(char);
-						$("#body").animate({scrollLeft: $("#body").scrollLeft() + tileWidth}, tileWidth*char.walkSpeed, 'linear', function(){
-							map.map.checkTriggers(char.currentX, char.currentY);
-							if(down("RIGHT_ARROW")) move(char, "right");
-							else if(down("UP_ARROW")) move(char, "up"); else if(down("DOWN_ARROW")) move(char, "down");
-							else if(down("LEFT_ARROW")) move(char, "left"); else { char.isMoving = false; char.sprite("right_1"); }
-						});
-					} else if(char != main) {
-						char.sprite("right");
-						if( map.map.walkCheck(char.currentX+1, char.currentY)) {
-							$(char.element).animate({left:parseInt(char.style("left")) + tileWidth},
-								{queue:false, duration:tileWidth*char.walkSpeed, complete:function(){
-									char.currentX++; char.sprite("right_1"); }});
-						} else char.sprite("right_1");
 					}
 					break;
 			}
@@ -834,23 +752,40 @@ var _rin = {
 			}
 		}
 	},
+	vehicle: {
+		create: function( name, data ) {
+			var vehicle = new _rin.ui.element("vehicle", {"name":name, afterload:data!==undefined?data["afterload"]:""});
+			_rin.vars.vehicles.push(vehicle);
+		},
+		sprite: function(vehicle,data) {
+			if(vehicle.attribute("src") != _rin.path("vehicles")+"/"+vehicle.name+"/"+data+".gif")
+				vehicle.attribute("src", _rin.path("vehicles")+"/"+vehicle.name+"/"+data+".gif");
+			return vehicle;
+		},
+		place: function(vehicle, x, y) {
+			if(vehicle.element.parentNode == null) vehicle.appendTo("#canvas");
+			vehicle.location = _rin.getCurrentMap().name;
+			var newPosX = (_rin.getCurrentMap().map.tileSize.width - parseInt(vehicle.style("width"))) / 2;
+			var newPosY = (_rin.getCurrentMap().map.tileSize.height - parseInt(vehicle.style("height"))) / 2;
+			vehicle.style({left:(x*_rin.getCurrentMap().map.tileSize.width)+newPosX+"px"});
+			vehicle.style({top:(y*_rin.getCurrentMap().map.tileSize.height)+newPosY+"px"});
+		}
+	},
 	controls: {
 		UP_ARROW: 38, DOWN_ARROW: 40, LEFT_ARROW: 37, RIGHT_ARROW: 39, START: 13, SELECT: 32,
 		CANCEL: 90, CONFIRM: 88, MENU: 65, SKIP: 83,
 		enabled: false,
 		down: function(key) { return _rin.vars.keysDown[_rin.controls[key]] === true; },
 		up: function(key) { return _rin.vars.keysDown[_rin.controls[key]] === false; },
-		only: function(key) {
+		only: function(key) { var up = _rin.controls.up; var down = _rin.controls.down;
 			switch(key) {
-				case "UP_ARROW": return _rin.controls.up("DOWN_ARROW")&&_rin.controls.up("LEFT_ARROW")&&_rin.controls.up("RIGHT_ARROW")&&_rin.controls.down("UP_ARROW"); break;
-				case "DOWN_ARROW": return _rin.controls.down("DOWN_ARROW")&&_rin.controls.up("LEFT_ARROW")&&_rin.controls.up("RIGHT_ARROW")&&_rin.controls.up("UP_ARROW"); break;
-				case "LEFT_ARROW": return _rin.controls.up("DOWN_ARROW")&&_rin.controls.down("LEFT_ARROW")&&_rin.controls.up("RIGHT_ARROW")&&_rin.controls.up("UP_ARROW"); break;
-				case "RIGHT_ARROW": return _rin.controls.up("DOWN_ARROW")&&_rin.controls.up("LEFT_ARROW")&&_rin.controls.down("RIGHT_ARROW")&&_rin.controls.up("UP_ARROW"); break;
+				case "UP_ARROW": return  up("DOWN_ARROW") && up("LEFT_ARROW") && up("RIGHT_ARROW") && down("UP_ARROW"); break;
+				case "DOWN_ARROW": return down("DOWN_ARROW") && up("LEFT_ARROW") && up("RIGHT_ARROW") && up("UP_ARROW"); break;
+				case "LEFT_ARROW": return up("DOWN_ARROW") && down("LEFT_ARROW") && up("RIGHT_ARROW") && up("UP_ARROW"); break;
+				case "RIGHT_ARROW": return up("DOWN_ARROW") && up("LEFT_ARROW") && down("RIGHT_ARROW") && up("UP_ARROW"); break;
 			}
 		},
-		none: function() {
-			return _rin.controls.up("DOWN_ARROW")&&_rin.controls.up("LEFT_ARROW")&&_rin.controls.up("RIGHT_ARROW")&&_rin.controls.up("UP_ARROW");
-		},
+		none: function() { var up = _rin.controls.up; return up("DOWN_ARROW") && up("LEFT_ARROW") && up("RIGHT_ARROW") && up("UP_ARROW"); },
 		enable: function(type) {
 			_rin.controls.enabled = true;
 			switch(type) {
@@ -908,9 +843,7 @@ var _rin = {
 					break;
 				case _rin.controls.RIGHT_ARROW:
 					_rin.vars.keysDown[_rin.controls.RIGHT_ARROW] = true;
-					if( !_rin.vars.p.main.isMoving ) {
-						_rin.character.move(_rin.vars.p.main, "right");
-					}
+					if( !_rin.vars.p.main.isMoving ) { _rin.character.move(_rin.vars.p.main, "right"); }
 					break;
 				case _rin.controls.MENU:
 					if(!_rin.vars.p.main.isMoving) { console.log("goto menu"); }
@@ -1035,8 +968,8 @@ var _rin = {
 					el.append(nobr);
 				}
 			}
-			$("#body").height( $("#html").height() + $(el.element).height() );
-			$("#body").width( $("#html").width() + $(el.element).width() );
+			//$("#canvas").height( $("#viewport").height() + $(el.element).height() );
+			//$("#canvas").width( $("#viewport").width() + $(el.element).width() );
 		},
 		battleParty: function() {
 			var current = 150; var currentTop = 3; var currentY = 150;
@@ -1131,7 +1064,8 @@ var _rin = {
 			case 0: var current = "inc/packs/"+name+"/maps.js"; $("#wait").text("loading maps..."); break;
 			case 1: var current = "inc/packs/"+name+"/items.js"; $("#wait").text("loading items..."); break;
 			case 2: var current = "inc/packs/"+name+"/characters.js"; $("#wait").text("loading characters..."); break;
-			case 3: var current = "inc/packs/"+name+"/enemies.js"; $("#wait").text("loading enemies..."); break;
+			case 3: var current = "inc/packs/"+name+"/vehicles.js"; $("#wait").text("loading vehicles..."); break;
+			case 4: var current = "inc/packs/"+name+"/enemies.js"; $("#wait").text("loading enemies..."); break;
 		}
 		_rin.vars.pack = name;
 		var head = document.getElementsByTagName('head')[0];
@@ -1139,7 +1073,7 @@ var _rin = {
 		script.type = 'text/javascript';
 		script.src = current;
 		if(position == 0) { script.onreadystatechange = preloadTiles; script.onload = preloadTiles; }
-		else if(position == 3) { script.onreadystatechange = loaded; script.onload = loaded; }
+		else if(position == 4) { script.onreadystatechange = loaded; script.onload = loaded; }
 		else {
 			script.onreadystatechange = function(){ _rin.loadPack(name,position+1); };
 			script.onload = function(){ _rin.loadPack(name,position+1); };
@@ -1161,6 +1095,7 @@ var _rin = {
 		gil: 0,
 		npcs: {},
 		party: [],
+		vehicles: [],
 		turns: [],
 		takingTurn: false,
 		choosing: false,
@@ -1206,6 +1141,7 @@ function loaded() {
 	var celes = _rin.character.create("celes", {afterload: function(){ this.style({position:"fixed"}).addToParty().main(); _rin.goto("world", {mode:"svg",name:"world", x:8, y:6});} });
 	var terraEsper = _rin.character.create("terra esper", { afterload: function(){ this.style({position:"absolute"}).addToParty() } });
 	var shadow = _rin.character.create("shadow", {afterload: function(){ this.style({position:"absolute"}).addToParty() } });
+	var enterprise = _rin.vehicle.create("ff4 enterprise", { afterload: function(){ this.style("position","absolute"); this.place(8,8); } });
 	$(".tile").mouseenter( function(){
 		console.log( $(this).index(), $(this).parent().index() );
 	});
