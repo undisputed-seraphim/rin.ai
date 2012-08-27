@@ -1,32 +1,323 @@
 var _maps = {
+	"baron rosas house": {
+		tileSize: {width: 48, height: 48},
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			2: ["empty", "t_stone2_top", "t_stone2_candle", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_clock", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
+			3: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_utinsils", "t_stone2_utinsils", "t_bookcase1_tl", "t_bookcase1_tr", "t_stone2_front", "t_stone2_fireplace_tl", "t_stone2_fireplace_top", "t_stone2_fireplace_tr", "t_stone2_front", "t_stone2_top", "empty"],
+			4: ["empty", "t_stone2_top", "t_floor1_pot", "t_floor1_stove", "t_floor1_appliance", "t_floor1_wood", "t_bookcase1_bl", "t_bookcase1_br", "t_floor1_pot", "t_stone2_fireplace_bl", "t_stone2_fireplace_btm", "t_stone2_fireplace_br", "t_floor1", "t_stone2_top", "empty"],
+			5: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_carpet_left_top", "t_floor1_carpet_top", "t_floor1_carpet_top", "t_floor1_carpet_top", "t_floor1_carpet_right_top", "t_stone2_top", "empty"],
+			6: ["empty", "t_stone2_top", "t_floor1", "t_floor1_stool", "t_stone2_counter_top_flower", "t_floor1_stool", "t_floor1", "t_stone2_top", "t_floor1_carpet_left_btm", "t_floor1_carpet_btm", "t_floor1_carpet_btm", "t_floor1_carpet_btm", "t_floor1_carpet_right_btm", "t_stone2_top", "empty"],
+			7: ["empty", "t_stone2_top", "t_floor1", "t_stone2_counter_left_end", "t_stone2_counter_top_flower_btm", "t_stone2_counter_right_end", "t_floor1", "t_stone2_top", "t_floor1_pot", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_stone2_top", "empty"],
+			8: ["empty", "t_stone2_top", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front_stool", "t_stone2_counter_front_right", "t_floor1", "t_stone2_top", "t_floor1_pot", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table2", "t_stone2_top", "empty"],
+			9: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			10: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			11: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			12: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+	},
+	"baron item shop": {
+		tileSize: {width: 48, height: 48},
+		battleStep: function(){ return 0; },
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			2: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_sign_item", "t_stone2_front", "t_stone2_candle", "t_stone2_clock", "t_stone2_front", "t_stone2_top", "empty"],
+			3: ["empty", "t_stone2_top", "t_bookcase1_tl", "t_bookcase1_tr", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
+			4: ["empty", "t_stone2_top", "t_bookcase1_bl", "t_bookcase1_br", "t_stone2_counter_top_ver", "t_stone2_counter_top_flower", "t_floor1", "t_floor1", "t_stone2_counter_top_ver", "t_floor1_pot", "t_floor1_pot", "t_stone2_top", "empty"],
+			5: ["empty", "t_stone2_top", "t_floor1_wood", "t_floor1", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_flower_btm", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_btm_right", "t_floor1", "t_floor1_pot", "t_stone2_top", "empty"],
+			6: ["empty", "t_stone2_top", "t_floor1_wood", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front_stool", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front_right", "t_floor1", "t_floor1_endtable", "t_stone2_top", "empty"],
+			7: ["empty", "t_stone2_top", "t_floor1_stool", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_pot", "t_stone2_top", "empty"],
+			8: ["empty", "t_stone2_top", "t_stone2_top", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "t_stone2_top", "empty"],
+			9: ["empty", "t_stone2_front", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_front", "empty"],
+			10: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			11: ["empty", "empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty", "empty"],
+			12: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+		tiles: {
+			walkable: function(name) {
+				switch( name ) {
+					case "t_floor1": case "t_stairs3": case "t_stone2_counter_front": case "t_stone2_counter_front_stool": case "t_stone2_counter_front_right":
+						case "t_stone2_counter_front_left": case "t_floor1_carpet_right_btm": case "t_floor1_carpet_right_top":
+						case "t_floor1_carpet_left_top": case "t_floor1_carpet_right": case "t_floor1_carpet_left": case "t_floor1_carpet_top":
+						case "t_floor1_carpet_btm": case "t_floor1_carpet": case "t_floor1_stool": case "t_floor1_stool_table_btm": return true; break;
+					default: return false;
+				}
+			},
+		},
+		walkCheck: function(x, y) {
+			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
+		},
+		triggers: {
+			enterBaron: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down_1");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron",x:10,y:26}); });
+			}
+		},
+		checkTriggers: function(x, y) {
+			if(x == 6 && y == 8) this.triggers.enterBaron();
+		}
+	},
+	"baron serpents road": {
+		tileSize: {width: 48, height: 48},
+		battleStep: function(){ return 0; },
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "empty"],
+			2: ["empty", "t_stone1_top", "t_stone1_front", "t_stone1_top", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_top", "t_stone1_front", "t_stone1_top", "empty"],
+			3: ["empty", "t_stone1_top", "t_stone1_front", "t_stone1_top", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_top", "t_stone1_front", "t_stone1_top", "empty"],
+			4: ["empty", "t_stone1_top", "t_floor2", "t_stone1_top", "t_floor2_pole_top", "t_floor2", "t_floor2", "t_floor2", "t_floor2_pole_top", "t_stone1_top", "t_floor2", "t_stone1_top", "empty"],
+			5: ["empty", "t_stone1_top", "t_floor2", "t_stone1_top", "t_floor2_pole_btm", "t_floor2", "t_floor2", "t_floor2", "t_floor2_pole_btm", "t_stone1_top", "t_floor2", "t_stone1_top", "empty"],
+			6: ["empty", "t_stone1_top", "t_floor2", "t_stone1_top", "t_floor2_pole_top", "t_floor2", "t_floor2_warp", "t_floor2", "t_floor2_pole_top", "t_stone1_top", "t_floor2", "t_stone1_top", "empty"],
+			7: ["empty", "t_stone1_top", "t_floor2", "t_stone1_top", "t_floor2_pole_btm", "t_floor2", "t_floor2", "t_floor2", "t_floor2_pole_btm", "t_stone1_top", "t_floor2", "t_stone1_top", "empty"],
+			8: ["empty", "t_stone1_top", "t_floor2", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_floor2", "t_stone1_top", "empty"],
+			9: ["empty", "t_stone1_top", "t_floor2", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_secret_tl_c", "t_stone1_secret_tr_c", "t_stone1_front", "t_stone1_front", "t_floor2", "t_stone1_top", "empty"],
+			10: ["empty", "t_stone1_top", "t_floor2", "t_stone1_front", "t_stone1_front", "t_stone1_switch", "t_stone1_secret_bl_c", "t_stone1_secret_br_c", "t_stone1_front", "t_stone1_front", "t_floor2", "t_stone1_top", "empty"],
+			11: ["empty", "t_stone1_top", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_stone1_top", "empty"],
+			12: ["empty", "t_stone1_top", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_stone1_top", "empty"],
+			13: ["empty", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "t_stone1_top", "empty"],
+			14: ["empty", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "empty"],
+			15: ["empty", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_door1_c", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "t_stone1_front", "empty"],
+			16: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+		tiles: {
+			walkable: function(name) {
+				switch( name ) {
+					case "t_floor1": case "t_stairs3": case "t_stone2_counter_front": case "t_stone2_counter_front_stool": case "t_stone2_counter_front_right":
+						case "t_stone2_counter_front_left": case "t_floor1_carpet_right_btm": case "t_floor1_carpet_right_top":
+						case "t_floor1_carpet_left_top": case "t_floor1_carpet_right": case "t_floor1_carpet_left": case "t_floor1_carpet_top":
+						case "t_floor1_carpet_btm": case "t_floor1_carpet": case "t_floor1_stool": case "t_floor1_stool_table_btm": return true; break;
+					default: return false;
+				}
+			},
+		},
+		walkCheck: function(x, y) {
+			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
+		},
+		triggers: {
+			enterBaron: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down_1");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron",x:21,y:26}); });
+			}
+		},
+		checkTriggers: function(x, y) {
+			if(x == 15 && y == 18) this.triggers.enterBaron();
+		}
+	},
+	"baron cids house": {
+		tileSize: {width: 48, height: 48},
+		battleStep: function(){ return 0; },
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			2: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_candle", "t_stone2_clock", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_candle", "t_stone2_head", "t_stone2_candle", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
+			3: ["empty", "t_stone2_top", "t_bookcase2_tl", "t_bookcase2_tr", "t_stone2_front", "t_stone2_front", "t_bookcase2_tl", "t_bookcase2_tr", "t_stone2_front", "t_stone2_front", "t_stone2_fireplace_tl", "t_stone2_fireplace_top", "t_stone2_fireplace_tr", "t_stone2_front", "t_bookcase2_tl", "t_bookcase2_tr", "t_bookcase2_tl", "t_bookcase2_tr", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
+			4: ["empty", "t_stone2_top", "t_bookcase2_bl", "t_bookcase2_br", "t_floor1_desk1", "t_floor1_desk2", "t_bookcase2_bl", "t_bookcase2_br", "t_floor1", "t_floor1_wood", "t_stone2_fireplace_bl", "t_stone2_fireplace_btm", "t_stone2_fireplace_br", "t_floor1_pot", "t_bookcase2_bl", "t_bookcase2_br", "t_bookcase2_bl", "t_bookcase2_br", "t_floor1", "t_bed_top", "t_stone2_top", "empty"],
+			5: ["empty", "t_stone2_top", "t_floor1_pot", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1_carpet_left_top", "t_floor1_carpet_top", "t_floor1_carpet_top", "t_floor1_carpet_top", "t_floor1_carpet_right_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_bed_btm", "t_stone2_top", "empty"],
+			6: ["empty", "t_stone2_top", "t_floor1_pot", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			7: ["empty", "t_stone2_top", "t_floor1", "t_floor1_stool_table3", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_carpet_left_btm", "t_floor1_carpet_btm", "t_floor1_carpet_btm", "t_floor1_carpet_btm", "t_floor1_carpet_right_btm", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table1", "t_floor1_stool", "t_stone2_top", "empty"],
+			8: ["empty", "t_stone2_top", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_stone2_top", "empty"],
+			9: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			10: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			11: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			12: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			13: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+		tiles: {
+			walkable: function(name) {
+				switch( name ) {
+					case "t_floor1": case "t_stairs3": case "t_stone2_counter_front": case "t_stone2_counter_front_stool": case "t_stone2_counter_front_right":
+						case "t_stone2_counter_front_left": case "t_floor1_carpet_right_btm": case "t_floor1_carpet_right_top":
+						case "t_floor1_carpet_left_top": case "t_floor1_carpet_right": case "t_floor1_carpet_left": case "t_floor1_carpet_top":
+						case "t_floor1_carpet_btm": case "t_floor1_carpet": case "t_floor1_stool": case "t_floor1_stool_table_btm": return true; break;
+					default: return false;
+				}
+			},
+		},
+		walkCheck: function(x, y) {
+			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
+		},
+		triggers: {
+			enterBaron: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down_1");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron",x:21,y:26}); });
+			}
+		},
+		checkTriggers: function(x, y) {
+			if(x == 15 && y == 18) this.triggers.enterBaron();
+		}
+	},
+	"baron weapon shop": {
+		tileSize: {width: 48, height: 48},
+		battleStep: function(){ return 0; },
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			2: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_sign_weapon", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_sign_armor", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_clock", "t_stone2_top", "empty"],
+			3: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_floor1", "t_stone2_top", "t_floor1", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_top", "empty"],
+			4: ["empty", "t_stone2_top", "t_floor2", "t_stone2_counter_top_ver", "i_chest1_c", "t_floor2", "i_chest1_c", "t_floor2", "t_stone2_top", "t_floor1", "i_chest1_c", "i_chest1_c", "i_chest1_c", "t_stone2_counter_top_ver", "t_floor1", "t_stone2_top", "empty"],
+			5: ["empty", "t_stone2_top", "t_floor2", "t_stone2_counter_top_ver", "i_chest1_c", "t_floor2", "t_floor2", "t_floor2", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_counter_top_ver", "t_floor1", "t_stone2_top", "empty"],
+			6: ["empty", "t_stone2_top", "t_floor1", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_top", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_btm_right", "t_floor1", "t_stone2_top", "empty"],
+			7: ["empty", "t_stone2_top", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front_stool", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front_stool", "t_stone2_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front_stool", "t_stone2_counter_front", "t_stone2_counter_front_right", "t_floor1", "t_stone2_top", "empty"],
+			8: ["empty", "t_stone2_top", "t_floor1_pot", "t_floor1_pot", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor1", "t_floor2", "t_floor2", "t_floor2", "t_floor2", "t_floor1_stool", "t_floor1", "t_stone2_top", "empty"],
+			9: ["empty", "t_stone2_top", "t_floor1_pot", "t_floor1", "t_floor1", "t_floor2", "t_floor2", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table2", "t_floor1_stool", "t_stone2_top", "empty"],
+			10: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			11: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			12: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			13: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+		tiles: {
+			walkable: function(name) {
+				switch( name ) {
+					case "t_floor1": case "t_stairs3": case "t_stone2_counter_front": case "t_stone2_counter_front_stool": case "t_stone2_counter_front_right":
+						case "t_stone2_counter_front_left": case "t_floor1_carpet_right_btm": case "t_floor1_carpet_right_top":
+						case "t_floor1_carpet_left_top": case "t_floor1_carpet_right": case "t_floor1_carpet_left": case "t_floor1_carpet_top":
+						case "t_floor1_carpet_btm": case "t_floor1_carpet": case "t_floor1_stool": case "t_floor1_stool_table_btm": return true; break;
+					default: return false;
+				}
+			},
+		},
+		walkCheck: function(x, y) {
+			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
+		},
+		triggers: {
+			enterBaron: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down_1");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron",x:15,y:16}); });
+			}
+		},
+		checkTriggers: function(x, y) {
+			if(x == 8 && y == 9) this.triggers.enterBaron();
+		}
+	},
+	"baron training room f1": {
+		tileSize: {width: 48, height: 48},
+		battleStep: function(){ return 0; },
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty", "t_stone2_top", "t_stone2_top", "empty"],
+			2: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_clock", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_poster", "t_stone2_candle", "t_stairs3_shadow_tr", "t_stone2_candle", "t_stone2_top", "empty"],
+			3: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_bookcase2_tl", "t_bookcase2_tr", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stairs3_shadow_br", "t_stone2_front", "t_stone2_top", "empty"],
+			4: ["empty", "t_stone2_top", "t_floor1_pot", "t_floor1_stool", "t_floor1_stool", "t_floor1_stool", "t_bookcase2_bl", "t_bookcase2_br", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_pot", "t_stone2_top", "empty"],
+			5: ["empty", "t_stone2_top", "t_floor1_wood", "t_floor1_stool", "t_floor1_stool", "t_floor1_stool", "t_stone2_counter_left_end", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_right_end", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_pot", "t_stone2_top", "empty"],
+			6: ["empty", "t_stone2_top", "t_floor1_stool", "t_floor1_stool", "t_floor1", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_wood", "t_stone2_top", "empty"],
+			7: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			8: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			9: ["empty", "t_stone2_top", "t_floor1_stool", "t_floor1_stool_table1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			10: ["empty", "t_stone2_top", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			11: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			12: ["empty", "t_stone2_top", "t_floor1_carpet_left_top", "t_floor1_carpet_top", "t_floor1_carpet_right_top", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			13: ["empty", "t_stone2_top", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			14: ["empty", "t_stone2_top", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1_carpet_left_top", "t_floor1_carpet_top", "t_floor1_carpet_top", "t_floor1_carpet_top", "t_floor1_carpet_right_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			15: ["empty", "t_stone2_top", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			16: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			17: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			18: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			19: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+		tiles: {
+			walkable: function(name) {
+				switch( name ) {
+					case "t_floor1": case "t_stairs3": case "t_stone2_counter_front": case "t_stone2_counter_front_stool": case "t_stone2_counter_front_right":
+						case "t_stone2_counter_front_left": case "t_floor1_carpet_right_btm": case "t_floor1_carpet_right_top":
+						case "t_floor1_carpet_left_top": case "t_floor1_carpet_right": case "t_floor1_carpet_left": case "t_floor1_carpet_top":
+						case "t_floor1_carpet_btm": case "t_floor1_carpet": case "t_floor1_stool": case "t_floor1_stool_table_btm": return true; break;
+					default: return false;
+				}
+			},
+		},
+		walkCheck: function(x, y) {
+			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
+		},
+		triggers: {
+			enterBaron: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down_1");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron",x:21,y:26}); });
+			}
+		},
+		checkTriggers: function(x, y) {
+			if(x == 15 && y == 18) this.triggers.enterBaron();
+		}
+	},
+	"baron training room f2": {
+		tileSize: {width: 48, height: 48},
+		battleStep: function(){ return 0; },
+		map: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty", "empty"],
+			2: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_front", "t_stone2_poster", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_clock", "t_stone2_poster", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_clock", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_candle", "t_stone2_top", "empty", "empty"],
+			3: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty", "empty"],
+			4: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_counter_top_ver", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty", "empty"],
+			5: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_counter_top_ver", "t_stone2_counter_top_flower", "t_floor1", "t_floor1_stool", "t_floor1_stool", "t_floor1", "t_stone2_counter_top_flower", "t_floor1", "t_floor1_stool", "t_floor1_stool", "t_floor1", "t_stone2_counter_top_flower", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty", "empty"],
+			6: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_flower_btm", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_flower_btm", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_flower_btm", "t_stone2_counter_right_end", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "t_floor1", "t_stone2_top", "empty", "empty"],
+			7: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front_right", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "t_stairs3_shadow_tl", "t_stone2_top", "empty", "empty"],
+			8: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "t_stairs3_shadow_bl", "t_stone2_top", "empty", "empty"],
+			9: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk2", "t_floor1", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty", "empty"],
+			10: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_stone2_front", "t_stone2_candle", "t_stone2_top", "empty", "empty"],
+			11: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk2", "t_floor1", "t_stone2_front", "t_stone2_swords", "t_stone2_top", "empty", "empty"],
+			12: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_armor", "t_stone2_top", "empty", "empty"],
+			13: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk1", "t_floor1_desk2", "t_floor1", "t_floor1_desk2", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty", "empty"],
+			14: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty", "empty"],
+			15: ["empty", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty", "empty"],
+			16: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty", "empty"],
+			17: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty", "empty"],
+			18: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty", "empty"],
+			19: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty", "empty"],
+			20: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+		},
+		tiles: {
+			walkable: function(name) {
+				switch( name ) {
+					case "t_floor1": case "t_stairs3": case "t_stone2_counter_front": case "t_stone2_counter_front_stool": case "t_stone2_counter_front_right":
+						case "t_stone2_counter_front_left": case "t_floor1_carpet_right_btm": case "t_floor1_carpet_right_top":
+						case "t_floor1_carpet_left_top": case "t_floor1_carpet_right": case "t_floor1_carpet_left": case "t_floor1_carpet_top":
+						case "t_floor1_carpet_btm": case "t_floor1_carpet": case "t_floor1_stool": case "t_floor1_stool_table_btm": return true; break;
+					default: return false;
+				}
+			},
+		},
+		walkCheck: function(x, y) {
+			return (x < 0 || y < 0 || x == undefined || y == undefined || this.map[y] == undefined) ? false : this.tiles.walkable(this.map[y][x]);
+		},
+		triggers: {
+			enterBaron: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down_1");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron",x:21,y:26}); });
+			}
+		},
+		checkTriggers: function(x, y) {
+			if(x == 15 && y == 18) this.triggers.enterBaron();
+		}
+	},
 	"baron inn": {
 		tileSize: {width: 48, height: 48},
 		battleStep: function(){ return 0; },
 		map: {
-0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
-1: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
-2: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_front", "empty", "t_stone2_front", "t_stone2_front", "t_stone2_clock", "t_stone2_front", "empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
-3: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_bookcase_top_left", "t_bookcase_top_right", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
-4: ["empty", "empty", "empty", "t_stone2_top", "t_floor1_pot", "t_stone2_counter_top_ver", "t_stone2_counter_top_flower", "t_floor1", "t_floor1", "t_floor1", "t_stone2_counter_top_ver", "t_floor1", "t_floor1", "t_floor1_pot", "t_bookcase_btm_left", "t_bookcase_btm_right", "t_stone2_top", "i_chest1_c", "i_chest1_c", "t_floor1", "i_chest1_c", "t_stone2_top", "empty"],
-5: ["empty", "empty", "empty", "t_stone2_top", "t_floor1_pot", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_flower_btm", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_btm_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-6: ["empty", "empty", "empty", "t_stone2_top", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front_stool", "t_stone2_counter_front", "t_stone2_counter_front_stool", "t_stone2_counter_front_stool", "t_stone2_counter_front_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table2", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
-7: ["empty", "empty", "empty", "t_stone2_top", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_stone2_front", "t_stone2_swords", "t_stone2_front", "t_stone2_secret_top_left", "t_stone2_secret_top_right", "t_stone2_top", "empty"],
-8: ["empty", "empty", "empty", "t_stone2_top", "t_floor1_stool", "t_floor1_stool_table1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table3", "t_floor1_stool", "t_floor1_stool", "t_floor1_stool_table1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_secret_btm_left", "t_stone2_secret_btm_right", "t_stone2_top", "empty"],
-9: ["empty", "empty", "empty", "t_stone2_top", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-10: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-11: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-12: ["empty", "t_stone2_top", "t_stone2_front", "empty", "t_stone2_head", "empty", "t_stone2_front", "t_stone2_clock", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty", "t_stone2_front", "t_sign_inn", "t_stone2_front", "empty", "t_stone2_top", "t_stairs3", "t_stairs3", "t_stone2_top", "empty"],
-13: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_stone2_front", "t_bookcase_top_left", "t_bookcase_top_right", "t_stone2_top", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-14: ["empty", "t_stone2_top", "t_bed_top", "t_floor1_carpet_top", "t_bed_top", "t_floor1_carpet_top", "t_bed_top", "t_floor1_endtable", "t_stone2_front", "t_floor1_pot", "t_bookcase_btm_left", "t_bookcase_btm_right", "t_stone2_front", "t_floor1", "t_stone2_counter_top_ver", "t_floor1", "t_floor1", "t_stone2_counter_top_flower", "t_stone2_front", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-15: ["empty", "t_stone2_top", "t_bed_btm", "t_floor1_carpet", "t_bed_btm", "t_floor1_carpet", "t_bed_btm", "t_floor1_carpet_right", "t_stone2_front", "t_floor1_pot", "t_floor1_pot", "t_floor1", "t_stone2_front", "t_floor1", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_flower_btm", "t_stone2_front", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-16: ["empty", "t_stone2_top", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_poster", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-17: ["empty", "t_stone2_top", "t_bed_top", "t_floor1_carpet", "t_bed_top", "t_floor1_carpet", "t_bed_top", "t_floor1_carpet_right", "t_stone2_top", "t_floor1_wood", "t_floor1", "t_floor1", "t_stone2_top", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-18: ["empty", "t_stone2_top", "t_bed_btm", "t_floor1_carpet_btm", "t_bed_btm", "t_floor1_carpet_btm", "t_bed_btm", "t_floor1_carpet_right_btm", "t_stone2_top", "t_floor1_wood", "t_floor1_wood", "t_floor1_pot", "t_stone2_top", "t_floor1_stool_table2", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
-19: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
-20: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
-21: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
-22: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
-23: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			2: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_front", "t_stone2_clock", "t_stone2_front", "t_stone2_candle", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
+			3: ["empty", "empty", "empty", "t_stone2_top", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_bookcase1_tl", "t_bookcase1_tr", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "empty"],
+			4: ["empty", "empty", "empty", "t_stone2_top", "t_floor1_pot", "t_stone2_counter_top_ver", "t_stone2_counter_top_flower", "t_floor1", "t_floor1", "t_floor1", "t_stone2_counter_top_ver", "t_floor1", "t_floor1", "t_floor1_pot", "t_bookcase1_bl", "t_bookcase1_br", "t_stone2_top", "i_chest1_c", "i_chest1_c", "t_floor1", "i_chest1_c", "t_stone2_top", "empty"],
+			5: ["empty", "empty", "empty", "t_stone2_top", "t_floor1_pot", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_flower_btm", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_btm_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_stone2_top", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			6: ["empty", "empty", "empty", "t_stone2_top", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front_stool", "t_stone2_counter_front", "t_stone2_counter_front_stool", "t_stone2_counter_front_stool", "t_stone2_counter_front_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table2", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			7: ["empty", "empty", "empty", "t_stone2_top", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_stone2_front", "t_stone2_swords", "t_stone2_front", "t_stone2_secret_tl_c", "t_stone2_secret_tr_c", "t_stone2_top", "empty"],
+			8: ["empty", "empty", "empty", "t_stone2_top", "t_floor1_stool", "t_floor1_stool_table1", "t_floor1", "t_floor1_stool", "t_floor1_stool_table3", "t_floor1_stool", "t_floor1_stool", "t_floor1_stool_table1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_secret_bl_c", "t_stone2_secret_br_c", "t_stone2_top", "empty"],
+			9: ["empty", "empty", "empty", "t_stone2_top", "t_floor1", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_floor1", "t_floor1_stool_table_btm", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			10: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			11: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			12: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_candle", "t_stone2_head", "t_stone2_candle", "t_stone2_front", "t_stone2_clock", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_stone2_candle", "t_stone2_front", "t_sign_inn", "t_stone2_front", "t_stone2_candle", "t_stone2_top", "t_stairs3", "t_stairs3", "t_stone2_top", "empty"],
+			13: ["empty", "t_stone2_top", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_stone2_front", "t_bookcase1_tl", "t_bookcase1_tr", "t_stone2_top", "t_stone2_front", "t_stone2_counter_top_end", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_top", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			14: ["empty", "t_stone2_top", "t_bed_top", "t_floor1_carpet_top", "t_bed_top", "t_floor1_carpet_top", "t_bed_top", "t_floor1_endtable", "t_stone2_front", "t_floor1_pot", "t_bookcase1_bl", "t_bookcase1_br", "t_stone2_front", "t_floor1", "t_stone2_counter_top_ver", "t_floor1", "t_floor1", "t_stone2_counter_top_flower", "t_stone2_front", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			15: ["empty", "t_stone2_top", "t_bed_btm", "t_floor1_carpet", "t_bed_btm", "t_floor1_carpet", "t_bed_btm", "t_floor1_carpet_right", "t_stone2_front", "t_floor1_pot", "t_floor1_pot", "t_floor1", "t_stone2_front", "t_floor1", "t_stone2_counter_top_btm_left", "t_stone2_counter_top_hor", "t_stone2_counter_top_hor", "t_stone2_counter_top_flower_btm", "t_stone2_front", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			16: ["empty", "t_stone2_top", "t_floor1_carpet_left", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet", "t_floor1_carpet_right", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_counter_front_left", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_counter_front", "t_stone2_poster", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			17: ["empty", "t_stone2_top", "t_bed_top", "t_floor1_carpet", "t_bed_top", "t_floor1_carpet", "t_bed_top", "t_floor1_carpet_right", "t_stone2_top", "t_floor1_wood", "t_floor1", "t_floor1", "t_stone2_top", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			18: ["empty", "t_stone2_top", "t_bed_btm", "t_floor1_carpet_btm", "t_bed_btm", "t_floor1_carpet_btm", "t_bed_btm", "t_floor1_carpet_right_btm", "t_stone2_top", "t_floor1_wood", "t_floor1_wood", "t_floor1_pot", "t_stone2_top", "t_floor1_stool_table2", "t_floor1_stool", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_floor1", "t_stone2_top", "empty"],
+			19: ["empty", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "t_stone2_top", "empty"],
+			20: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			21: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			22: ["empty", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_door1_c", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "t_stone2_front", "empty"],
+			23: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
 		},
 		tiles: {
 			walkable: function(name) {
@@ -108,6 +399,14 @@ var _maps = {
 				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("up");
 				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron inn",x:15,y:18}); });
 			},
+			enterBaronItemShop: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("up");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron item shop",x:6,y:8}); });
+			},
+			enterBaronWeaponShop: function() {
+				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("up");
+				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world",{name:"baron weapon shop",x:8,y:9}); });
+			},
 			exitBaron: function() {
 				_rin.controls.disable(_rin.vars.state); _rin.vars.p.main.sprite("down");
 				$("#html").animate({opacity:0}, 500, function(){ _rin.goto("world", {name:"world", x:8, y:6}); });
@@ -115,6 +414,8 @@ var _maps = {
 		},
 		checkTriggers: function(x, y) {
 			if(x == 21 && y == 25) this.triggers.enterBaronInn();
+			if(x == 10 && y == 25) this.triggers.enterBaronItemShop();
+			if(x == 15 && y == 15) this.triggers.enterBaronWeaponShop();
 			else if( (x == 17 || x == 16 || x == 18) && ( y >= 29 ) ) this.triggers.exitBaron()
 		}
 	},

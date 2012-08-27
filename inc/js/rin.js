@@ -13,6 +13,9 @@ var _rin = {
 		}
 	},
 	goto: function( state, data ) {
+		if($("#canvas").length) $("#canvas")[0].style.webkitTransition = '';
+		if($("#viewport").length) $("#viewport").remove();
+		$("#body").append('<div id="viewport"><div id="canvas"></div></div>');
 		if(_rin.vars.mode === undefined ) {
 			if(data !== undefined)
 				if(data['mode']!== undefined)
@@ -676,8 +679,7 @@ var _rin = {
 		},
 		place: function(char, x,y) {
 			if(char.element.parentNode == null) char.appendTo("body");
-			var tile = $($($("#world").children("nobr")[y]).children()[x]);
-			tile = $($("#world svg").children()[(_rin.getCurrentMap().map.map[y].length * y) + (x+1) -1]);
+			var tile = undefined;
 			if(char.name==_rin.vars.p.main.name) {
 				$("#canvas").css({"left":parseInt($("html").width()/2-(_rin.getCurrentMap().map.tileSize.width/2)-(_rin.getCurrentMap().map.tileSize.width*(x)))+"px",
 					"top":parseInt($("html").height()/2-(_rin.getCurrentMap().map.tileSize.height/2)-(_rin.getCurrentMap().map.tileSize.height*(y)))+"px"});
@@ -710,13 +712,20 @@ var _rin = {
 			else if(test == 4 || test == 9) _rin.character.move(char, "right");
 			char.ai = setTimeout( function(){ _rin.character.randomMove(char) }, 2000*(Math.random()+2));
 		},
-		op: function(mod, dir) { return 	dir=="up" ? parseInt($("#canvas").css("top")) + mod +"px": dir=="down" ? parseInt($("#canvas").css("top")) - mod +"px":
+		op: function(mod, dir) { return 	dir=="up" ? parseInt($("#canvas").css("top")) + mod : dir=="down" ? parseInt($("#canvas").css("top")) - mod :
 											dir=="left" ?  parseInt($("#canvas").css("left")) + mod :  parseInt($("#canvas").css("left")) - mod; },
 		getX: function(char, dir) { return dir=="left"?char.currentX-1:dir=="right"?char.currentX+1:char.currentX },
 		getY: function(char, dir) { return dir=="up"?char.currentY-1:dir=="down"?char.currentY+1:char.currentY },
 		setPos: function(char,dir){ dir=="up"?char.currentY--:dir=="down"?char.currentY++:dir=="left"?char.currentX--:char.currentX++;},
 		stop: function(char, dir) { char.isMoving = false; char.sprite(dir+"_1"); },
-		sign: function(dir) { return dir=="up"||dir=="left"?"-":"+";}, letter: function(dir) { return dir=="up"||dir=="down"?"Y":"X"},
+		sign: function(dir) { return dir=="up"||dir=="down"?"top":"left";}, letter: function(dir) { return dir=="up"||dir=="down"?"Y":"X"},
+		moveEnd: function(){
+			var char = _rin.vars.p.main; $("#canvas")[0].removeEventListener("webkitTransitionEnd", _rin.character.moveEnd);
+			var down = _rin.controls.down; var move = _rin.character.move;
+			_rin.getCurrentMap().map.checkTriggers(char.currentX, char.currentY);
+			down(_rin.vars.c.key) ? move(char,_rin.vars.c.dir) : down("UP_ARROW") ? move(char,"up") : down("DOWN_ARROW") ? move(char, "down") :
+				down("RIGHT_ARROW") ? move(char, "right") :	down("LEFT_ARROW") ? move(char, "left") : _rin.character.stop(char,_rin.vars.c.dir);
+		},
 		move: function( char, dir ) {	
 			var main = _rin.vars.p.main; var down = _rin.controls.down; var move = _rin.character.move; var map = _rin.getCurrentMap();
 			var _rc = _rin.character; var mod = dir=="up" || dir=="down" ? map.map.tileSize.height : map.map.tileSize.width;
@@ -728,12 +737,10 @@ var _rin = {
 						char.sprite(dir);
 						if( !map.map.walkCheck(_rc.getX(char,dir), _rc.getY(char,dir)) ) { char.isMoving = false; break; }
 						char.isMoving = true; _rc.setPos(char, dir);
-						$("#canvas")[0].style.webkitTransition = '-webkit-transform '+mod*char.walkSpeed+'ms ease-out';
-						$("#canvas")[0].style.webkitTransform = 'translate'+_rc.letter(dir)+'('+_rc.sign(dir)+mod+'px)';
-						//$("#world").animate(anim, mod*char.walkSpeed, 'linear', function(){
-							map.map.checkTriggers(char.currentX, char.currentY);
-							down(key) ? move(char,dir) : down("UP_ARROW") ? move(char,"up") : down("DOWN_ARROW") ? move(char, "down") :
-								down("RIGHT_ARROW") ? move(char, "right") :	down("LEFT_ARROW") ? move(char, "left") : _rc.stop(char,dir);
+						$("#canvas")[0].style.webkitTransition = 'left '+mod*char.walkSpeed+'ms linear, top '+mod*char.walkSpeed+'ms linear';
+						$("#canvas")[0].style[_rc.sign(dir)] = _rc.op(mod,dir)+'px';
+						_rin.vars.c.key = key; _rin.vars.c.dir = dir;
+						$("#canvas")[0].addEventListener("webkitTransitionEnd", _rin.character.moveEnd);
 						//});
 					} else if(char != main) {
 						char.sprite("up");
@@ -766,9 +773,60 @@ var _rin = {
 			if(vehicle.element.parentNode == null) vehicle.appendTo("#canvas");
 			vehicle.location = _rin.getCurrentMap().name;
 			var newPosX = (_rin.getCurrentMap().map.tileSize.width - parseInt(vehicle.style("width"))) / 2;
-			var newPosY = (_rin.getCurrentMap().map.tileSize.height - parseInt(vehicle.style("height"))) / 2;
+			var newPosY = (_rin.getCurrentMap().map.tileSize.height - parseInt(vehicle.style("height")));
 			vehicle.style({left:(x*_rin.getCurrentMap().map.tileSize.width)+newPosX+"px"});
 			vehicle.style({top:(y*_rin.getCurrentMap().map.tileSize.height)+newPosY+"px"});
+			vehicle.currentX = x; vehicle.currentY = y;
+		},
+		lift: function(vehicle) {
+			setTimeout(function() {
+				$("#main").remove();
+				setTimeout(function() {
+					vehicle.sprite("land_2");
+					setTimeout(function() {
+						vehicle.sprite("land_1");
+						setTimeout(function() {
+							vehicle.sprite("land_2");
+							setTimeout(function() {
+								vehicle.sprite("land_1");
+								setTimeout(function() {
+									vehicle.sprite("land_2");
+									setTimeout(function() {
+										vehicle.sprite("land_3");
+										setTimeout(function() {
+											vehicle.sprite("land_4");
+											setTimeout(function() {
+												vehicle.sprite("land_5");
+												setTimeout(function() {
+												vehicle.sprite("land_6");
+										setTimeout(function() {
+										vehicle.sprite("land_7");
+										setTimeout(function() {
+										vehicle.sprite("land_8");
+										setTimeout(function() {
+										vehicle.sprite("land_9");
+										setTimeout(function() {
+										vehicle.sprite("land_10");
+										setTimeout(function() {
+										vehicle.sprite("land_11");
+										setTimeout(function() {
+										vehicle.sprite("right");
+										}, 100);
+										}, 100);
+										}, 100);
+										}, 100);
+										}, 100);
+										}, 100);
+												}, 100);
+											}, 100);
+										}, 100);
+									}, 200);
+								}, 200);
+							}, 250);
+						}, 250);
+					}, 300);
+				}, 300);
+			}, 0);
 		}
 	},
 	controls: {
@@ -847,6 +905,12 @@ var _rin = {
 					break;
 				case _rin.controls.MENU:
 					if(!_rin.vars.p.main.isMoving) { console.log("goto menu"); }
+					break;
+				case _rin.controls.CONFIRM:
+					if( _rin.vars.p.main.currentX == _rin.vars.vehicles[0].currentX &&
+						_rin.vars.p.main.currentY == _rin.vars.vehicles[0].currentY && !_rin.vars.p.main.isMoving) {
+						_rin.vehicle.lift( _rin.vars.vehicles[0] );
+					}
 					break;
 				case _rin.controls.CANCEL:
 					_rin.vars.p.main.walkSpeed = 5;

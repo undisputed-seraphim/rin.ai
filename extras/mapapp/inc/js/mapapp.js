@@ -23,14 +23,16 @@ var _tiles = [
 	"t_wall1_front", "t_wall1_front_top", "t_wall1_top", "t_wall1_left", "t_wall1_right", "t_wall1_right_top", "t_wall1_left_top", "t_wall1_top_end",
 	"t_wall1_top_left_cont", "t_wall1_top_right_cont", "t_wall1_front_left_cont", "t_wall1_front_right_cont", "t_wall1_window", "t_wall1_door",
 	
-	"t_bookcase_btm_right", "t_bookcase_btm_left", "t_bookcase_top_left", "t_bookcase_top_right", "t_floor1_stool_table1", "t_floor1_stool_table2", "t_floor1_stool_table3",
+	"t_bookcase1_br", "t_bookcase1_bl", "t_bookcase1_tl", "t_bookcase1_tr", "t_bookcase2_br", "t_bookcase2_bl", "t_bookcase2_tl", "t_bookcase2_tr",
+	"t_floor1_stool_table1", "t_floor1_stool_table2", "t_floor1_stool_table3",
 	"t_floor1_stool_table_btm", "t_stone2_counter_top_end", "t_stone2_counter_top_ver", "t_stone2_counter_top_hor", "t_stone2_counter_top_btm_right",
 	"t_stone2_counter_top_btm_left", "t_stone2_counter_front_right", "t_stone2_counter_front_left", "t_stone2_counter_front_stool", "t_stone2_counter_front",
-	"t_stone2_counter_top_flower_btm", "t_stone2_counter_top_flower",
-	"t_stone2_secret_top_right", "t_stone2_secret_top_left", "t_stone2_secret_btm_right", "t_stone2_secret_btm_left",
+	"t_stone2_counter_top_flower_btm", "t_stone2_counter_top_flower", "t_stone2_counter_left_end", "t_stone2_counter_right_end",
+	"t_stone2_secret_tr_c", "t_stone2_secret_tl_c", "t_stone2_secret_br_c", "t_stone2_secret_bl_c",
+	"t_stone2_secret_tr_o", "t_stone2_secret_tl_o", "t_stone2_secret_br_o", "t_stone2_secret_bl_o",
 	
 	"t_floor1_desk1", "t_floor1_desk2", "t_floor1_endtable", "t_bed_btm", "t_bed_top", "t_floor1_appliance", "t_floor1_pot", "t_floor1_stove",
-	"t_floor1_stool", "t_floor1_stove", "t_floor1_wood", "t_floor1",
+	"t_floor1_stool", "t_floor1_wood", "t_floor1_armor", "t_floor1", "t_floor2", "t_floor2_pole_btm", "t_floor2_pole_top", "t_floor2_warp",
 	
 	"t_grass1_shadow_btm", "t_grass1_shadow", "t_grass1_shrub", "t_grass1_tree_top", "t_grass1_tree_btm", "t_grass1",
 	"t_wildgrass", "t_wildgrass_btm_right", "t_wildgrass_btm_left", "t_wildgrass_top_left", "t_wildgrass_top_right", "t_grass1_well",
@@ -39,16 +41,19 @@ var _tiles = [
 	"t_floor1_carpet_btm", "t_floor1_carpet_top", "t_floor1_carpet_left", "t_floor1_carpet_right",
 	"t_floor1_carpet_right_top", "t_floor1_carpet_right_btm", "t_floor1_carpet_left_btm", "t_floor1_carpet_left_top", "t_floor1_carpet",
 	
-	"t_stairs1_shadow", "t_stairs2", "t_stairs3", "t_bridge1_hor", "t_bridge1_ver",
-	"t_sign_weapon", "t_sign_item", "t_sign_armor", "t_sign_inn",
-	"t_stone1_door1_o", "t_stone1_door1_c", "t_stone1_front", "t_stone1_top",
+	"t_stairs1_shadow", "t_stairs2", "t_stairs3", "t_stairs3_shadow_tl", "t_stairs3_shadow_bl", "t_stairs3_shadow_tr", "t_stairs3_shadow_br", 
+	"t_bridge1_hor", "t_bridge1_ver", "t_sign_weapon", "t_sign_item", "t_sign_armor", "t_sign_inn",
+	"t_stone1_door1_o", "t_stone1_door1_c", "t_stone1_front", "t_stone1_top", "t_stone1_switch",
+	"t_stone1_secret_bl_c", "t_stone1_secret_br_c", "t_stone1_secret_tl_c", "t_stone1_secret_tr_c",
+	"t_stone1_secret_bl_o", "t_stone1_secret_br_o", "t_stone1_secret_tl_o", "t_stone1_secret_tr_o",
 	"t_stone2_door1_o", "t_stone2_door1_c", "t_stone2_front", "t_stone2_top", "t_stone2_clock", "t_stone2_poster",
-	"t_stone2_head", "t_stone2_swords",
+	"t_stone2_head", "t_stone2_swords", "t_stone2_candle", "t_stone2_utinsils", "t_stone2_fireplace_tr", "t_stone2_fireplace_br", "t_stone2_fireplace_top",
+	"t_stone2_fireplace_btm", "t_stone2_fireplace_tl", "t_stone2_fireplace_bl",
 	
 	"t_stone3_armor", "t_stone3_weapon", "t_stone3_item", "t_stone3_inn", "t_stone3_front1", "t_stone3_front2", "t_stone3_left", "t_stone3_right",
-	"t_stone3_roof_left_btm", "t_stone3_roof_right_btm", "t_stone3_roof_left_top", "t_stone3_roof_right_top",
-	"t_stone3_roof_top_right", "t_stone3_roof_top_left", "t_stone3_roof_btm_left", "t_stone3_roof_btm_right",
-	"t_stone3_roof_top", "t_stone3_roof", "t_stone3_top_left", "t_stone3_top_right", "t_stone3_top1", "t_stone3_top2", "t_stone3_door1_c",
+	"t_stone3_roof_left_btm", "t_stone3_roof_right_btm", "t_stone3_roof_left_top", "t_stone3_roof_right_top", "t_stone3_roof_top_right",
+	"t_stone3_roof_top_left", "t_stone3_roof_btm_left", "t_stone3_roof_btm_right", "t_stone3_roof_top", "t_stone3_roof", "t_stone3_top_left",
+	"t_stone3_top_right", "t_stone3_top1", "t_stone3_top2", "t_stone3_door1_o", "t_stone3_door1_c",
 	"i_chest1_o", "i_chest1_c",	"empty",
 ];
 
