@@ -1,0 +1,21 @@
+NAME: World
+TILE: 48x48
+MAP: {
+			0: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+			1: ["empty", "w_grass1", "w_grass1", "w_forest1_bl", "w_forest1", "w_forest1", "w_forest1", "w_forest1_tr", "w_grass1", "w_grass1", "w_river_ver", "w_grass1", "w_coast1_br_diag", "w_coast1_btm", "w_coast1_btm", "w_coast1_tl_corner", "w_ocean1", "empty"],
+			2: ["empty", "w_desert1_top", "w_desert1_tr_diag", "w_grass1", "w_forest1_bl", "w_forest1", "w_forest1", "w_forest1", "w_forest1_top", "w_forest1_tr", "w_river_bl", "w_river_hor", "w_river_outlet", "w_ocean1_rock", "w_ocean1_rock", "w_ocean1_rock", "w_ocean1", "empty"],
+			3: ["empty", "w_desert1", "w_desert1_tr_corner", "w_desert1_top", "w_desert1_tr_diag", "w_forest1_bl", "w_forest1_btm", "w_forest1_btm", "w_forest1_btm", "w_forest1_br", "w_grass1", "w_grass1", "w_coast1_right_rock", "w_ocean1", "w_ocean1_rock", "w_ocean1_rock", "w_ocean1", "empty"],
+			4: ["empty", "w_desert1", "w_desert1", "w_desert1", "w_desert1_tr_corner", "w_desert1_tr_diag", "w_grass1", "w_grass1", "w_castle1_tl", "w_castle1_tr", "w_grass1", "w_grass1", "w_coast1_right_rock", "w_ocean1_rock", "w_ocean1_rock", "w_ocean1", "w_ocean1", "empty"],
+			5: ["empty", "w_desert1", "w_desert1", "w_desert1", "w_desert1", "w_desert1_right", "w_grass1", "w_town2", "w_castle1_bl", "w_castle1_br", "w_town1", "w_grass1", "w_coast1_right_rock", "w_ocean1_rock", "w_ocean1", "w_ocean1", "w_ocean1", "empty"],
+			6: ["empty", "w_desert1", "w_desert1", "w_desert1", "w_desert1", "w_desert1_tr_corner", "w_desert1_tr_diag", "w_town1", "w_grass1", "w_grass1", "w_town2", "w_grass1", "w_coast1_tr_diag", "w_coast1_bl_corner", "w_ocean1", "w_ocean1", "w_ocean1", "empty"],
+			7: ["empty", "w_desert1", "w_desert1", "w_desert1", "w_desert1", "w_desert1", "w_desert1_right", "w_grass1", "w_grass1", "w_grass1", "w_grass1", "w_grass1", "w_grass1", "w_coast1_tr_diag", "w_coast1_bl_corner", "w_ocean1", "w_ocean1", "empty"],
+			8: ["empty", "w_desert1_bl_corner", "w_desert1_br_corner", "w_desert1_btm", "w_desert1_btm", "w_desert1_btm", "w_desert1_br_diag", "w_grass1", "w_grass1", "w_grass1", "w_forest1_tl", "w_forest1_top", "w_forest1_tr", "w_grass1", "w_coast1_right", "w_ocean1", "w_ocean1", "empty"],
+			9: ["empty", "w_desert1_bl_diag", "w_desert1_br_diag", "w_mount1_tl", "w_mount1_top", "w_mount1_tr", "w_grass1", "w_grass1", "w_grass1", "w_forest1_tl", "w_forest1", "w_forest1", "w_forest1_right", "w_grass1", "w_coast1_right", "w_ocean1", "w_ocean1", "empty"],
+			10: ["empty", "w_mount1_tr", "w_mount1_tl", "w_mount1", "w_mount1", "w_mount1_right", "w_grass1", "w_forest1_tl", "w_forest1_top", "w_forest1", "w_forest1", "w_forest1", "w_forest1_right", "w_grass1", "w_coast1_right", "w_ocean1", "w_ocean1", "empty"],
+			11: ["empty", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1_tr", "w_forest1_bl", "w_forest1", "w_forest1", "w_forest1", "w_forest1", "w_forest1_br", "w_coast1_br_diag", "w_coast1_tl_corner", "w_ocean1", "w_coast1_br_corner", "empty"],
+			12: ["empty", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1_tr", "w_forest1_bl", "w_forest1_btm", "w_forest1_btm", "w_forest1_br", "w_grass1", "w_coast1_tr_diag", "w_coast1_bl_corner", "w_coast1_br_corner", "w_coast1_tl_diag", "empty"],
+			13: ["empty", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1_top", "w_mount1_top", "w_mount1_top", "w_mount1_tr", "w_grass1", "w_grass1", "w_coast1_tr_diag", "w_coast1_tl_diag", "w_grass2_tl_diag", "empty"],
+			14: ["empty", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1", "w_mount1_tr", "w_grass1", "w_grass1", "w_grass2_tl_diag", "w_grass2_tl_corner", "empty"],
+			15: ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"],
+}
+NOWALK: ["w_ocean1","empty"]

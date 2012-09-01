@@ -1,0 +1,6 @@
+NAME: Celes
+SCALE: {
+	battle: 1.2
+	world: 0.8
+}
+SPRITES: ["left", "up", "down", "right","right_1","left_1","up_1","down_1"]
