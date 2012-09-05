@@ -57,7 +57,7 @@ function webgl( id ) {
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.color );
 	this.ctx.vertexAttribPointer(	this.vertexColor, 4, this.ctx.FLOAT, false, 0, 0 );
 	setMatrixUniforms();
-	this.ctx.drawArrays( this.ctx.TRIANGLE_STRIP, 0, 4 );
+	this.ctx.drawArrays( this.ctx.TRIANGLES, 0, 4 );
 	mvPopMatrix();
 	var currentTime = (new Date).getTime();
 	if (lastSquareUpdateTime) {
