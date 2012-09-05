@@ -1,15 +1,21 @@
 var _gl;
+var gl = function() { return _gl; };
 var squareRotation = 0.0;
 var lastSquareUpdateTime = 0;
 
 function webgl( id ) {
 	this.element =			document.getElementById( id );
 	this.ctx = 				this.element.getContext( 'experimental-webgl' );
-	this.buffers =			{ vertex: "", color: "" };
+	this.buffers =			{ vertex: "", color: "", index: "" };
 	this.program = 			"";
+	this.xRot = this.yRot =	0;
 	this.vertexPosition = 	0;
 	this.vertexColor =		0;
 	this.interval = 		"";
+	this.q =				{ queue: [], running: false };
+	this.color( 0.0, 0.0, 0.0, 1.0 );
+	this.ctx.enable( this.ctx.DEPTH_TEST );
+	this.ctx.depthFunc( this.ctx.LEQUAL );
 } webgl.prototype.viewport = function( x, y, width, height ) {
 	if( arguments.length == 0 ) 		return this.ctx.getParameter( this.ctx.VIEWPORT );
 	else 								this.ctx.viewport( x || this.viewport()[0], y || this.viewport()[1],
@@ -38,26 +44,48 @@ function webgl( id ) {
 	this.ctx.shaderSource( shader, _shaders[which] );
 	this.ctx.compileShader( shader );
 	return shader || null;
+}; webgl.prototype.loadModel = function( which ) {
+	this.queue( function() { getModel( which ); } );
+}; webgl.prototype.initBuffers = function( which ) {
+	this.queue( function() { _gl.initVertexBuffer( which ) } );
+	this.queue( function() { _gl.initColorBuffer( which ) } );
+	this.queue( function() { _gl.initIndexBuffer( which ) } );
 }; webgl.prototype.initVertexBuffer = function( which ) {
 	this.buffers.vertex = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
 	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _vertices[which] ), this.ctx.STATIC_DRAW );
+	this.q.running = false; this.queue();
+}; webgl.prototype.initColorBuffer = function( which ) {
 	this.buffers.color = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.color );
-	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _colors ), this.ctx.STATIC_DRAW );
+	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _colors[which] ), this.ctx.STATIC_DRAW );
+	this.q.running = false; this.queue();
+}; webgl.prototype.initIndexBuffer = function( which ) {
+	this.buffers.index = this.ctx.createBuffer();
+	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
+	this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( _indices[which] ), this.ctx.STATIC_DRAW );
+	this.q.running = false; this.queue();
 }; webgl.prototype.draw = function() {
 	this.ctx.clear( this.ctx.COLOR_BUFFER_BIT | this.ctx.DEPTH_BUFFER_BIT );
-	perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+	perspectiveMatrix = makePerspective( 45, 640.0/480.0, 0.1, 100.0 );
 	loadIdentity();
-	mvTranslate([-0.0, 0.0, -6.0]);
+	mvTranslate( [-0.0, 0.0, -6.0] );
 	mvPushMatrix();
-	mvRotate( squareRotation, [1, 0, -1] );
+	if( Controls.any() ) {
+		if( Controls.keys.up ) this.xRot--;
+		if( Controls.keys.dpwm ) this.xRot++;
+		if( Controls.keys.left ) this.yRot--;
+		if( Controls.keys.right ) this.yRot++;
+	}
+	mvRotate( _gl.xRot, [1, 0, 0] );
+	mvRotate( _gl.yRot, [0, 1, 0] );
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
 	this.ctx.vertexAttribPointer( this.vertexPosition, 3, this.ctx.FLOAT, false, 0, 0 );
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.color );
 	this.ctx.vertexAttribPointer(	this.vertexColor, 4, this.ctx.FLOAT, false, 0, 0 );
+	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
 	setMatrixUniforms();
-	this.ctx.drawArrays( this.ctx.TRIANGLES, 0, 4 );
+	this.ctx.drawElements( this.ctx.TRIANGLES, _indices["cube"].length, this.ctx.UNSIGNED_SHORT, 0 );
 	mvPopMatrix();
 	var currentTime = (new Date).getTime();
 	if (lastSquareUpdateTime) {
@@ -66,19 +94,31 @@ function webgl( id ) {
 	}
 	lastSquareUpdateTime = currentTime;
 }; webgl.prototype.start = function() {
+	Controls.enable("world");
 	if( this.ctx.interval ) clearInterval( this.ctx.interval );
+	lastSquareUpdateTime = (new Date).getTime();
 	this.ctx.interval = setInterval( function() { _gl.draw(); }, 15 );
 }; webgl.prototype.stop = function() {
 	if( this.ctx.interval ) clearInterval( this.ctx.interval );
+}; webgl.prototype.queue = function( callback ) {
+	if( arguments.length == 0 ) {
+		if( this.q.queue.length > 0 && !this.q.running ) {
+			this.q.running = true; this.q.queue.shift().call();
+		}
+	} else if( !this.q.running ) {
+		this.q.running = true; callback.call();
+	} else {
+		this.q.queue.push( callback );
+	}
 };
 
 $(document).ready(function() {
 	_gl = new webgl("canvas");
-	_gl.color( 0.0, 0.0, 0.0, 1.0 );
-	
-	_gl.viewport(0, 0, canvas.width, canvas.height);
+	//_gl.viewport(0, 0, canvas.width, canvas.height);
 	_gl.initShaders();
-	temp = getModel( "cube" );
+	_gl.loadModel( "cube" );
+	_gl.initBuffers( "cube" );
+	_gl.queue( function() {	_gl.start(); } );
 });
 
 function getModel( name ) {
@@ -89,21 +129,23 @@ function getModel( name ) {
 		for( var i in full ) {
 			switch( full[i].substring( 0, full[i].indexOf(" ") ) ) {
 				case "o": console.log( "got an object" ); break;
-				case "v":  vertices.push( [full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[0],
-					full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[1], full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[2]] ); console.log(i);break;
+				case "v":
+					vertices.push( full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[0] );
+					vertices.push( full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[1] );
+					vertices.push( full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[2] );
+					break;
 				case "vn": console.log( "got a vn" ); break;
 				case "vt": console.log( "got a vt" ); break;
 				case "f": 
 					var temp = full[i].substring( full[i].indexOf(" ")+1 ).split(" ");
-					for( var j in vertices[temp[0].substring( 0, temp[0].indexOf("/") )-1] ) _new.push( vertices[temp[0].substring( 0, temp[0].indexOf("/") )-1][j] );
-					for( var j in vertices[temp[1].substring( 0, temp[1].indexOf("/") )-1] ) _new.push( vertices[temp[1].substring( 0, temp[1].indexOf("/") )-1][j] );
-					for( var j in vertices[temp[2].substring( 0, temp[2].indexOf("/") )-1] ) _new.push( vertices[temp[2].substring( 0, temp[2].indexOf("/") )-1][j] );
+					_new.push( temp[0].substring( 0, temp[0].indexOf("/") )-1 );
+					_new.push( temp[1].substring( 0, temp[1].indexOf("/") )-1 );
+					_new.push( temp[2].substring( 0, temp[2].indexOf("/") )-1 );
 					break;
 			}
 		}
-		console.log( _new );
-		_vertices[name] = _new;
-		_gl.initVertexBuffer( "cube" );
-		_gl.start();
+		_vertices[name] = vertices;
+		_indices[name] = _new;
+		_gl.q.running = false; _gl.queue();
 	});
 }
