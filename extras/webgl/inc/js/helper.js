@@ -15,6 +15,7 @@ var _shaders = {
 			vColor = aVertexColor;\
 		}"
 }
+var _models = {};
 var _testf = [
   0,  1,  2,      0,  2,  3,    // front
   4,  5,  6,      4,  6,  7,    // back
@@ -76,7 +77,7 @@ var colors =  [
     [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
     [1.0,  0.0,  1.0,  1.0]     // Left face: purple
 ];
-var _colors = { cube: [] };
+var _colors = { miku: [] };
   
   for (j=0; j<6; j++) {
     var c = colors[j];
@@ -84,7 +85,7 @@ var _colors = { cube: [] };
     // Repeat each color four times for the four vertices of the face
     
     for (var i=0; i<4; i++) {
-      _colors["cube"] = _colors["cube"].concat(c);
+      _colors["miku"] = _colors["miku"].concat(c);
     }
   }
 var mvMatrixStack = [];

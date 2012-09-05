@@ -9,6 +9,8 @@ function webgl( id ) {
 	this.buffers =			{ vertex: "", color: "", index: "" };
 	this.program = 			"";
 	this.xRot = this.yRot =	0;
+	this.zPos =	this.xPos =	0;
+	this.yYaw =				0;
 	this.vertexPosition = 	0;
 	this.vertexColor =		0;
 	this.interval = 		"";
@@ -35,7 +37,6 @@ function webgl( id ) {
 	this.vertexPosition = this.ctx.getAttribLocation( this.program, "aVertexPosition" );
 	this.ctx.enableVertexAttribArray( this.vertexPosition );
 	this.vertexColor = this.ctx.getAttribLocation( this.program, "aVertexColor" );
-	console.log( this.vertexPosition );
 	this.ctx.enableVertexAttribArray( this.vertexColor );
 }; webgl.prototype.getShader = function( which ) {
 	var shader;
@@ -65,15 +66,27 @@ function webgl( id ) {
 	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
 	this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( _indices[which] ), this.ctx.STATIC_DRAW );
 	this.q.running = false; this.queue();
+}; webgl.prototype.render = function( which, part ) {
+	
 }; webgl.prototype.draw = function() {
 	this.ctx.clear( this.ctx.COLOR_BUFFER_BIT | this.ctx.DEPTH_BUFFER_BIT );
 	perspectiveMatrix = makePerspective( 45, 640.0/480.0, 0.1, 100.0 );
 	loadIdentity();
-	mvTranslate( [-0.0, 0.0, -6.0] );
+	if( Controls.any( "wasd" ) ) {
+		if( Controls.keys.a ) 	this.yYaw -=		0.2;
+		if( Controls.keys.d ) 	this.yYaw +=		0.2;
+		if( Controls.keys.w ) { this.zPos +=		(0.03 * Math.cos( this.yYaw * ( Math.PI / 180 ) ) );
+								this.xPos -=		(0.03 * Math.sin( this.yYaw * ( Math.PI / 180 ) ) ); }
+		if( Controls.keys.s ) { this.zPos -=		(0.03 * Math.cos( this.yYaw * ( Math.PI / 180 ) ) );
+								this.xPos -=		(0.03 * Math.sin( this.yYaw * ( Math.PI / 180 ) ) ); }
+	}
+	mvTranslate( [this.xPos, 0.0, this.zPos] );
+	mvRotate( this.yYaw, [0.0, 1.0, 0.0] );
 	mvPushMatrix();
-	if( Controls.any() ) {
+	mvTranslate( [0.0, -1.0, -6.0] );
+	if( Controls.any( "arrows" ) ) {
 		if( Controls.keys.up ) this.xRot--;
-		if( Controls.keys.dpwm ) this.xRot++;
+		if( Controls.keys.down ) this.xRot++;
 		if( Controls.keys.left ) this.yRot--;
 		if( Controls.keys.right ) this.yRot++;
 	}
@@ -82,10 +95,10 @@ function webgl( id ) {
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
 	this.ctx.vertexAttribPointer( this.vertexPosition, 3, this.ctx.FLOAT, false, 0, 0 );
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.color );
-	this.ctx.vertexAttribPointer(	this.vertexColor, 4, this.ctx.FLOAT, false, 0, 0 );
+	this.ctx.vertexAttribPointer( this.vertexColor, 4, this.ctx.FLOAT, false, 0, 0 );
 	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
 	setMatrixUniforms();
-	this.ctx.drawElements( this.ctx.TRIANGLES, _indices["cube"].length, this.ctx.UNSIGNED_SHORT, 0 );
+	this.ctx.drawElements( this.ctx.TRIANGLES, 2, this.ctx.UNSIGNED_SHORT, 0 );
 	mvPopMatrix();
 	var currentTime = (new Date).getTime();
 	if (lastSquareUpdateTime) {
@@ -116,19 +129,19 @@ $(document).ready(function() {
 	_gl = new webgl("canvas");
 	//_gl.viewport(0, 0, canvas.width, canvas.height);
 	_gl.initShaders();
-	_gl.loadModel( "cube" );
-	_gl.initBuffers( "cube" );
+	_gl.loadModel( "miku" );
+	_gl.initBuffers( "miku" );
 	_gl.queue( function() {	_gl.start(); } );
 });
 
 function getModel( name ) {
 	$.ajax({ url: "inc/models/"+name+"/"+name+".obj" }).done( function( response ){
 		var full = response.split("\n");
-		var vertices = [];
-		var _new = [];
+		_models[name] = {};
+		var vertices = []; var _new = []; var current = "";
 		for( var i in full ) {
 			switch( full[i].substring( 0, full[i].indexOf(" ") ) ) {
-				case "o": console.log( "got an object" ); break;
+				case "o": current = full[i].substring( full[i].indexOf(" ")+1 ); _models[name][current] = {}; break;
 				case "v":
 					vertices.push( full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[0] );
 					vertices.push( full[i].substring( full[i].indexOf(" ")+1 ).split(" ")[1] );
@@ -140,10 +153,11 @@ function getModel( name ) {
 					var temp = full[i].substring( full[i].indexOf(" ")+1 ).split(" ");
 					_new.push( temp[0].substring( 0, temp[0].indexOf("/") )-1 );
 					_new.push( temp[1].substring( 0, temp[1].indexOf("/") )-1 );
-					_new.push( temp[2].substring( 0, temp[2].indexOf("/") )-1 );
+					if( temp.length > 2 ) _new.push( temp[2].substring( 0, temp[2].indexOf("/") )-1 );
 					break;
 			}
 		}
+		console.log( _models );
 		_vertices[name] = vertices;
 		_indices[name] = _new;
 		_gl.q.running = false; _gl.queue();
