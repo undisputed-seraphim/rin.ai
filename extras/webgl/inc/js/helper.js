@@ -1,21 +1,32 @@
 var _shaders = {
 	fragment: "\
+		precision mediump float;\
+		varying vec2 vTextureCoord;\
+		uniform sampler2D uSampler;\
 		varying lowp vec4 vColor;\
 		void main(void) {\
-			gl_FragColor = vColor;\
+			gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
 		}",
 	vertex: "\
 		attribute vec3 aVertexPosition;\
-		attribute vec4 aVertexColor;\
+		attribute vec2 aTextureCoord;\
    		uniform mat4 uMVMatrix;\
       	uniform mat4 uPMatrix;\
 		varying lowp vec4 vColor;\
+		varying vec2 vTextureCoord;\
     	void main(void) {\
 	        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\
-			vColor = aVertexColor;\
+			vColor = vec4(1, 0, 0, 1);\
+			vTextureCoord = aTextureCoord;\
 		}"
 }
+/*			*/
 var _models = {};
+var _materials = {};
+var _images = {};
+var _tex = {};
+var _buffers = {};
+var _textures = {};
 var _testf = [
   0,  1,  2,      0,  2,  3,    // front
   4,  5,  6,      4,  6,  7,    // back
@@ -75,11 +86,26 @@ var colors =  [
     [0.0,  1.0,  0.0,  1.0],    // Top face: green
     [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
     [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
+    [1.0,  0.0,  1.0,  1.0],[1.0,  1.0,  1.0,  1.0],    // Front face: white
+    [1.0,  0.0,  0.0,  1.0],    // Back face: red
+    [0.0,  1.0,  0.0,  1.0],    // Top face: green
+    [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
+    [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
+    [1.0,  0.0,  1.0,  1.0],[1.0,  1.0,  1.0,  1.0],    // Front face: white
+    [1.0,  0.0,  0.0,  1.0],    // Back face: red
+    [0.0,  1.0,  0.0,  1.0],    // Top face: green
+    [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
+    [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
+    [1.0,  0.0,  1.0,  1.0],[1.0,  1.0,  1.0,  1.0],    // Front face: white
+    [1.0,  0.0,  0.0,  1.0],    // Back face: red
+    [0.0,  1.0,  0.0,  1.0],    // Top face: green
+    [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
+    [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
     [1.0,  0.0,  1.0,  1.0]     // Left face: purple
 ];
 var _colors = { miku: [] };
   
-  for (j=0; j<6; j++) {
+  for (j=0; j<30; j++) {
     var c = colors[j];
     
     // Repeat each color four times for the four vertices of the face
