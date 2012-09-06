@@ -20,7 +20,7 @@ var _shaders = {
 			vTextureCoord = aTextureCoord;\
 		}"
 }
-/*			*/
+/*		gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));	*/
 var _models = {};
 var _materials = {};
 var _images = {};
