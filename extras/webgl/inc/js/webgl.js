@@ -1,4 +1,5 @@
 var _gl;
+var miku;
 var gl = function() { return _gl; };
 var squareRotation = 0.0;
 var lastSquareUpdateTime = 0;
@@ -61,14 +62,14 @@ function webgl( id ) {
 }; webgl.prototype.initVertexBuffer = function( which ) {
 	this.buffers.vertex = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
-	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _vertices[which] ), this.ctx.STATIC_DRAW );
-	_buffers[which] = {};
+	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.v.vertices ), this.ctx.STATIC_DRAW );
+	/*_buffers[which] = {};
 	for( var i in _models[which] ) {
 		_buffers[which][i] = {};
 		_buffers[which][i].vertex = this.ctx.createBuffer();
 		this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, _buffers[which][i].vertex );
 		this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _models[which][i].vertex ), this.ctx.STATIC_DRAW );
-	}
+	}*/
 	this.q.running = false; this.queue();
 }; webgl.prototype.initColorBuffer = function( which ) {
 	this.buffers.color = this.ctx.createBuffer();
@@ -78,21 +79,23 @@ function webgl( id ) {
 }; webgl.prototype.initTextureBuffer = function( which ) {
 	this.buffers.texture = this.ctx.createBuffer();
     this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.texture );
-    this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _textures[which] ), this.ctx.STATIC_DRAW);
-	for( var i in _models[which] ) {
+    this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.v.textures ), this.ctx.STATIC_DRAW);
+	/*for( var i in _models[which] ) {
 		_buffers[which][i].texture = this.ctx.createBuffer();
 	    this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, _buffers[which][i].texture );
     	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _models[which][i].texture ), this.ctx.STATIC_DRAW);
-	}
+	}*/
     this.q.running = false; this.queue();
 }; webgl.prototype.initIndexBuffer = function( which ) {
 	this.buffers.index = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
-	this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( _indices[which] ), this.ctx.STATIC_DRAW );
-	for( var i in _models[which] ) {
-		_buffers[which][i].index = this.ctx.createBuffer();
-		this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, _buffers[which][i].index );
-		this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( _models[which][i].index ), this.ctx.STATIC_DRAW );
+	this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( which.v.indices ), this.ctx.STATIC_DRAW );
+	for( var i in which.mesh ) {
+		for( var j in which.mesh[i].textures ) {
+			which.mesh[i].textures[j].v.buffer = this.ctx.createBuffer();
+			this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, which.mesh[i].textures[j].v.buffer );
+			this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( which.mesh[i].textures[j].v.index ), this.ctx.STATIC_DRAW );
+		}
 	}
 	this.q.running = false; this.queue();
 }; webgl.prototype.render = function( which, part ) {
@@ -101,17 +104,19 @@ function webgl( id ) {
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.texture );
 	this.ctx.vertexAttribPointer( this.textureCoord, 2, this.ctx.FLOAT, false, 0, 0);
 	if( part === undefined ) {
-		for( var i in _models[which] ) {
-			if( _tex[which][_materials[which][i][0][1].trim()] !== undefined ) {
-				this.ctx.activeTexture( this.ctx.TEXTURE0 );
-				this.ctx.bindTexture( this.ctx.TEXTURE_2D, _tex[which][_materials[which][i][0][1].trim()].tex );
-				this.ctx.uniform1i( this.ctx.getUniformLocation( this.program, "uSampler" ), 0 );
-			} else {
-				this.ctx.uniform1i( this.program.useTexturesUniform, false );
+		for( var i in which.mesh ) {
+			for( var j in which.mesh[i].textures ) {
+				if( which.v.mats[j].src != "" ) {
+					this.ctx.activeTexture( this.ctx.TEXTURE0 );
+					this.ctx.bindTexture( this.ctx.TEXTURE_2D, which.v.mats[j].texture );
+					this.ctx.uniform1i( this.ctx.getUniformLocation( this.program, "uSampler" ), 0 );
+				} else {
+					this.ctx.uniform1i( this.program.useTexturesUniform, false );
+				}
+				this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, which.mesh[i].textures[j].v.buffer );
+				setMatrixUniforms();
+				this.ctx.drawElements( this.ctx.TRIANGLES, which.mesh[i].textures[j].v.index.length, this.ctx.UNSIGNED_SHORT, 0 );
 			}
-			this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, _buffers[which][i].index );
-			setMatrixUniforms();
-			this.ctx.drawElements( this.ctx.TRIANGLES, _models[which][i].index.length, this.ctx.UNSIGNED_SHORT, 0 );
 		}
 	}
 }; webgl.prototype.draw = function() {
@@ -140,7 +145,7 @@ function webgl( id ) {
 	mvRotate( _gl.yRot, [0, 1, 0] );
 	//this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.color );
 	//this.ctx.vertexAttribPointer( this.vertexColor, 4, this.ctx.FLOAT, false, 0, 0 );
-	this.render( "miku2" );
+	this.render( miku );
 	mvPopMatrix();
 	var currentTime = (new Date).getTime();
 	if (lastSquareUpdateTime) {
@@ -171,11 +176,18 @@ $(document).ready(function() {
 	_gl = new webgl("canvas");
 	//_gl.viewport(0, 0, canvas.width, canvas.height);
 	_gl.initShaders();
-	_gl.loadModel( "miku2" );
-	_gl.loadTextures( "miku2" );
-	_gl.initBuffers( "miku2" );
-	_gl.queue( function() {	_gl.start(); } );
+	document.addEventListener( "modelLoaded", goAhead );
+	miku = new model( "miku2" ); //_gl.loadModel( "miku2" );
+	//_gl.loadTextures( "miku2" );
+	//_gl.initBuffers( "miku2" );
+	//_gl.queue( function() {	_gl.start(); } );
 });
+
+function goAhead() {
+	document.removeEventListener( "modelLoaded", goAhead );
+	_gl.initBuffers( miku );
+	_gl.queue( function() {	_gl.start(); } );
+}
 
 function getModel( name ) {
 	$.ajax({ url: "inc/models/"+name+"/"+name+".obj" }).done( function( response ){
