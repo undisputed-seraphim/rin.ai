@@ -2,22 +2,39 @@ var _shaders = {
 	fragment: "\
 		precision mediump float;\
 		varying vec2 vTextureCoord;\
+		uniform vec3 uMaterialAmbientColor;\
+  		uniform vec3 uMaterialDiffuseColor;\
+  		uniform vec3 uMaterialSpecularColor;\
 		uniform sampler2D uSampler;\
-		varying lowp vec4 vColor;\
+		uniform bool uUseTextures;\
 		void main(void) {\
-			gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
+			vec3 materialAmbientColor = uMaterialAmbientColor;\
+		    vec3 materialDiffuseColor = uMaterialDiffuseColor;\
+    		vec3 materialSpecularColor = uMaterialSpecularColor;\
+			float alpha = 1.0;\
+			if (uUseTextures) {\
+		      	vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
+		      	materialAmbientColor = materialAmbientColor * textureColor.rgb;\
+		      	materialDiffuseColor = materialDiffuseColor * textureColor.rgb;\
+		    	alpha = textureColor.a;\
+			}\
+			gl_FragColor = vec4(\
+				materialAmbientColor * 1.0\
+      			+ materialDiffuseColor * 1.0\
+      			+ materialSpecularColor * 1.0, alpha );\
 		}",
 	vertex: "\
-		attribute vec3 aVertexPosition;\
-		attribute vec2 aTextureCoord;\
+		attribute vec3 aVertex;\
+		attribute vec2 aTexture;\
+		attribute vec3 aNormal;\
    		uniform mat4 uMVMatrix;\
       	uniform mat4 uPMatrix;\
-		varying lowp vec4 vColor;\
+		uniform mat3 uNMatrix;\
 		varying vec2 vTextureCoord;\
     	void main(void) {\
-	        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\
-			vColor = vec4(1, 0, 0, 1);\
-			vTextureCoord = aTextureCoord;\
+	        gl_Position = uPMatrix * uMVMatrix * vec4(aVertex, 1.0);\
+			vTextureCoord = aTexture;\
+			vec3 transformedNormal = uNMatrix * aNormal;\
 		}"
 }
 /*		gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));	*/

@@ -7,7 +7,7 @@ var lastSquareUpdateTime = 0;
 function webgl( id ) {
 	this.element =			document.getElementById( id );
 	this.ctx = 				this.element.getContext( 'experimental-webgl' );
-	this.buffers =			{ vertex: "", color: "", texture: "", index: "" };
+	this.buffers =			{ vertex: "", color: "", texture: "", normal: "", index: "" };
 	this.program = 			"";
 	this.visible =			{};
 	this.mtllib =			"";
@@ -20,6 +20,7 @@ function webgl( id ) {
 	this.textureCoord =		0;
 	this.interval = 		"";
 	this.q =				{ queue: [], running: false };
+	this.v =				{ vertex: "", normal: "", texture: "" };
 	this.color( 0.0, 0.0, 0.0, 1.0 );
 	this.ctx.enable( this.ctx.DEPTH_TEST );
 	this.ctx.depthFunc( this.ctx.LEQUAL );
@@ -39,10 +40,12 @@ function webgl( id ) {
 	this.ctx.attachShader( this.program, fragment );
 	this.ctx.linkProgram( this.program );
 	this.ctx.useProgram( this.program );
-	this.vertexPosition = this.ctx.getAttribLocation( this.program, "aVertexPosition" );
-	this.ctx.enableVertexAttribArray( this.vertexPosition );
-	this.textureCoord = this.ctx.getAttribLocation( this.program, "aTextureCoord" );
-	this.ctx.enableVertexAttribArray( this.textureCoord );
+	this.v.vertex = this.ctx.getAttribLocation( this.program, "aVertex" );
+	this.ctx.enableVertexAttribArray( this.v.vertex );
+	//this.v.normal = this.ctx.getAttribLocation( this.program, "aNormal" );
+	//this.ctx.enableVertexAttribArray( this.v.normal );
+	this.v.texture = this.ctx.getAttribLocation( this.program, "aTexture" );
+	this.ctx.enableVertexAttribArray( this.v.texture );
 }; webgl.prototype.getShader = function( which ) {
 	var shader;
 	if( which == "vertex" ) shader = this.ctx.createShader( this.ctx.VERTEX_SHADER );
@@ -58,18 +61,19 @@ function webgl( id ) {
 	this.queue( function() { _gl.initVertexBuffer( which ) } );
 	//this.queue( function() { _gl.initColorBuffer( which ) } );
 	this.queue( function() { _gl.initTextureBuffer( which ) } );
+	//this.queue( function() { _gl.initNormalBuffer( which ) } );
 	this.queue( function() { _gl.initIndexBuffer( which ) } );
 }; webgl.prototype.initVertexBuffer = function( which ) {
 	this.buffers.vertex = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
 	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.v.vertices ), this.ctx.STATIC_DRAW );
-	/*_buffers[which] = {};
-	for( var i in _models[which] ) {
-		_buffers[which][i] = {};
-		_buffers[which][i].vertex = this.ctx.createBuffer();
-		this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, _buffers[which][i].vertex );
-		this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _models[which][i].vertex ), this.ctx.STATIC_DRAW );
-	}*/
+	for( var i in which.mesh ) {
+		for( var j in which.mesh[i].textures ) {
+			which.mesh[i].textures[j].v.buffers.vertex = this.ctx.createBuffer();
+		    this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, which.mesh[i].textures[j].v.buffers.vertex );
+	    	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.mesh[i].textures[j].v.vertex  ), this.ctx.STATIC_DRAW);
+		}
+	}
 	this.q.running = false; this.queue();
 }; webgl.prototype.initColorBuffer = function( which ) {
 	this.buffers.color = this.ctx.createBuffer();
@@ -80,45 +84,59 @@ function webgl( id ) {
 	this.buffers.texture = this.ctx.createBuffer();
     this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.texture );
     this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.v.textures ), this.ctx.STATIC_DRAW);
-	/*for( var i in _models[which] ) {
-		_buffers[which][i].texture = this.ctx.createBuffer();
-	    this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, _buffers[which][i].texture );
-    	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( _models[which][i].texture ), this.ctx.STATIC_DRAW);
+	/*for( var i in which.mesh ) {
+		for( var j in which.mesh[i].textures ) {
+			which.mesh[i].textures[j].v.buffers.texture = this.ctx.createBuffer();
+		    this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, which.mesh[i].textures[j].v.buffers.texture );
+	    	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.mesh[i].textures[j].v.texture  ), this.ctx.STATIC_DRAW);
+		}
 	}*/
     this.q.running = false; this.queue();
+}; webgl.prototype.initNormalBuffer = function( which ) {
+	this.buffers.normal = this.ctx.createBuffer();
+    this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.normal );
+    this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.v.normals ), this.ctx.STATIC_DRAW);
+	this.q.running = false; this.queue();
 }; webgl.prototype.initIndexBuffer = function( which ) {
 	this.buffers.index = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
 	this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( which.v.indices ), this.ctx.STATIC_DRAW );
 	for( var i in which.mesh ) {
 		for( var j in which.mesh[i].textures ) {
-			which.mesh[i].textures[j].v.buffer = this.ctx.createBuffer();
-			this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, which.mesh[i].textures[j].v.buffer );
+			which.mesh[i].textures[j].v.buffers.index = this.ctx.createBuffer();
+			this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, which.mesh[i].textures[j].v.buffers.index );
 			this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( which.mesh[i].textures[j].v.index ), this.ctx.STATIC_DRAW );
 		}
 	}
 	this.q.running = false; this.queue();
 }; webgl.prototype.render = function( which, part ) {
+	//this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.normal );
+	//this.ctx.vertexAttribPointer( this.v.normal, 3, this.ctx.FLOAT, false, 0, 0 );
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
-	this.ctx.vertexAttribPointer( this.vertexPosition, 3, this.ctx.FLOAT, false, 0, 0 );
+	this.ctx.vertexAttribPointer( this.v.vertex, 3, this.ctx.FLOAT, false, 0, 0 );
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.texture );
-	this.ctx.vertexAttribPointer( this.textureCoord, 2, this.ctx.FLOAT, false, 0, 0);
-	if( part === undefined ) {
+	this.ctx.vertexAttribPointer( this.v.texture, 2, this.ctx.FLOAT, true, 0, 0);
+	//if( part === undefined ) {
 		for( var i in which.mesh ) {
 			for( var j in which.mesh[i].textures ) {
+				//if( which.v.mats[j] === undefined ) console.log( j == " " );
 				if( which.v.mats[j].src != "" ) {
+					this.ctx.uniform1i( this.ctx.getUniformLocation( this.program, "uUseTextures" ), true );
+					this.ctx.enableVertexAttribArray( this.v.texture );
 					this.ctx.activeTexture( this.ctx.TEXTURE0 );
 					this.ctx.bindTexture( this.ctx.TEXTURE_2D, which.v.mats[j].texture );
 					this.ctx.uniform1i( this.ctx.getUniformLocation( this.program, "uSampler" ), 0 );
-				} else {
-					this.ctx.uniform1i( this.program.useTexturesUniform, false );
-				}
-				this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, which.mesh[i].textures[j].v.buffer );
+				} else { this.ctx.disableVertexAttribArray( this.v.texture ); }
+				if( which.v.mats[j].v.Ka !== undefined ) this.ctx.uniform3f( this.ctx.getUniformLocation( this.program, "uMaterialAmbientColor" ),
+					which.v.mats[j].v.Ka[0], which.v.mats[j].v.Ka[1], which.v.mats[j].v.Ka[2] );
+    			this.ctx.uniform3f( this.ctx.getUniformLocation( this.program, "uMaterialDiffuseColor" ), 0.0, 0.0, 0.0);
+    			this.ctx.uniform3f( this.ctx.getUniformLocation( this.program, "uMaterialSpecularColor" ), 0.5, 0.5, 0.5);
+				this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, which.mesh[i].textures[j].v.buffers.index );
 				setMatrixUniforms();
 				this.ctx.drawElements( this.ctx.TRIANGLES, which.mesh[i].textures[j].v.index.length, this.ctx.UNSIGNED_SHORT, 0 );
 			}
 		}
-	}
+	//}
 }; webgl.prototype.draw = function() {
 	this.ctx.clear( this.ctx.COLOR_BUFFER_BIT | this.ctx.DEPTH_BUFFER_BIT );
 	perspectiveMatrix = makePerspective( 45, 640.0/480.0, 0.1, 100.0 );
@@ -177,7 +195,8 @@ $(document).ready(function() {
 	//_gl.viewport(0, 0, canvas.width, canvas.height);
 	_gl.initShaders();
 	document.addEventListener( "modelLoaded", goAhead );
-	miku = new model( "miku2" ); //_gl.loadModel( "miku2" );
+	miku = new model( "miku2" );
+	_gl.loadModel( "miku2" );
 	//_gl.loadTextures( "miku2" );
 	//_gl.initBuffers( "miku2" );
 	//_gl.queue( function() {	_gl.start(); } );

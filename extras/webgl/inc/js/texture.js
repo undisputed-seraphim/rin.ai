@@ -4,7 +4,7 @@ var _texture_max = 0;
 function texture( name ) {
 	this.name = name;
 	
-	this.v = { index: [], texture: [], buffer: "" };
+	this.v = { index: [], texture: [], vertex: [], buffers: { index: "", texture: "", vertex: "" } };
 }
 
 function material( name ) {
@@ -30,7 +30,7 @@ function material( name ) {
 		if( this.parent.v.mats[i].src != "" ) {
 			this.parent.v.mats[i].texture = _gl.ctx.createTexture();
 			_gl.ctx.bindTexture(_gl.ctx.TEXTURE_2D, this.parent.v.mats[i].texture);
-			//_gl.ctx.pixelStorei(_gl.ctx.UNPACK_FLIP_Y_WEBGL, true);
+			_gl.ctx.pixelStorei(_gl.ctx.UNPACK_FLIP_Y_WEBGL, true);
 			_gl.ctx.texImage2D(_gl.ctx.TEXTURE_2D, 0, _gl.ctx.RGBA, _gl.ctx.RGBA, _gl.ctx.UNSIGNED_BYTE, this.parent.v.mats[i].element);
 			_gl.ctx.texParameteri(_gl.ctx.TEXTURE_2D, _gl.ctx.TEXTURE_MAG_FILTER, _gl.ctx.NEAREST);
 			_gl.ctx.texParameteri(_gl.ctx.TEXTURE_2D, _gl.ctx.TEXTURE_MIN_FILTER, _gl.ctx.NEAREST);
