@@ -1,0 +1,169 @@
+{
+    "ambient_occlusion": 0.20454545454545456, 
+    "nodes": {
+        "0d8e11a6a2d97082ad9e8ada8c111654": {
+            "offset": {
+                "x": 890, 
+                "y": 330
+            }, 
+            "parameters": {
+                "direction": 0.42477272727272791, 
+                "repeat": 0.68272727272727252, 
+                "strengh": 0.85340909090909045, 
+                "strengh2": 0.51249999999999885
+            }, 
+            "sources": {
+                "input": "81230b2baa96990e5e6012626a09b802", 
+                "weight": "7e09df8272342a778a5b3795642bcd08"
+            }, 
+            "type": "Wind"
+        }, 
+        "44115c6c5a532c8102840d42857eaacc": {
+            "offset": {
+                "x": 1356, 
+                "y": 378
+            }, 
+            "parameters": {}, 
+            "sources": {
+                "op1": "d70d17814f8d83493a5737466f90ea32", 
+                "op2": "0d8e11a6a2d97082ad9e8ada8c111654"
+            }, 
+            "type": "Subtract"
+        }, 
+        "74533e82f816213a8763875d7486cdb1": {
+            "offset": {
+                "x": 125, 
+                "y": 163
+            }, 
+            "parameters": {
+                "falloff": 0.78318181818181887, 
+                "frequency": 0.35749999999999926, 
+                "height": 0.069545454545454466, 
+                "octaves": 0.5090909090909076, 
+                "seed": 0.93181818181818121
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "7e09df8272342a778a5b3795642bcd08": {
+            "offset": {
+                "x": 453, 
+                "y": 350
+            }, 
+            "parameters": {
+                "falloff": 0.59522727272727338, 
+                "frequency": 0.25, 
+                "height": 0.10318181818181926, 
+                "octaves": 0.37113636363636332, 
+                "seed": 0.0
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "81220d5bd8ff2de1da063cf9be29d009": {
+            "offset": {
+                "x": 923, 
+                "y": 126
+            }, 
+            "parameters": {
+                "falloff": 0.88840909090909392, 
+                "frequency": 0.25, 
+                "height": 0.090000000000000288, 
+                "octaves": 0.35886363636363633, 
+                "seed": 0.73863636363636387
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "81230b2baa96990e5e6012626a09b802": {
+            "offset": {
+                "x": 685, 
+                "y": 105
+            }, 
+            "parameters": {
+                "clamp": false, 
+                "factor": 0.56227272727273114, 
+                "invert": false, 
+                "offset": 0.48363636363636292
+            }, 
+            "sources": {
+                "input": "b9de30537e11996357b24ffc907276da"
+            }, 
+            "type": "Adjust"
+        }, 
+        "885f984a1afb9fed4fd899e366dfad81": {
+            "offset": {
+                "x": 1154, 
+                "y": 103
+            }, 
+            "parameters": {
+                "invert": false, 
+                "repeat": 0.31136363636363606, 
+                "rough": false, 
+                "shallow": false, 
+                "slope": true
+            }, 
+            "sources": {
+                "input": "44115c6c5a532c8102840d42857eaacc", 
+                "weight": "81220d5bd8ff2de1da063cf9be29d009"
+            }, 
+            "type": "Erode"
+        }, 
+        "b9de30537e11996357b24ffc907276da": {
+            "offset": {
+                "x": 374, 
+                "y": 44
+            }, 
+            "parameters": {
+                "falloff": 0.41363636363635614, 
+                "frequency": 0.20568181818181691, 
+                "height": 0.02840909090909071, 
+                "octaves": 0.25681818181818172, 
+                "seed": 0.11568181818181829
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "d70d17814f8d83493a5737466f90ea32": {
+            "offset": {
+                "x": 1144, 
+                "y": 408
+            }, 
+            "parameters": {
+                "falloff": 0.74113636363636026, 
+                "frequency": 0.31636363636363818, 
+                "height": 0.018863636363636395, 
+                "octaves": 0.44681818181818223, 
+                "seed": 0.44318181818181795
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }
+    }, 
+    "terrain": {
+        "input_height": "885f984a1afb9fed4fd899e366dfad81", 
+        "material": "74533e82f816213a8763875d7486cdb1", 
+        "offset": {
+            "x": 1400, 
+            "y": 261
+        }
+    }, 
+    "viewport": {
+        "position": [
+            -0.0259143725942204, 
+            1.2826980892962352, 
+            -0.6322074000698239
+        ], 
+        "rotation": [
+            -56.54310000000023, 
+            0.0, 
+            1.1221255096617924
+        ]
+    }, 
+    "workspace": {
+        "offset": {
+            "x": 0, 
+            "y": 0
+        }
+    }
+}

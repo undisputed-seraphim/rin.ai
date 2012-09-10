@@ -1,0 +1,182 @@
+{
+    "ambient_occlusion": 0.11068181818181815, 
+    "nodes": {
+        "00c6018bba263bcc2bab362ac9a177b6": {
+            "offset": {
+                "x": 879, 
+                "y": 397
+            }, 
+            "parameters": {
+                "hue": 0.2184090909090923, 
+                "lightness": 0.22568181818181884, 
+                "saturdation": 0.75113636363636149
+            }, 
+            "sources": {}, 
+            "type": "Color"
+        }, 
+        "1a61c0dab00bc6b07f2c13f8b064e16f": {
+            "offset": {
+                "x": 639, 
+                "y": 447
+            }, 
+            "parameters": {
+                "clamp": false, 
+                "factor": 0.82772727272727231, 
+                "invert": false, 
+                "offset": 0.45136363636363835
+            }, 
+            "sources": {
+                "input": "d7fc26868c538e9fa0114ea56dc40583"
+            }, 
+            "type": "Adjust"
+        }, 
+        "47534c4df6004d6b46a5dd9191006fe1": {
+            "offset": {
+                "x": 1103, 
+                "y": 168
+            }, 
+            "parameters": {}, 
+            "sources": {
+                "op1": "00c6018bba263bcc2bab362ac9a177b6", 
+                "op2": "944bc44885684f0d7cb1ae92605d762e"
+            }, 
+            "type": "Multiply"
+        }, 
+        "4af9538f909b6d361d0e4cb5d41fe847": {
+            "offset": {
+                "x": 250, 
+                "y": 279
+            }, 
+            "parameters": {
+                "falloff": 0.39090909090909098, 
+                "frequency": 0.25, 
+                "height": 0.035909090909090828, 
+                "octaves": 1.0, 
+                "seed": 0.0
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "59fc652f00c0194e6ca88ca5822706b8": {
+            "offset": {
+                "x": 1296, 
+                "y": 438
+            }, 
+            "parameters": {
+                "falloff": 0.71659090909090895, 
+                "frequency": 0.25, 
+                "height": 0.18977272727272798, 
+                "octaves": 0.2622727272727271, 
+                "seed": 0.0
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "944bc44885684f0d7cb1ae92605d762e": {
+            "offset": {
+                "x": 854, 
+                "y": 31
+            }, 
+            "parameters": {
+                "falloff": 0.85704545454545222, 
+                "frequency": 0.19363636363636416, 
+                "height": 0.079545454545454364, 
+                "octaves": 0.37681818181818155, 
+                "seed": 0.0
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }, 
+        "95c7c547cebdf94ac5aa7b002007dae1": {
+            "offset": {
+                "x": 1132, 
+                "y": 310
+            }, 
+            "parameters": {}, 
+            "sources": {
+                "alpha": "1a61c0dab00bc6b07f2c13f8b064e16f", 
+                "op1": "c4cfd938aa2d9afc66a5cabc85f57fce", 
+                "op2": "47534c4df6004d6b46a5dd9191006fe1"
+            }, 
+            "type": "Mix"
+        }, 
+        "c4cfd938aa2d9afc66a5cabc85f57fce": {
+            "offset": {
+                "x": 1366, 
+                "y": 92
+            }, 
+            "parameters": {}, 
+            "sources": {
+                "op1": "c51754047089dfc5b0c9e70c881e017a", 
+                "op2": "59fc652f00c0194e6ca88ca5822706b8"
+            }, 
+            "type": "Multiply"
+        }, 
+        "c51754047089dfc5b0c9e70c881e017a": {
+            "offset": {
+                "x": 1087, 
+                "y": 466
+            }, 
+            "parameters": {
+                "hue": 0.092272727272727145, 
+                "lightness": 0.028863636363636418, 
+                "saturdation": 0.68022727272727279
+            }, 
+            "sources": {}, 
+            "type": "Color"
+        }, 
+        "d7fc26868c538e9fa0114ea56dc40583": {
+            "offset": {
+                "x": 635, 
+                "y": 345
+            }, 
+            "parameters": {}, 
+            "sources": {
+                "op1": "4af9538f909b6d361d0e4cb5d41fe847", 
+                "op2": "f9de30baae4c0084b7e23b5f1bf488d1"
+            }, 
+            "type": "Multiply"
+        }, 
+        "f9de30baae4c0084b7e23b5f1bf488d1": {
+            "offset": {
+                "x": 534, 
+                "y": 73
+            }, 
+            "parameters": {
+                "falloff": 0.34818181818181809, 
+                "frequency": 0.14500000000000052, 
+                "height": 0.094545454545454793, 
+                "octaves": 0.55659090909090936, 
+                "seed": 0.0
+            }, 
+            "sources": {}, 
+            "type": "Perlin"
+        }
+    }, 
+    "terrain": {
+        "input_height": "d7fc26868c538e9fa0114ea56dc40583", 
+        "material": "95c7c547cebdf94ac5aa7b002007dae1", 
+        "offset": {
+            "x": 1400, 
+            "y": 261
+        }
+    }, 
+    "viewport": {
+        "position": [
+            0.87859978603819433, 
+            0.57902305214827199, 
+            0.11360649268586237
+        ], 
+        "rotation": [
+            -20.46300000000009, 
+            0.0, 
+            0.68899999999999906
+        ]
+    }, 
+    "workspace": {
+        "offset": {
+            "x": 0, 
+            "y": 0
+        }
+    }
+}

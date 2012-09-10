@@ -1,0 +1,107 @@
+vertex:
+    attribute vec3 position, normal;
+    attribute vec2 texcoord;
+
+    uniform mat4 projection, normal_matrix, view;
+    varying vec3 v_normal;
+    varying vec2 v_texcoord;
+
+    void main(void) {
+        gl_Position = projection * vec4(mat3(normal_matrix) * position, 1.0);
+        v_normal = normal;
+    }
+
+fragment:
+    varying vec3 v_normal;
+    uniform vec3 lightdir;
+    uniform samplerCube cubemap;
+
+    float surface_height = 0.99;
+    float range = 0.01;
+    vec3 Kr = vec3(0.18867780436772762, 0.4978442963618773, 0.6616065586417131);
+    vec3 Km = vec3(0.5, 0.5, 0.5);
+    float intensity = 1.8;
+
+    float atmospheric_depth(vec3 position, vec3 dir){
+        float a = dot(dir, dir);
+        float b = 2.0*dot(dir, position);
+        float c = dot(position, position)-1.0;
+        float det = b*b-4.0*a*c;
+        float detSqrt = sqrt(det);
+        float q = (-b - detSqrt)/2.0;
+        float t1 = c/q;
+        return t1;
+    }
+
+    float phase(float alpha, float g){
+        float a = 3.0*(1.0-g*g);
+        float b = 2.0*(2.0+g*g);
+        float c = 1.0+alpha*alpha;
+        float d = pow(1.0+g*g-2.0*g*alpha, 1.5);
+        return (a/b)*(c/d);
+    }
+
+    float horizon_extinction(vec3 position, vec3 dir, float radius){
+        float u = dot(dir, -position);
+        if(u<0.0){
+            return 1.0;
+        }
+        vec3 near = position + u*dir;
+        if(length(near) < radius){
+            return 0.0;
+        }
+        else{
+            vec3 v2 = normalize(near)*radius - position;
+            float diff = acos(dot(normalize(v2), dir));
+            return smoothstep(0.0, 1.0, pow(diff*2.0, 3.0));
+        }
+    }
+
+    vec3 absorb(float dist, vec3 color){
+        return color-color*pow(Kr, vec3(0.05/dist));
+        /*
+        return (
+            color*
+            pow(1.0-Km, vec3(pow(dist*5.0, 2.0)))*
+            pow(1.0-Kr*1.1, vec3(pow(dist*10.0, 2.0)))
+        );
+        */
+    }
+
+    vec3 gather(vec3 weights, float depth, float dist, float extinction, float eye_depth){
+        vec3 sample_influx = absorb(depth, vec3(intensity))*extinction;
+        return absorb(dist, weights*sample_influx)*eye_depth;
+    }
+
+    void main(void){
+        vec3 eyedir = normalize(v_normal);
+        vec3 eye_position = vec3(0.0, surface_height, 0.0);
+        float eye_depth = atmospheric_depth(eye_position, eyedir);
+        const int step_count = 16;
+        float step_length = eye_depth/float(step_count);
+        float alpha = dot(eyedir, lightdir);
+
+        float rayleigh = phase(alpha, 0.04)*9.4;
+        float mie = phase(alpha, 0.35)*0.9;
+        float spot = phase(alpha, 0.92)*0.4;
+        
+        vec3 rayleigh_influx = vec3(0.0, 0.0, 0.0);
+        vec3 mie_influx = vec3(0.0, 0.0, 0.0);
+
+        for(int i=0; i<step_count; i++){
+            float sample_distance = step_length*float(i);
+            vec3 position = eye_position + eyedir*sample_distance;
+            float density = 1.0-(length(position)-surface_height)/range;
+            float extinction = horizon_extinction(position, lightdir, surface_height-0.35);
+            float sample_depth = atmospheric_depth(position, lightdir);
+            rayleigh_influx += gather(Kr, sample_depth, sample_distance, extinction, eye_depth);
+            mie_influx += gather(Km, sample_depth, sample_distance, extinction, eye_depth);
+        }
+        float eye_extinction = horizon_extinction(eye_position, eyedir, surface_height-0.15);
+        rayleigh_influx /= float(step_count);
+        mie_influx /= float(step_count);
+        vec3 color = vec3(rayleigh*rayleigh_influx+mie*mie_influx+spot*mie_influx)*eye_extinction;
+
+        //gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = textureCube(cubemap, eyedir);
+    }

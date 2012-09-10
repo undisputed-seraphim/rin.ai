@@ -1,0 +1,64 @@
+<!doctype html>
+<!--
+    :copyright: 2011 by Florian Boesch <pyalot@gmail.com>.
+    :license: GNU AGPL3, see LICENSE for more details.
+-->
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+
+        <script type="text/javascript" src="jquery-1.5.1.min.js"></script>
+        <script type="text/javascript" src="jquery.cookie.js"></script>
+
+        <!-- glee -->
+        <script type="text/javascript" src="glee/glee.js"></script>
+        <script type="text/javascript" src="glee/matrix.js"></script>
+        <script type="text/javascript" src="glee/vector.js"></script>
+        <script type="text/javascript" src="glee/cube.js"></script>
+        <script type="text/javascript" src="glee/sphere.js"></script>
+        <script type="text/javascript" src="glee/plane.js"></script>
+        <script type="text/javascript" src="glee/shader.js"></script>
+        <script type="text/javascript" src="glee/vbo.js"></script>
+        <script type="text/javascript" src="glee/resources.js"></script>
+        <script type="text/javascript" src="glee/schedule.js"></script>
+        <script type="text/javascript" src="glee/clock.js"></script>
+        <script type="text/javascript" src="glee/texture.js"></script>
+        <script type="text/javascript" src="glee/cubemap.js"></script>
+        <script type="text/javascript" src="glee/renderbuffer.js"></script>
+        <script type="text/javascript" src="glee/fbo.js"></script>
+        <script type="text/javascript" src="glee/processor.js"></script>
+        <script type="text/javascript" src="glee/error.js"></script>
+
+        <!-- app -->
+        <script type="text/javascript" src="lib/terrain.js"></script>
+        <script type="text/javascript" src="lib/lighting.js"></script>
+        <script type="text/javascript" src="lib/util.js"></script>
+        <script type="text/javascript" src="lib/sky.js"></script>
+        <script type="text/javascript" src="lib/scene.js"></script>
+        <script type="text/javascript" src="lib/antialias.js"></script>
+        <script type="text/javascript" src="lib/compositor.js"></script>
+        <script type="text/javascript" src="lib/resources.js"></script>
+        <script type="text/javascript" src="wind/main.js"></script>
+        <script type="text/javascript" src="vegetation/main.js"></script>
+        <script type="text/javascript" src="lib/main.js"></script>
+    </head>
+    <body>
+        <div id="fps">FPS</div>
+        <canvas width="1200" height="600"></canvas>
+        <div class="error support">
+            Your browser does not support webgl, you should use <a href="http://www.google.com/chrome">google chrome</a>.
+            If you are on Windows with chrome, try the --use-gl=desktop option to start chrome.
+        </div>
+        <div class="error ext">Your browser lacks support for the OES_texture_float extension. There is several reasons why that might be.</div>
+        <ul class="error ext">
+            <li>Firefox does not support OES_texture_float. You can use <a href="http://www.google.com/chrome">google chrome</a> which does support it.</li>
+            <li>The Chrome ANGLE wrapper for Windows does not support OES_texture_float. Disable the ANGLE wrapper by starting chrome with --use-gl=desktop</li>
+            <li>Your graphics card may not support this feature</li>
+            <li>Some Open Source drivers (like ATI for linux) do not support the OES_texture_float even if your hardware is capable</li>
+        </ul>
+        <div class="error unknown">An unknown error occured</div>
+        <div class="error driver">
+            Your driver/hardware does not support texture lookups in the vertex shader. The grass cannot be rendered without that.
+        </div>
+    </body>
+</html>
