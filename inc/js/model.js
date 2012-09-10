@@ -38,12 +38,15 @@ function model( name ) {
 								mod.v.textures[ temp[1].substring( temp[1].indexOf("/")+1, temp[1].lastIndexOf("/") )-1 ][1],
 								mod.v.textures[ temp[2].substring( temp[2].indexOf("/")+1, temp[2].lastIndexOf("/") )-1 ][0],
 								mod.v.textures[ temp[2].substring( temp[2].indexOf("/")+1, temp[2].lastIndexOf("/") )-1 ][1] );
-							texz[ temp[0].substring( 0, temp[0].indexOf("/") )-1 ] = [ mod.v.textures[ temp[0].substring( temp[0].indexOf("/")+1, temp[0].lastIndexOf("/") )-1 ][0],
+							texz[ temp[0].substring( 0, temp[0].indexOf("/") )-1 ] = [0.0, 0.0];
+							texz[ temp[0].substring( 0, temp[0].indexOf("/") )-1 ] = [1.0, 0.0];
+							texz[ temp[0].substring( 0, temp[0].indexOf("/") )-1 ] = [0.0, 1.0];
+							/*texz[ temp[0].substring( 0, temp[0].indexOf("/") )-1 ] = [ mod.v.textures[ temp[0].substring( temp[0].indexOf("/")+1, temp[0].lastIndexOf("/") )-1 ][0],
 								mod.v.textures[ temp[0].substring( temp[0].indexOf("/")+1, temp[0].lastIndexOf("/") )-1 ][1] ];
 							texz[ temp[1].substring( 0, temp[1].indexOf("/") )-1 ] = [ mod.v.textures[ temp[1].substring( temp[1].indexOf("/")+1, temp[1].lastIndexOf("/") )-1 ][0],
-								mod.v.textures[ temp[1].substring( temp[1].indexOf("/")+1, temp[1].lastIndexOf("/") )-1 ][1] ];;
+								mod.v.textures[ temp[1].substring( temp[1].indexOf("/")+1, temp[1].lastIndexOf("/") )-1 ][1] ];
 							texz[ temp[2].substring( 0, temp[2].indexOf("/") )-1 ] = [ mod.v.textures[ temp[2].substring( temp[2].indexOf("/")+1, temp[2].lastIndexOf("/") )-1 ][0],
-								mod.v.textures[ temp[2].substring( temp[2].indexOf("/")+1, temp[2].lastIndexOf("/") )-1 ][1] ];;
+								mod.v.textures[ temp[2].substring( temp[2].indexOf("/")+1, temp[2].lastIndexOf("/") )-1 ][1] ];*/
 						} else tex.push( null, null, null, null, null, null );
 						if( temp[0].substring( temp[0].lastIndexOf("/")+1 ).trim() != "" ) {
 							norm.push(
@@ -102,7 +105,7 @@ function model( name ) {
 			temp[i*3] = texz[i][0];
 			temp[i*3+1] = texz[i][1];
 		}
-		mod.v.textures = tex;
+		mod.v.textures = temp;
 		console.log( temp );
 		if( this.mtllib != "" ) mod.preload();
 	}}(this));
