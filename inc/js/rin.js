@@ -59,7 +59,7 @@ $rin.prototype.$OBJModel.prototype.parse = function() {
 		}
 	}
 	$v = null; $t = null; $n = null;
-	var c = 0;
+	var c = 0; var count = 0;
 	console.log( $f );
 	for( var i in $f ) {
 		this.mesh[i] = {};
@@ -76,7 +76,6 @@ $rin.prototype.$OBJModel.prototype.parse = function() {
 			}
 		}
 	}
-	//for( var i = 0; i < $v.length; i++ ) { $i.push( i ); }
 	console.log( this, $v, $n, $t );
 }
 

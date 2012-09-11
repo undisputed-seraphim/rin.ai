@@ -24,6 +24,7 @@ function webgl( id ) {
 	this.color( 0.0, 0.0, 0.0, 1.0 );
 	this.ctx.enable( this.ctx.DEPTH_TEST );
 	this.ctx.depthFunc( this.ctx.LEQUAL );
+	//this.ctx.enable( this.ctx.CULL_FACE );
 } webgl.prototype.viewport = function( x, y, width, height ) {
 	if( arguments.length == 0 ) 		return this.ctx.getParameter( this.ctx.VIEWPORT );
 	else 								this.ctx.viewport( x || this.viewport()[0], y || this.viewport()[1],
@@ -67,13 +68,13 @@ function webgl( id ) {
 	this.buffers.vertex = this.ctx.createBuffer();
 	this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, this.buffers.vertex );
 	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( $r.models("miku2").v.vertices ), this.ctx.STATIC_DRAW );
-	for( var i in which.mesh ) {
+	/*for( var i in which.mesh ) {
 		for( var j in which.mesh[i].textures ) {
 			which.mesh[i].textures[j].v.buffers.vertex = this.ctx.createBuffer();
 		    this.ctx.bindBuffer( this.ctx.ARRAY_BUFFER, which.mesh[i].textures[j].v.buffers.vertex );
 	    	this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( which.mesh[i].textures[j].v.vertex  ), this.ctx.STATIC_DRAW);
 		}
-	}
+	}*/
 	this.q.running = false; this.queue();
 }; webgl.prototype.initColorBuffer = function( which ) {
 	this.buffers.color = this.ctx.createBuffer();
@@ -98,9 +99,9 @@ function webgl( id ) {
     this.ctx.bufferData( this.ctx.ARRAY_BUFFER, new Float32Array( $r.models("miku2").v.normals ), this.ctx.STATIC_DRAW);
 	this.q.running = false; this.queue();
 }; webgl.prototype.initIndexBuffer = function( which ) {
-	this.buffers.index = this.ctx.createBuffer();
-	this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
-	this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( which.v.indices ), this.ctx.STATIC_DRAW );
+	//this.buffers.index = this.ctx.createBuffer();
+	//this.ctx.bindBuffer( this.ctx.ELEMENT_ARRAY_BUFFER, this.buffers.index );
+	//this.ctx.bufferData( this.ctx.ELEMENT_ARRAY_BUFFER, new Uint16Array( which.v.indices ), this.ctx.STATIC_DRAW );
 	for( var i in which.mesh ) {
 		for( var j in which.mesh[i].textures ) {
 			$r.models("miku2").mesh[i][j].b = this.ctx.createBuffer();
@@ -208,12 +209,10 @@ function webgl( id ) {
 $(document).ready(function() {
 	_gl = new webgl("canvas");
 	$r.m.add( "obj", "miku2" );
-	rin.models();
 	//_gl.viewport(0, 0, canvas.width, canvas.height);
 	_gl.initShaders();
 	document.addEventListener( "modelLoaded", goAhead );
 	miku = new model( "miku2" );
-	for( var i in $r.models() ) { console.log( i ); }
 	//_gl.loadModel( "miku2" );
 	//_gl.loadTextures( "miku2" );
 	//_gl.initBuffers( "miku2" );
