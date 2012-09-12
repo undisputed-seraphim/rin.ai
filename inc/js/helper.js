@@ -203,11 +203,11 @@ function mvTranslate(v) {
 }
  
 function setMatrixUniforms() {
-  var pUniform = _gl.ctx.getUniformLocation( _gl.program, "uPMatrix");
-  _gl.ctx.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
+  var pUniform = r.gl.getUniformLocation( r._program, "uPMatrix");
+  r.gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
  
-  var mvUniform = _gl.ctx.getUniformLocation( _gl.program, "uMVMatrix");
-  _gl.ctx.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
+  var mvUniform = r.gl.getUniformLocation( r._program, "uMVMatrix");
+  r.gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 }
 
 Matrix.Translation = function (v)
