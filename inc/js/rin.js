@@ -1,13 +1,16 @@
 (function(){
-var gl, rin;
+var gl, rin,
+	modules = [ "scene", "camera", "utility" ];
 
 (function(){
 
 function $rin() {
 	rin = this;
+	this.modules = 0;
 	this._shaders = { vertex: "", fragment: "" };
 	this._state = { program: 0, shaders: { vertex: 0, fragment: 0 } };
 	this._models = [];
+	this._lights = [];
 	this._program = "";
 	this._ident = {};
 	this.xRot = this.yRot =	0;
@@ -25,17 +28,27 @@ $rin.prototype.queue = function( func ) {
 	if( this.q.queue.length > 0 && !this.q.running ) {
 		this.q.queue.shift().call();
 	}
-}
+};
 $rin.prototype.init = function( id ) {
 	this.gl = gl = document.getElementById( id ).getContext( 'experimental-webgl' );
-	gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
-	gl.enable( gl.DEPTH_TEST );
-	gl.depthFunc( gl.LEQUAL );
-	//this.program.init();
-	this.shader.init();
-	//this.program.attach();
-	return this;
-}
+	if( gl ) { this.load(); }
+	//return this;
+		gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
+		gl.enable( gl.DEPTH_TEST );
+		gl.depthFunc( gl.LEQUAL );
+		//this.program.init();
+		this.shader.init();
+		//this.program.attach();
+};
+$rin.prototype.load = function() {
+	if( this.modules != modules.length ) {
+		var script = document.createElement("script");
+		script.type = "text/javascript";
+		script.onload = function() { rin.load(); }
+		document.getElementsByTagName("head")[0].appendChild( script );
+		script.src = "inc/js/rin.ai/"+modules[this.modules++]+".js";
+	}
+};
 $rin.prototype.draw = function() {
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	perspectiveMatrix = makePerspective( 45, 640.0/480.0, 0.1, 100.0 );
@@ -62,7 +75,7 @@ $rin.prototype.draw = function() {
 	mvRotate( rin.yRot, [0, 1, 0] );
 	for( var i in rin._models ) { rin._models[i].render(); }
 	mvPopMatrix();
-}
+};
 $rin.prototype.start = function() {
 	gl.uniform3f( gl.getUniformLocation( rin._program, "uAmbientColor" ), 1.0, 1.0, 1.0);
 	gl.uniform3f( gl.getUniformLocation( rin._program, "uDiffuseColor" ), 1.5, 1.5, 1.5);
@@ -71,11 +84,11 @@ $rin.prototype.start = function() {
 	gl.uniform3f( gl.getUniformLocation( rin._program, "uLightDirection" ), 0.5, 0.0, 1.0);
 	Controls.enable("world");
 	rin.interval = setInterval( rin.draw, 15 );
-}
+};
 $rin.prototype.stop = function() {
 	clearInterval( rin.interval );
 	Controls.disable();
-}
+};
 
 /* shaders */
 $rin.prototype.shader = {
@@ -100,7 +113,7 @@ $rin.prototype.shader = {
 	attach: function( program, shader ) { gl.attachShader( program, shader ); },
 	source: function( shader, code ) { gl.shaderSource( shader, code ); gl.compileShader( shader ); },
 	set: function( type, shader ) { rin._state.shaders[type] = shader.id; }
-}
+};
 
 /* program */
 
@@ -116,7 +129,7 @@ $rin.prototype.model = $rin.prototype.m = {
 				return rin._models[length]; break;
 		} },
 	get: function( m ) { return m === undefined ? rin._models : typeof m != "string" ? rin._models[m] : rin._models[ rin._ident[m] ]; }
-}
+};
 
 $rin.prototype.$OBJModel = function $OBJModel( id, name ) {
 	this.id = id;
@@ -131,14 +144,14 @@ $rin.prototype.$OBJModel = function $OBJModel( id, name ) {
 	this.v = { vertices: [], textures: [], normals: [] };
 	this.load();
 	return this;
-}
+};
 $rin.prototype.$OBJModel.prototype.load = function() {
 	this.ajax.obj = new XMLHttpRequest();
 	this.ajax.obj.$id = this.id;
 	this.ajax.obj.onreadystatechange = function() { if( this.readyState == 4 ) rin._models[this.$id].parse(); };
 	this.ajax.obj.open( "get", "inc/models/"+this.name+"/"+this.name+".obj" );
 	this.ajax.obj.send( null );
-}
+};
 $rin.prototype.$OBJModel.prototype.parse = function() {
 	var full = this.ajax.obj.responseText.split("\n");
 	var $v = []; var $t = []; var $n = []; var $f = {}; var $o = ""; var $m = ""; var $i = 0; var $mod = { v: [] }; var dup = false;
@@ -188,7 +201,7 @@ $rin.prototype.$OBJModel.prototype.parse = function() {
 		this.ajax.mtl.send( null );
 	}
 	this.buffer();
-}
+};
 $rin.prototype.$OBJModel.prototype.texture = function() {
 	var full = this.ajax.mtl.responseText.split("\n");
 	var current = ""; rin.q.current = 0;
@@ -218,7 +231,7 @@ $rin.prototype.$OBJModel.prototype.texture = function() {
 			c++;
 		}
 	}
-}
+};
 $rin.prototype.$OBJModel.prototype.buffer = function() {
 	this.b.normal = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, this.b.normal );
@@ -240,7 +253,7 @@ $rin.prototype.$OBJModel.prototype.buffer = function() {
 		}
 	}
 	this.ready = true;
-}
+};
 $rin.prototype.$OBJModel.prototype.render = function() {
 	var normalMatrix = mvMatrix.inverse();
 	normalMatrix = normalMatrix.transpose();
@@ -274,7 +287,7 @@ $rin.prototype.$OBJModel.prototype.render = function() {
 			}
 		}
 	}
-}
+};
 
 /* texture */
 $rin.prototype.$Texture = function $Texture( name, id ) {
@@ -294,7 +307,7 @@ $rin.prototype.$Texture = function $Texture( name, id ) {
 	this.Ni = "";
 	this.d = ""; /* alpha */
 	this.illum = "";
-}
+};
 $rin.prototype.$Texture.prototype.load = function() {
 	if( rin.q.current -1 == this.current ) {
 		rin.q.current = 0;
@@ -313,9 +326,10 @@ $rin.prototype.$Texture.prototype.load = function() {
 			}
 		}
 	}
-}
+};
 
 window.$r = window.r = window.rin = new $rin();
+window.__$r = $rin;
 })();
 
 var _shaders = {
@@ -444,16 +458,6 @@ function onKeyUp( ev ) {
 		case Controls.keys.S:			Controls.keys.s =		false; break;
 		case Controls.keys.D:			Controls.keys.d =		false; break;
 	}
-}
-
-/* utility functions */
-function vector( x, y, z ) {
-	this.x = x; this.y = y; this.z = z;
-}
-vector.prototype.inArray = function( array ) {
-	for( var i in array )
-		if( this.x == array[i][0] && this.y == array[i][1] && this.z == array[i][2] ) return true;
-	return false;
 }
 
 })();
