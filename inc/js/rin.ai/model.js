@@ -24,7 +24,7 @@ __$r.prototype.$OBJModel = function $OBJModel( id, name ) {
 	this.load();
 	return this;
 };
-$rin.prototype.$OBJModel.prototype.load = function() {
+__$r.prototype.$OBJModel.prototype.load = function() {
 	this.ajax.obj = new XMLHttpRequest();
 	this.ajax.obj.$id = this.id;
 	this.ajax.obj.onreadystatechange = function() { if( this.readyState == 4 ) rin._models[this.$id].parse(); };
