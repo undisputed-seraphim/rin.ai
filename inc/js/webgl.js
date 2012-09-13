@@ -1,8 +1,3 @@
-var _gl;
-var miku;
-var squareRotation = 0.0;
-var lastSquareUpdateTime = 0;
-
 $(document).ready(function() {
 	//_gl = new webgl("canvas");
 	document.addEventListener( "rinLoaded", goAhead );

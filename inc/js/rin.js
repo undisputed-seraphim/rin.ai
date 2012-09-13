@@ -1,12 +1,18 @@
 (function(){
 var gl, rin,
-	modules = [ "scene", "camera", "utility", "controls" ];
+	modules = [ "program", "shader", "scene", "camera",
+			    "controls", "utility" ];
 
 (function(){
 
 function $rin() {
 	rin = this;
+	this.programs = [];
+	this.shaders = [];
+	this.scene = "";
+	this.$state = {};
 	this.modules = 0;
+	
 	this._shaders = { vertex: "", fragment: "" };
 	this._state = { program: 0, shaders: { vertex: 0, fragment: 0 } };
 	this.controls = false;
@@ -21,6 +27,11 @@ function $rin() {
 	this.q = { running: false, queue: [], current: "" };
 	this.v = { texture: "", vertex: "", normal: "" };
 }
+
+$rin.prototype = {
+	program: function() { return this.programs[ this.$state[ "PROGRAM" ] ].target; },
+	$program: function() { return this.programs[ this.$state[ "PROGRAM" ] ]; },
+}
 $rin.prototype.queue = function( func ) {
 	if( func !== undefined ) {
 		if( this.q.queue.length == 0 && !this.q.running ) { this.q.running = true; console.log("no way"); func.call(); }
@@ -31,15 +42,23 @@ $rin.prototype.queue = function( func ) {
 	}
 };
 $rin.prototype.init = function( id ) {
-	this.gl = gl = document.getElementById( id ).getContext( 'experimental-webgl' );
+	this.gl = gl = window.gl = document.getElementById( id ).getContext( 'experimental-webgl' );
 	if( gl ) { this.load(); }
 	//return this;
 		gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
 		gl.enable( gl.DEPTH_TEST );
 		gl.depthFunc( gl.LEQUAL );
 		//this.program.init();
-		this.shader.init();
+		//this.shader.init();
 		//this.program.attach();
+};
+$rin.prototype.state = function( state, value ) {
+	if( value === undefined )
+		if( typeof(state) == "object" )
+			for( var i in state ) this.$state[i] = state[i];
+		else return this.$state[state];
+	else this.$state[state] = value;
+	return this;
 };
 $rin.prototype.load = function() {
 	if( this.modules != modules.length ) {
@@ -48,42 +67,42 @@ $rin.prototype.load = function() {
 		script.onload = function() { rin.load(); }
 		document.getElementsByTagName("head")[0].appendChild( script );
 		script.src = "inc/js/rin.ai/"+modules[this.modules++]+".js";
-	} else document.dispatchEvent( new Event("rinLoaded") );
+	} else {
+		this.programs.push( new this.$Program() );
+		this.shaders.push( new this.$Shader( "vertex", "default" ) );
+		this.shaders.push( new this.$Shader( "fragment", "default" ) );
+		this.state( { "PROGRAM": 0, "VERTEX_SHADER": 0, "FRAGMENT_SHADER": 1 } );
+		this.$program().attach( this.shaders[0].target ).attach( this.shaders[1].target ).link().use().init();
+		this.scene = new this.$Scene();
+		document.dispatchEvent( new Event("rinLoaded") );
+	}
 };
 $rin.prototype.draw = function() {
-	if( typeof Controls != "undefined" ) if( !Controls.enabled ) { Controls.enable("world"); this.controls = true; }
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-	perspectiveMatrix = mat4.perspective( 45, 640.0/480.0, 0.1, 100.0 );
 	loadIdentity();
-	if( this.controls ) if( Controls.any( "wasd" ) ) {
-		if( Controls.keys.a )	rin.yYaw -=		0.2;
-		if( Controls.keys.d )	rin.yYaw +=		0.2;
-		if( Controls.keys.w ) { rin.zPos +=		(0.03 * Math.cos( rin.yYaw * ( Math.PI / 180 ) ) );
-								rin.xPos -=		(0.03 * Math.sin( rin.yYaw * ( Math.PI / 180 ) ) ); }
-		if( Controls.keys.s ) { rin.zPos -=		(0.03 * Math.cos( rin.yYaw * ( Math.PI / 180 ) ) );
-								rin.xPos -=		(0.03 * Math.sin( rin.yYaw * ( Math.PI / 180 ) ) ); }
-	}
-	mvTranslate( [rin.xPos, 0.0, rin.zPos] );
-	mvRotate( rin.yYaw, [0.0, 1.0, 0.0] );
-	mvPushMatrix();
-	mvTranslate( [0.0, -1.0, -6.0] );
-	if( this.controls ) if( Controls.any( "arrows" ) ) {
+	rin.scene.render();
+	//mvPushMatrix();
+	//mvTranslate( [0.0, -1.0, -6.0] );
+	/*if( this.controls ) if( Controls.any( "arrows" ) ) {
 		if( Controls.keys.up )		rin.xRot--;
 		if( Controls.keys.down )	rin.xRot++;
 		if( Controls.keys.left )	rin.yRot--;
 		if( Controls.keys.right )	rin.yRot++;
 	}
 	mvRotate( rin.xRot, [1, 0, 0] );
-	mvRotate( rin.yRot, [0, 1, 0] );
-	for( var i in rin._models ) { rin._models[i].render(); }
-	mvPopMatrix();
+	mvRotate( rin.yRot, [0, 1, 0] );*/
+	//for( var i in rin._models ) { rin._models[i].render(); }
+	//mvPopMatrix();
 };
 $rin.prototype.start = function() {
-	gl.uniform3f( gl.getUniformLocation( rin._program, "uAmbientColor" ), 1.0, 1.0, 1.0);
-	gl.uniform3f( gl.getUniformLocation( rin._program, "uDiffuseColor" ), 1.5, 1.5, 1.5);
-    gl.uniform3f( gl.getUniformLocation( rin._program, "uSpecularColor" ), 0.8, 0.8, 0.8);
-	gl.uniform3f( gl.getUniformLocation( rin._program, "uDirectionalColor" ), 0.75, 0.75, 0.75);
-	gl.uniform3f( gl.getUniformLocation( rin._program, "uLightDirection" ), 0.5, 0.0, 1.0);
+	//this.$program().uniform3f( "uAmbientColor", [ 1.0, 1.0, 1.0 ] );
+	//rin.$program().uniform3f( "uAmbientColor", [1.0,1.0,1.0] );
+	this.scene.init();
+	gl.uniform3f( gl.getUniformLocation( rin.program(), "uAmbientColor" ), 1.0, 1.0, 1.0);
+	gl.uniform3f( gl.getUniformLocation( rin.program(), "uDiffuseColor" ), 1.5, 1.5, 1.5);
+    gl.uniform3f( gl.getUniformLocation( rin.program(), "uSpecularColor" ), 0.8, 0.8, 0.8);
+	gl.uniform3f( gl.getUniformLocation( rin.program(), "uDirectionalColor" ), 0.75, 0.75, 0.75);
+	gl.uniform3f( gl.getUniformLocation( rin.program(), "uLightDirection" ), 0.5, 0.0, 1.0);
 	rin.interval = setInterval( rin.draw, 15 );
 };
 $rin.prototype.stop = function() {
@@ -126,7 +145,9 @@ $rin.prototype.model = $rin.prototype.m = {
 				rin._ident[name] = length;
 				return rin._models[length]; break;
 		} },
-	get: function( m ) { return m === undefined ? rin._models : typeof m != "string" ? rin._models[m] : rin._models[ rin._ident[m] ]; }
+	get: function( m ) {
+		return m === undefined ? rin._models : typeof m != "string" ?
+			rin._models[m] : rin._models[ rin._ident[m] ]; }
 };
 
 $rin.prototype.$OBJModel = function $OBJModel( id, name ) {
@@ -234,14 +255,14 @@ $rin.prototype.$OBJModel.prototype.buffer = function() {
 	this.b.normal = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, this.b.normal );
     gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.v.normals ), gl.STATIC_DRAW);
-    gl.vertexAttribPointer( rin.v.normal, 3, gl.FLOAT, false, 0, 0 );
+    gl.vertexAttribPointer( rin.$program().pointers.normal, 3, gl.FLOAT, false, 0, 0 );
 	this.b.vertex = gl.createBuffer();
 	gl.bindBuffer( gl.ARRAY_BUFFER, this.b.vertex );
 	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.v.vertices ), gl.STATIC_DRAW );
-	gl.vertexAttribPointer( rin.v.vertex, 3, gl.FLOAT, false, 0, 0 );
+	gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 	this.b.texture = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, this.b.texture );
-    gl.vertexAttribPointer( rin.v.texture, 2, gl.FLOAT, false, 0, 0 );
+    gl.vertexAttribPointer( rin.$program().pointers.texture, 2, gl.FLOAT, false, 0, 0 );
     gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.v.textures ), gl.STATIC_DRAW);
 	for( var i in this.mesh ) {
 		for( var j in this.mesh[i] ) {
@@ -255,28 +276,28 @@ $rin.prototype.$OBJModel.prototype.buffer = function() {
 $rin.prototype.$OBJModel.prototype.render = function() {
 	var normalMatrix = mvMatrix.inverse();
 	normalMatrix = normalMatrix.transpose();
-	var nUniform = gl.getUniformLocation( rin._program, "uNMatrix" );
+	var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
 	gl.uniformMatrix4fv(nUniform, false, new Float32Array(normalMatrix.flatten()));
 	if( this.ready ) {
 		for( var i in this.mesh ) {
 			for( var j in this.mesh[i] ) {
 				if( this.materials[j] !== undefined ) if( this.materials[j].src != "" && this.materials[j].ready ) {
-					gl.uniform1i( gl.getUniformLocation( rin._program, "uUseTextures" ), true );
-					gl.enableVertexAttribArray( rin.v.texture );
+					gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseTextures" ), true );
+					gl.enableVertexAttribArray( rin.$program().pointers.texture );
 					gl.activeTexture( gl.TEXTURE0 );
 					gl.bindTexture( gl.TEXTURE_2D, this.materials[j].texture );
-					gl.uniform1i( gl.getUniformLocation( rin._program, "uSampler" ), 0 );
+					gl.uniform1i( gl.getUniformLocation( rin.program(), "uSampler" ), 0 );
 				} else {
-					gl.uniform1i( gl.getUniformLocation( rin._program, "uUseTextures" ), false);
-					gl.disableVertexAttribArray( rin.v.texture );
+					gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseTextures" ), false);
+					gl.disableVertexAttribArray( rin.$program().pointers.texture );
 				} if( this.materials[j] !== undefined ) {
-					if( this.materials[j].Ka !== undefined ) gl.uniform3f( gl.getUniformLocation( rin._program, "uMaterialAmbientColor" ),
+					if( this.materials[j].Ka !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialAmbientColor" ),
 						this.materials[j].Ka[0], this.materials[j].Ka[1], this.materials[j].Ka[2] );
-					if( this.materials[j].Ks !== undefined ) gl.uniform3f( gl.getUniformLocation( rin._program, "uMaterialSpecularColor" ),
+					if( this.materials[j].Ks !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialSpecularColor" ),
 						this.materials[j].Ks[0], this.materials[j].Ks[1], this.materials[j].Ks[2] );
-					if( this.materials[j].Kd !== undefined ) gl.uniform3f( gl.getUniformLocation( rin._program, "uMaterialDiffuseColor" ),
+					if( this.materials[j].Kd !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialDiffuseColor" ),
 						this.materials[j].Kd[0], this.materials[j].Kd[1], this.materials[j].Kd[2] );
-					if( this.materials[j].Ns !== undefined ) gl.uniform3f( gl.getUniformLocation( rin._program, "uMaterialShininess" ),
+					if( this.materials[j].Ns !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialShininess" ),
 						this.materials[j].Ns[0], this.materials[j].Ns[1], this.materials[j].Ns[2] );
 				}
 				gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.mesh[i][j].b );
@@ -327,80 +348,7 @@ $rin.prototype.$Texture.prototype.load = function() {
 };
 
 window.$r = window.r = window.rin = new $rin();
-window.__$r = $rin; window.gl = $r.gl;
+window.__$r = $rin;
 })();
-
-var _shaders = {
-	fragment: "\
-		precision mediump float;\
-		varying vec2 vTextureCoord;\
-		varying vec4 vNormal;\
-		varying vec3 vPosition;\
-		varying vec3 vAmbientLight;\
-		varying vec3 vLightDirection;\
-		uniform vec3 uMaterialAmbientColor;\
-  		uniform vec3 uMaterialDiffuseColor;\
-  		uniform vec3 uMaterialSpecularColor;\
-  		uniform float uMaterialShininess;\
-		uniform sampler2D uSampler;\
-		uniform bool uUseTextures;\
-		uniform vec3 uAmbientLightingColor;\
-    	uniform vec3 uPointLightingLocation;\
-    	uniform vec3 uDiffuseColor;\
-    	uniform vec3 uSpecularColor;\
-		void main(void) {\
-			vec3 materialAmbientColor = uMaterialAmbientColor;\
-			vec3 materialDiffuseColor = uMaterialDiffuseColor;\
-			vec3 materialSpecularColor = uMaterialSpecularColor;\
-			vec3 ambientWeight = vAmbientLight;\
-			float diffuseBrightness = max(dot(vNormal.xyz, vLightDirection), 0.0);\
-			vec3 diffuseWeight = uDiffuseColor * diffuseBrightness;\
-			\
-			vec3 specularWeight = vec3(0.0, 0.0, 0.0);\
-			vec3 eyeDirection = normalize(-vPosition.xyz);\
-			vec3 reflectionDirection = reflect(-vLightDirection, vNormal.xyz);\
-			float specularBrightness = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShininess);\
-			specularWeight = uSpecularColor * specularBrightness;\
-			float alpha = 1.0;\
-			if (uUseTextures) {\
-		      	vec4 texelColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
-		      	materialAmbientColor = materialAmbientColor * texelColor.rgb;\
-				materialDiffuseColor = materialDiffuseColor * texelColor.rgb;\
-				materialSpecularColor = materialSpecularColor * texelColor.rgb;\
-				alpha = texelColor.a;\
-			}\
-			gl_FragColor = vec4(\
-				materialAmbientColor * ambientWeight\
-				+ materialDiffuseColor * diffuseWeight\
-				+ materialSpecularColor * specularWeight,\
-				alpha );\
-		}",
-	vertex: "\
-		attribute vec3 aVertex;\
-		attribute vec2 aTexture;\
-		attribute vec3 aNormal;\
-   		uniform mat4 uMVMatrix;\
-      	uniform mat4 uPMatrix;\
-		uniform mat4 uNMatrix;\
-		uniform vec3 uLightDirection;\
-		uniform vec3 uDirectionalColor;\
-		varying vec2 vTextureCoord;\
-		varying vec3 vAmbientLight;\
-		varying vec4 vNormal;\
-		varying vec3 vPosition;\
-		varying vec3 vLightDirection;\
-    	void main(void) {\
-	        gl_Position = uPMatrix * uMVMatrix * vec4(aVertex, 1.0);\
-	        vPosition = gl_Position.xyz;\
-			vTextureCoord = aTexture;\
-			highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);\
-    		highp vec3 directionalLightColor = uDirectionalColor;\
-    		vLightDirection = uLightDirection;\
-    		highp vec4 transformedNormal = uNMatrix * vec4(aNormal, 1.0);\
-    		vNormal = transformedNormal;\
-			highp float directional = max(dot(aNormal.xyz, uLightDirection), 0.0);\
-    		vAmbientLight = ambientLight + (directionalLightColor * directional);\
-		}"
-}
 
 })();
