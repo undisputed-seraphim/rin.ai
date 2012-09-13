@@ -5,9 +5,8 @@ var lastSquareUpdateTime = 0;
 
 $(document).ready(function() {
 	//_gl = new webgl("canvas");
+	document.addEventListener( "rinLoaded", goAhead );
 	$r.init( "canvas" );
-	$r.m.add( "obj", "miku2" );
-	$r.start();
 	//_gl.viewport(0, 0, canvas.width, canvas.height);
 	//_gl.initShaders();
 	//document.addEventListener( "modelLoaded", goAhead );
@@ -17,3 +16,8 @@ $(document).ready(function() {
 	//_gl.initBuffers( "miku2" );
 	//_gl.queue( function() {	_gl.start(); } );
 });
+
+function goAhead() {
+	$r.m.add( "obj", "miku2" );
+	$r.start();
+}

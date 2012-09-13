@@ -1,6 +1,6 @@
 (function(){
 var gl, rin,
-	modules = [ "scene", "camera", "utility" ];
+	modules = [ "scene", "camera", "utility", "controls" ];
 
 (function(){
 
@@ -9,6 +9,7 @@ function $rin() {
 	this.modules = 0;
 	this._shaders = { vertex: "", fragment: "" };
 	this._state = { program: 0, shaders: { vertex: 0, fragment: 0 } };
+	this.controls = false;
 	this._models = [];
 	this._lights = [];
 	this._program = "";
@@ -47,13 +48,14 @@ $rin.prototype.load = function() {
 		script.onload = function() { rin.load(); }
 		document.getElementsByTagName("head")[0].appendChild( script );
 		script.src = "inc/js/rin.ai/"+modules[this.modules++]+".js";
-	}
+	} else document.dispatchEvent( new Event("rinLoaded") );
 };
 $rin.prototype.draw = function() {
+	if( typeof Controls != "undefined" ) if( !Controls.enabled ) { Controls.enable("world"); this.controls = true; }
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-	perspectiveMatrix = makePerspective( 45, 640.0/480.0, 0.1, 100.0 );
+	perspectiveMatrix = mat4.perspective( 45, 640.0/480.0, 0.1, 100.0 );
 	loadIdentity();
-	if( Controls.any( "wasd" ) ) {
+	if( this.controls ) if( Controls.any( "wasd" ) ) {
 		if( Controls.keys.a )	rin.yYaw -=		0.2;
 		if( Controls.keys.d )	rin.yYaw +=		0.2;
 		if( Controls.keys.w ) { rin.zPos +=		(0.03 * Math.cos( rin.yYaw * ( Math.PI / 180 ) ) );
@@ -65,7 +67,7 @@ $rin.prototype.draw = function() {
 	mvRotate( rin.yYaw, [0.0, 1.0, 0.0] );
 	mvPushMatrix();
 	mvTranslate( [0.0, -1.0, -6.0] );
-	if( Controls.any( "arrows" ) ) {
+	if( this.controls ) if( Controls.any( "arrows" ) ) {
 		if( Controls.keys.up )		rin.xRot--;
 		if( Controls.keys.down )	rin.xRot++;
 		if( Controls.keys.left )	rin.yRot--;
@@ -82,7 +84,6 @@ $rin.prototype.start = function() {
     gl.uniform3f( gl.getUniformLocation( rin._program, "uSpecularColor" ), 0.8, 0.8, 0.8);
 	gl.uniform3f( gl.getUniformLocation( rin._program, "uDirectionalColor" ), 0.75, 0.75, 0.75);
 	gl.uniform3f( gl.getUniformLocation( rin._program, "uLightDirection" ), 0.5, 0.0, 1.0);
-	Controls.enable("world");
 	rin.interval = setInterval( rin.draw, 15 );
 };
 $rin.prototype.stop = function() {
@@ -114,9 +115,6 @@ $rin.prototype.shader = {
 	source: function( shader, code ) { gl.shaderSource( shader, code ); gl.compileShader( shader ); },
 	set: function( type, shader ) { rin._state.shaders[type] = shader.id; }
 };
-
-/* program */
-
 
 /* models */
 $rin.prototype.model = $rin.prototype.m = {
@@ -329,7 +327,7 @@ $rin.prototype.$Texture.prototype.load = function() {
 };
 
 window.$r = window.r = window.rin = new $rin();
-window.__$r = $rin;
+window.__$r = $rin; window.gl = $r.gl;
 })();
 
 var _shaders = {
@@ -403,61 +401,6 @@ var _shaders = {
 			highp float directional = max(dot(aNormal.xyz, uLightDirection), 0.0);\
     		vAmbientLight = ambientLight + (directionalLightColor * directional);\
 		}"
-}
-
-var Controls = {
-	keys: { UP: 38, DOWN: 40, LEFT: 37, RIGHT: 39, W: 87, A: 65, S:83, D:68,
-		down: false, up: false, left: false, right: false, w: false, a: false, s: false, d: false },
-	any: function( type ) {
-		switch( type ) {
-			case "arrows": return (Controls.keys.up || Controls.keys.down || Controls.keys.left || Controls.keys.right); break;
-			case "wasd": return (Controls.keys.w || Controls.keys.a || Controls.keys.s || Controls.keys.d); break;
-		}
-	},
-	enable: function( type ) {
-		switch( type ) {
-			case "world":
-				document.onkeydown = onKeyDown;
-				document.onkeyup = onKeyUp;
-				break;
-		}
-	},
-	disable: function() {
-		document.onkeydown = null;
-		document.onkeyup = null;
-	}
-}
-
-function onKeyDown( ev ) {
-	switch( ev.keyCode ) {
-		case Controls.keys.UP:			Controls.keys.up =		true; break;
-		case Controls.keys.DOWN:		Controls.keys.down =	true; break;
-		case Controls.keys.LEFT:		Controls.keys.left =	true; break;
-		case Controls.keys.RIGHT:		Controls.keys.right =	true; break;
-		case Controls.keys.W:			Controls.keys.w =		true; break;
-		case Controls.keys.A:			Controls.keys.a =		true; break;
-		case Controls.keys.S:			Controls.keys.s =		true; break;
-		case Controls.keys.D:			Controls.keys.d =		true; break;
-	}
-	if( rin.xRot > 360 ) 		rin.xRot -= 360;
-	if( rin.yRot > 360 ) 		rin.yRot -= 360;
-	if( rin.xRot < -360 ) 		rin.xRot += 360;
-	if( rin.yRot < -360 ) 		rin.yRot += 360;
-	if( rin.yYaw > 360 ) 		rin.yYaw -= 360;
-	if( rin.yYaw < 0 ) 			rin.yYaw += 360;
-}
-
-function onKeyUp( ev ) {
-	switch( ev.keyCode ) {
-		case Controls.keys.UP:			Controls.keys.up =		false; break;
-		case Controls.keys.DOWN:		Controls.keys.down =	false; break;
-		case Controls.keys.LEFT:		Controls.keys.left =	false; break;
-		case Controls.keys.RIGHT:		Controls.keys.right =	false; break;
-		case Controls.keys.W:			Controls.keys.w =		false; break;
-		case Controls.keys.A:			Controls.keys.a =		false; break;
-		case Controls.keys.S:			Controls.keys.s =		false; break;
-		case Controls.keys.D:			Controls.keys.d =		false; break;
-	}
 }
 
 })();
