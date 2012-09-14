@@ -66,6 +66,7 @@ var shaders = {
 			attribute vec2 aTexture;\
 			attribute vec3 aNormal;\
    			uniform mat4 uMVMatrix;\
+			uniform mat4 uVMatrix;\
 	      	uniform mat4 uPMatrix;\
 			uniform mat4 uNMatrix;\
 			uniform vec3 uLightDirection;\

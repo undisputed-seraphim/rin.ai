@@ -275,10 +275,10 @@ $rin.prototype.$OBJModel.prototype.buffer = function() {
 	this.ready = true;
 };
 $rin.prototype.$OBJModel.prototype.render = function() {
-	/*var normalMatrix = mvMatrix.inverse();
-	normalMatrix = normalMatrix.transpose();
+	var normalMatrix = mat4.inverse( mvMatrix );
+	normalMatrix = mat4.transpose( normalMatrix );
 	var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
-	gl.uniformMatrix4fv(nUniform, false, new Float32Array(normalMatrix.flatten()));*/
+	gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
 	if( this.ready ) {
 		for( var i in this.mesh ) {
 			for( var j in this.mesh[i] ) {

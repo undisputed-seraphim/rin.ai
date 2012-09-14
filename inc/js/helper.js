@@ -2,15 +2,14 @@ var mvMatrixStack = [];
  
 function mvPushMatrix(m) {
     mvMatrixStack.push( m );
+	mvMatrix = mat4.create();
 }
  
-function mvPopMatrix() {
-  if (!mvMatrixStack.length) {
-    throw("Can't pop from an empty matrix stack.");
+function mvPopMatrix( m ) {
+  if ( mvMatrixStack.length > 0 ) {
+	m = mvMatrixStack.pop();
+	return m;
   }
-   
-  mvMatrix = mvMatrixStack.pop();
-  return mvMatrix;
 }
  
 function mvRotate(angle, v) {
