@@ -4,6 +4,7 @@ __$r.prototype.$Scene = function $Scene() {
 	this.lights = [];
 	
 	this.$state = {};
+	this.mvMatrix;
 }
 
 __$r.prototype.$Scene.prototype = {
@@ -11,6 +12,9 @@ __$r.prototype.$Scene.prototype = {
 		this.cameras.push( new rin.$Camera( 45, 640.0/480.0, 0.1, 100.0 ) );
 		this.state( "CAMERA", 0 );
 		this.camera().enable();
+		this.mvMatrix = mat4.create();
+		//this.mvMatrix = mat4.translate( this.mvMatrix, [0.0, 0.0, 10.0] );
+		//r.gl.uniformMatrix4fv( r.gl.getUniformLocation( r.program(), "uMVMatrix"), false, mat4.flatten( this.mvMatrix ) );
 	},
 	camera: function() { return this.cameras[ this.$state["CAMERA"] ]; },
 	state: function( state, value ) {
@@ -24,7 +28,7 @@ __$r.prototype.$Scene.prototype = {
 	buffer: function() { },
 	render: function() {
 		this.camera().update();
-		mvTranslate( [0.0, -1.0, -6.0] );
+		
 		for( var i in rin._models ) { rin._models[i].render(); }
 	},
 }

@@ -1,12 +1,7 @@
 var mvMatrixStack = [];
  
 function mvPushMatrix(m) {
-  if (m) {
-    mvMatrixStack.push(m.dup());
-    mvMatrix = m.dup();
-  } else {
-    mvMatrixStack.push(mvMatrix.dup());
-  }
+    mvMatrixStack.push( m );
 }
  
 function mvPopMatrix() {
@@ -25,15 +20,15 @@ function mvRotate(angle, v) {
   multMatrix(m);
 }
 function loadIdentity() {
-  mvMatrix = Matrix.I(4);
+  mvMatrix = mat4.create();
 }
  
 function multMatrix(m) {
-  mvMatrix = mvMatrix.x(m);
+  mvMatrix = mat4.multiply( mvMatrix, m );
 }
  
 function mvTranslate(v) {
-  multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
+  multMatrix( mat4.translate( mvMatrix, [ v[0], v[1], v[2] ] ) );
 }
  
 function setMatrixUniforms() {
@@ -41,7 +36,7 @@ function setMatrixUniforms() {
   //r.gl.uniformMatrix4fv( pUniform, false, mat4.flatten( perspectiveMatrix ) );
  
   var mvUniform = r.gl.getUniformLocation( r.program(), "uMVMatrix");
-  r.gl.uniformMatrix4fv( mvUniform, false, new Float32Array(mvMatrix.flatten()) );
+  r.gl.uniformMatrix4fv( mvUniform, false, mat4.flatten( mvMatrix ) );
 }
 
 Matrix.Translation = function (v)

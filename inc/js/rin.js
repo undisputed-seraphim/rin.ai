@@ -43,6 +43,7 @@ $rin.prototype.queue = function( func ) {
 };
 $rin.prototype.init = function( id ) {
 	this.gl = gl = window.gl = document.getElementById( id ).getContext( 'experimental-webgl' );
+	this.canvas = id;
 	if( gl ) { this.load(); }
 	//return this;
 		gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
@@ -274,10 +275,10 @@ $rin.prototype.$OBJModel.prototype.buffer = function() {
 	this.ready = true;
 };
 $rin.prototype.$OBJModel.prototype.render = function() {
-	var normalMatrix = mvMatrix.inverse();
+	/*var normalMatrix = mvMatrix.inverse();
 	normalMatrix = normalMatrix.transpose();
 	var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
-	gl.uniformMatrix4fv(nUniform, false, new Float32Array(normalMatrix.flatten()));
+	gl.uniformMatrix4fv(nUniform, false, new Float32Array(normalMatrix.flatten()));*/
 	if( this.ready ) {
 		for( var i in this.mesh ) {
 			for( var j in this.mesh[i] ) {

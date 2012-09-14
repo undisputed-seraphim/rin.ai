@@ -11,10 +11,13 @@ var Controls = {
 		}
 	},
 	enable: function( type ) {
+		Controls.disable();
 		switch( type ) {
-			case "world":
-				document.onkeydown = onKeyDown;
-				document.onkeyup = onKeyUp;
+			case "camera":
+				document.onkeydown = onKeyDown.camera;
+				document.onkeyup = onKeyUp.camera;
+				break;
+			case "player":
 				break;
 		}
 	},
@@ -24,34 +27,32 @@ var Controls = {
 	}
 }
 
-function onKeyDown( ev ) {
-	switch( ev.keyCode ) {
-		case Controls.keys.UP:			Controls.keys.up =		true; break;
-		case Controls.keys.DOWN:		Controls.keys.down =	true; break;
-		case Controls.keys.LEFT:		Controls.keys.left =	true; break;
-		case Controls.keys.RIGHT:		Controls.keys.right =	true; break;
-		case Controls.keys.W:			Controls.keys.w =		true; break;
-		case Controls.keys.A:			Controls.keys.a =		true; break;
-		case Controls.keys.S:			Controls.keys.s =		true; break;
-		case Controls.keys.D:			Controls.keys.d =		true; break;
+var onKeyDown = {
+	camera: function( ev ) {
+		switch( ev.keyCode ) {
+			case Controls.keys.UP:			Controls.keys.up =		true; break;
+			case Controls.keys.DOWN:		Controls.keys.down =	true; break;
+			case Controls.keys.LEFT:		Controls.keys.left =	true; break;
+			case Controls.keys.RIGHT:		Controls.keys.right =	true; break;
+			case Controls.keys.W:			Controls.keys.w =		true; break;
+			case Controls.keys.A:			Controls.keys.a =		true; break;
+			case Controls.keys.S:			Controls.keys.s =		true; break;
+			case Controls.keys.D:			Controls.keys.d =		true; break;
+		}
 	}
-	if( rin.xRot > 360 ) 		rin.xRot -= 360;
-	if( rin.yRot > 360 ) 		rin.yRot -= 360;
-	if( rin.xRot < -360 ) 		rin.xRot += 360;
-	if( rin.yRot < -360 ) 		rin.yRot += 360;
-	if( rin.yYaw > 360 ) 		rin.yYaw -= 360;
-	if( rin.yYaw < 0 ) 			rin.yYaw += 360;
 }
 
-function onKeyUp( ev ) {
-	switch( ev.keyCode ) {
-		case Controls.keys.UP:			Controls.keys.up =		false; break;
-		case Controls.keys.DOWN:		Controls.keys.down =	false; break;
-		case Controls.keys.LEFT:		Controls.keys.left =	false; break;
-		case Controls.keys.RIGHT:		Controls.keys.right =	false; break;
-		case Controls.keys.W:			Controls.keys.w =		false; break;
-		case Controls.keys.A:			Controls.keys.a =		false; break;
-		case Controls.keys.S:			Controls.keys.s =		false; break;
-		case Controls.keys.D:			Controls.keys.d =		false; break;
+var onKeyUp = {
+	camera: function( ev ) {
+		switch( ev.keyCode ) {
+			case Controls.keys.UP:			Controls.keys.up =		false; break;
+			case Controls.keys.DOWN:		Controls.keys.down =	false; break;
+			case Controls.keys.LEFT:		Controls.keys.left =	false; break;
+			case Controls.keys.RIGHT:		Controls.keys.right =	false; break;
+			case Controls.keys.W:			Controls.keys.w =		false; break;
+			case Controls.keys.A:			Controls.keys.a =		false; break;
+			case Controls.keys.S:			Controls.keys.s =		false; break;
+			case Controls.keys.D:			Controls.keys.d =		false; break;
+		}
 	}
 }
