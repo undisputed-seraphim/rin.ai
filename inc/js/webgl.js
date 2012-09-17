@@ -13,6 +13,6 @@ $(document).ready(function() {
 });
 
 function goAhead() {
-	$r.m.add( "obj", "miku2" );
+	$r.scene.add( "obj", "miku2" );
 	$r.start();
 }

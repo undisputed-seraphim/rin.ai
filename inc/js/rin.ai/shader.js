@@ -1,3 +1,5 @@
+(function(){
+
 __$r.prototype.$Shader = function $Shader( type, code ) {
 	this.type = type;
 	this.target = type.toLowerCase() == "vertex" ?
@@ -9,8 +11,6 @@ __$r.prototype.$Shader = function $Shader( type, code ) {
 }
 
 __$r.prototype.$Shader.prototype = {
-	init: function() {
-	},
 	source: function( code ) { gl.shaderSource( this.target, code ); },
 	compile: function() { gl.compileShader( this.target ); }
 }
@@ -69,6 +69,7 @@ var shaders = {
 			uniform mat4 uVMatrix;\
 	      	uniform mat4 uPMatrix;\
 			uniform mat4 uNMatrix;\
+			uniform vec3 uAmbientColor;\
 			uniform vec3 uLightDirection;\
 			uniform vec3 uDirectionalColor;\
 			varying vec2 vTextureCoord;\
@@ -80,13 +81,14 @@ var shaders = {
 		        gl_Position = uPMatrix * uMVMatrix * vec4(aVertex, 1.0);\
 	    	    vPosition = gl_Position.xyz;\
 				vTextureCoord = aTexture;\
-				highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);\
     			highp vec3 directionalLightColor = uDirectionalColor;\
 	    		vLightDirection = uLightDirection;\
     			highp vec4 transformedNormal = uNMatrix * vec4(aNormal, 1.0);\
     			vNormal = transformedNormal;\
 				highp float directional = max(dot(aNormal.xyz, uLightDirection), 0.0);\
-    			vAmbientLight = ambientLight + (directionalLightColor * directional);\
-		}"
+    			vAmbientLight = uAmbientColor + (directionalLightColor * directional);\
+			}"
 	}
 }
+
+})();
