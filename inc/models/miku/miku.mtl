@@ -63,7 +63,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd D:/Document/Kio/miku.ver1.5/Source/MikuKd026.png
+map_Kd textures/MikuKd026.png
 
 
 newmtl Miku_Black

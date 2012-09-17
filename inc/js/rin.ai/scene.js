@@ -17,11 +17,10 @@ __$r.prototype.$Scene.prototype = {
 		gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
 		gl.depthFunc( gl.LEQUAL );
 	},
-	add: function( type, name ) {
+	add: function( type, params ) {
 		switch( type.toLowerCase() ) {
 			case "obj":
-				this.models.push( new rin.$OBJModel( this.models.length, name ) );
-				this.ident[name] = this.models.length - 1;
+				this.models.push( new rin.$OBJModel( this.models.length, params ) );
 				break; } },
 	sky: function( s ) {
 		if( s === undefined ) return this.skies[ this.$state["SKY"] ];
@@ -44,9 +43,9 @@ __$r.prototype.$Scene.prototype = {
 		return this; },
 	render: function() {
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		this.camera().update();
 		this.sky().render();
 		gl.uniform3f( gl.getUniformLocation( rin.program(), "uLightDirection" ), 0.5, 0.0, 1.0);
-		this.camera().update();
 		for( var i in this.models ) { this.models[i].render(); }
 	},
 }

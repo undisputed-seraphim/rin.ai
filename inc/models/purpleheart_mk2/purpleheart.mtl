@@ -1,0 +1,57 @@
+# Blender MTL File: 'None'
+# Material Count: 5
+newmtl body_c.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.716695 0.716695 0.716695
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/body_c.png
+d 1.000000
+illum 2
+
+
+newmtl face_c.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.716695 0.716695 0.716695
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/face_c.png
+d 1.000000
+illum 2
+
+
+newmtl hair_c.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.579182 0.618101 0.400037
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/hair_c.png
+d 1.000000
+illum 2
+
+
+newmtl head_c.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.723697 0.361947 0.329025
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/head_c.png
+d 1.000000
+illum 2
+
+
+newmtl logo_c.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.363738 0.647691 0.679461
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/logo_c.png
+d 1.000000
+illum 2
+
+
