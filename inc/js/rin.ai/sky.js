@@ -51,7 +51,6 @@ __$r.prototype.$Sky.prototype = {
 			this.buffer();
 			gl.disable( gl.DEPTH_TEST );
 			gl.uniform3f( gl.getUniformLocation( rin.program(), "uLightDirection" ), 0.0, 0.0, 0.0);
-			gl.uniform3f( gl.getUniformLocation( rin.program(), "uAmbientColor" ), 1.2, 1.2, 1.2);
 			var normalMatrix = mat4.inverse( this.matrix );
 			normalMatrix = mat4.transpose( normalMatrix );
 			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
@@ -76,7 +75,6 @@ __$r.prototype.$Sky.prototype = {
 					gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, current * 12 );
 				} current++;
 			}
-			gl.enable( gl.DEPTH_TEST );
 		}
 	},
 }

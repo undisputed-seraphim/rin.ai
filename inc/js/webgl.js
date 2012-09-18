@@ -4,7 +4,6 @@ $(document).ready(function() {
 });
 
 function goAhead() {
-	$r.scene.add( "obj", { name: "uni", position: [3.0,0.0,0.0] } );
-	$r.scene.add( "obj", { name: "ultimecia", range: 10 } );
+	$r.scene.add( "obj", { name: "ultimecia", range: 33 } );
 	$r.start();
 }

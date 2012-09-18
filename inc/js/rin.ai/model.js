@@ -3,8 +3,8 @@ __$r.prototype.$OBJModel = function $OBJModel( id, params ) {
 	this.id =			id;
 	this.name =			params.name || "noname";
 	this.range =		params.range || 0;
-	this.animated =		this.range != 0 ? true : false;
-	this.rate =			params.rate || 100;
+	this.animated =		this.range == 0 ? false : true;
+	this.rate =			params.rate || 50;
 	this.interval =		"";
 	this.current =		0;
 	this.textures =		{};
@@ -128,12 +128,11 @@ __$r.prototype.$OBJModel.prototype = {
 					gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.mesh[i][k][j].i ), gl.STATIC_DRAW );
 				}
 			}
-			this.matrix = mat4.translate( this.matrix, [ this.position[0], this.position[1], this.position[2] ] );
 		}
 		this.current = this.animated ? 1 : 0;
 		this.ready = true;
 	},
-	start: function() { this.interval = setInterval( this.next, this.rate ); },
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.next(); }, this.rate ); },
 	stop: function() { clearInterval( this.interval ); },
 	next: function() { this.current == this.range ? this.current = 1 : this.current++; },
 	buffer: function() {

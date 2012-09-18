@@ -1,0 +1,519 @@
+# Blender MTL File: 'None'
+# Material Count: 47
+newmtl assets/textures/world1diss_00
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_00.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_01
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_01.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_02
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_02.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_03
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_03.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_04
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_04.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_05
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_05.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_06
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_06.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_07
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_07.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_08
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_08.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_09
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_09.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_10
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_10.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_11
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_11.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_12
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_12.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_13
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_13.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_14
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_14.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_15
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_15.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_16
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_16.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_17
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_17.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_18
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_18.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_19
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_19.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_20
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_20.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_21
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_21.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_22
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_22.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_23
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_23.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_24
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_24.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_25
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_25.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_26
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_26.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_27
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_27.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_28
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_28.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_29
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_29.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_30
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_30.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_31
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_31.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_32
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_32.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_33
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_33.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_34
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_34.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_35
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_35.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_36
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_36.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_37
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_37.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_38
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_38.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_39
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_39.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_40
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_40.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_41
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_41.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_42
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_42.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_43
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_43.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_44
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_44.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_45
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_45.png
+d 1.000000
+illum 2
+
+
+newmtl assets/textures/world1diss_46
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+map_Kd textures/world1diss_46.png
+d 1.000000
+illum 2
+
+

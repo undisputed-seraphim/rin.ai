@@ -14,7 +14,7 @@ __$r.prototype.$Scene.prototype = {
 		this.camera( 0 ).enable();
 		this.skies.push( new rin.$Sky( "default" ) );
 		this.sky( 0 ).init();
-		gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
+		gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 		gl.depthFunc( gl.LEQUAL );
 	},
 	add: function( type, params ) {
@@ -44,8 +44,13 @@ __$r.prototype.$Scene.prototype = {
 	render: function() {
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		this.camera().update();
-		this.sky().render();
+		//this.sky().render();
+		gl.enable( gl.DEPTH_TEST );
 		gl.uniform3f( gl.getUniformLocation( rin.program(), "uLightDirection" ), 0.5, 0.0, 1.0);
+		gl.uniform3f( gl.getUniformLocation( rin.program(), "uAmbientColor" ), 1.2, 1.2, 1.2);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.enable( gl.BLEND );
 		for( var i in this.models ) { this.models[i].render(); }
+		gl.disable(gl.BLEND);
 	},
 }

@@ -8,7 +8,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\johall\\Downloads\\ultimecia\\ffdtex0.png
+map_Kd textures/ffdtex0.png
 
 
 newmtl ffdtex1
@@ -19,7 +19,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\johall\\Downloads\\ultimecia\\ffdtex1.png
+map_Kd textures/ffdtex1.png
 
 
 newmtl ffdtex2
@@ -30,7 +30,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\johall\\Downloads\\ultimecia\\ffdtex2.png
+map_Kd textures/ffdtex2.png
 
 
 newmtl ffdtex3
@@ -41,7 +41,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\johall\\Downloads\\ultimecia\\ffdtex3.png
+map_Kd textures/ffdtex3.png
 
 
 newmtl ffdtex4
@@ -52,6 +52,6 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\johall\\Downloads\\ultimecia\\ffdtex4.png
+map_Kd textures/ffdtex4.png
 
 
