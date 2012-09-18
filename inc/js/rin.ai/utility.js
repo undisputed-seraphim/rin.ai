@@ -23,7 +23,16 @@ var vec3 = {
 
 var quat = {
 	create: function( x, y, z, w ) {
-		return new Float32Array( [ x, y, z, w ] );
+		if( typeof( x ) == "number" ) return new Float32Array( [ x, y, z, w ] );
+		else {
+			if( typeof( y ) == "undefined" ) return new Float32Array( [ 0, 0, 1, 0 ] );
+			else {
+				var y = y * 0.5,
+					s = Math.sin( y ),
+					v = vec3.normalize( x );
+				return quat.create( ( v[0] * s ), ( v[1] * s ), ( v[2] * s ), Math.cos( y ) );
+			}
+		}
 	},
 	normalize: function( quat ) {
 		var mag2 = quat[3] * quat[3] + quat[0] * quat[0] + quat[1] * quat[1] + quat[2] * quat[2];
@@ -32,6 +41,9 @@ var quat = {
 			return quat.create( quat[0] / mag, quat[1] / mag, quat[2] / mag, quat[3] / mag );
 		}
 		return quat;
+	},
+	inverse: function( q ) {
+		return new Float32Array( [ -q[0], -q[1], -q[2], q[3] ] );
 	},
 	euler: function( x, y, z ) {
 		var p = x * Math.PI / 180 / 2.0,
@@ -49,6 +61,13 @@ var quat = {
 		  	cosr * cosp * siny - sinr * sinp * cosy,
 		  	cosr * cosp * cosy + sinr * sinp * siny ) );
 	},
+	multiply: function( q, r ) {
+		return quat.create(
+			q[3] * r[0] + q[0] * r[3] + q[1] * r[2] - q[2] * r[1],
+			q[3] * r[1] + q[1] * r[3] + q[2] * r[0] - q[0] * r[2],
+			q[3] * r[2] + q[2] * r[3] + q[0] * r[1] - q[1] * r[0],
+			q[3] * r[3] - q[0] * r[0] - q[1] * r[1] - q[2] * r[2] );
+	},
 	mat4: function( quat ) {
 		var x2 = quat[0] * quat[0],
 			y2 = quat[1] * quat[1],
@@ -60,14 +79,14 @@ var quat = {
 			wy = quat[3] * quat[1],
 			wz = quat[3] * quat[2];
 		return mat4.create(
-			1.0 - 2.0 * (y2 + z2), 2.0 * (xy + wz), 2.0 * (xz - wy), 0.0,
+			/*1.0 - 2.0 * (y2 + z2), 2.0 * (xy + wz), 2.0 * (xz - wy), 0.0,
 			2.0 * (xy - wz), 1.0 - 2.0 * (x2 + z2), 2.0 * (yz + wx), 0.0,
 			2.0 * (xz + wy), 2.0 * (yz - wx), 1.0 - 2.0 * (x2 + y2), 0.0,
-			0.0, 0.0, 0.0, 1.0 );
-			/*1.0 - 2.0 * (y2 + z2), 2.0 * (xy - wz), 2.0 * (xz + wy), 0.0,
+			0.0, 0.0, 0.0, 1.0 );*/
+			1.0 - 2.0 * (y2 + z2), 2.0 * (xy - wz), 2.0 * (xz + wy), 0.0,
 			2.0 * (xy + wz), 1.0 - 2.0 * (x2 + z2), 2.0 * (yz - wx), 0.0,
 			2.0 * (xz - wy), 2.0 * (yz + wx), 1.0 - 2.0 * (x2 + y2), 0.0,
-			0.0, 0.0, 0.0, 1.0 );*/
+			0.0, 0.0, 0.0, 1.0 );
 	}
 }
 
@@ -99,42 +118,51 @@ var mat4 = {
 			m[2],	m[6],	m[10],	m[14],
 			m[3],	m[7],	m[11],	m[15] ] ); },
 	perspective: function( fovy, aspect, znear, zfar ) {
-    	var ymax = znear * Math.tan(fovy * Math.PI / 360.0);
-    	var ymin = -ymax;
-    	var xmin = ymin * aspect;
-    	var xmax = ymax * aspect;
+    	var ymax = znear * Math.tan(fovy * Math.PI / 360.0),
+			ymin = -ymax,
+    		xmin = ymin * aspect,
+    		xmax = ymax * aspect;
     	return mat4.frustum( xmin, xmax, ymin, ymax, znear, zfar ); },
     frustum: function( left, right, bottom, top, znear, zfar ) {
-    	var X = 2*znear/(right-left);
-	    var Y = 2*znear/(top-bottom);
-    	var A = (right+left)/(right-left);
-	    var B = (top+bottom)/(top-bottom);
-    	var C = -(zfar+znear)/(zfar-znear);
-	    var D = -2*zfar*znear/(zfar-znear);
+    	var X = 2 * znear / ( right - left ),
+	    	Y = 2 * znear / ( top - bottom ),
+    		A = ( right + left ) / ( right - left ),
+	    	B = ( top + bottom ) / ( top - bottom ),
+    		C = -( zfar + znear ) / ( zfar - znear ),
+	    	D = -2 * zfar * znear / ( zfar - znear );
     	return mat4.create(
     		X, 0, A, 0,
 	        0, Y, B, 0,
     	    0, 0, C, D,
         	0, 0, -1, 0 ); },
+	ortho: function( left, right, bottom, top, znear, zfar) {
+	    var tx = -( right + left ) / ( right - left ),
+			ty = -( top + bottom ) / ( top - bottom ),
+			tz = -( zfar + znear ) / ( zfar - znear );
+
+    	return mat4.create( 2 / ( right - left ), 0, 0, tx,
+							0, 2 / ( top - bottom ), 0, ty,
+							0, 0, -2 / ( zfar - znear ), tz,
+							0, 0, 0, 1 ); },
 	translate: function( m, v ) {
 		var t = mat4.create();
-		t[3] = v[0];
-    	t[7] = v[1];
-		t[11] = v[2];
+			t[3] = v[0];
+    		t[7] = v[1];
+			t[11] = v[2];
 		return mat4.multiply( m, t );
 	},
 	mh: function( v, w ) {
 		return v[0] * w[0] + v[1] * w[1] + v[2] * w[2] + v[3] * w[3];
 	},
 	multiply: function( m, n ) {
-		var A1 = [m[0], m[1], m[2], m[3]];
-		var A2 = [m[4], m[5], m[6], m[7]];
-		var A3 = [m[8], m[9], m[10],m[11]];
-		var A4 = [m[12],m[13],m[14],m[15]];
-		var B1 = [n[0], n[4], n[8], n[12]];
-		var B2 = [n[1], n[5], n[9], n[13]];
-		var B3 = [n[2], n[6], n[10],n[14]];
-		var B4 = [n[3], n[7], n[11],n[15]];
+		var A1 = [m[0], m[1], m[2], m[3]],
+			A2 = [m[4], m[5], m[6], m[7]],
+			A3 = [m[8], m[9], m[10],m[11]],
+			A4 = [m[12],m[13],m[14],m[15]],
+			B1 = [n[0], n[4], n[8], n[12]],
+			B2 = [n[1], n[5], n[9], n[13]],
+			B3 = [n[2], n[6], n[10],n[14]],
+			B4 = [n[3], n[7], n[11],n[15]];
 		return new Float32Array(
 		  [	mat4.mh(A1, B1), mat4.mh(A1, B2), mat4.mh(A1, B3), mat4.mh(A1, B4),
 			mat4.mh(A2, B1), mat4.mh(A2, B2), mat4.mh(A2, B3), mat4.mh(A2, B4),
@@ -151,7 +179,7 @@ var mat4 = {
 		t[10] = c;
 		return mat4.multiply( m, t );
 	},
-	$rotate: function (mat, angle, axis, dest) {
+	$rotate: function ( mat, angle, axis, dest ) {
         var x = axis[0], y = axis[1], z = axis[2],
             len = Math.sqrt(x * x + y * y + z * z),
             s, c, t,
@@ -161,7 +189,6 @@ var mat4 = {
             b00, b01, b02,
             b10, b11, b12,
             b20, b21, b22;
-
         if (!len) { return null; }
         if (len !== 1) {
             len = 1 / len;
@@ -169,30 +196,23 @@ var mat4 = {
             y *= len;
             z *= len;
         }
-
         s = Math.sin(angle);
         c = Math.cos(angle);
         t = 1 - c;
-
         a00 = mat[0]; a01 = mat[1]; a02 = mat[2]; a03 = mat[3];
         a10 = mat[4]; a11 = mat[5]; a12 = mat[6]; a13 = mat[7];
         a20 = mat[8]; a21 = mat[9]; a22 = mat[10]; a23 = mat[11];
-
-        // Construct the elements of the rotation matrix
         b00 = x * x * t + c; b01 = y * x * t + z * s; b02 = z * x * t - y * s;
         b10 = x * y * t - z * s; b11 = y * y * t + c; b12 = z * y * t + x * s;
         b20 = x * z * t + y * s; b21 = y * z * t - x * s; b22 = z * z * t + c;
-
         if (!dest) {
             dest = mat;
-        } else if (mat !== dest) { // If the source and destination differ, copy the unchanged last row
+        } else if (mat !== dest) {
             dest[12] = mat[12];
             dest[13] = mat[13];
             dest[14] = mat[14];
             dest[15] = mat[15];
         }
-
-        // Perform rotation-specific matrix multiplication
         dest[0] = a00 * b00 + a10 * b01 + a20 * b02;
         dest[1] = a01 * b00 + a11 * b01 + a21 * b02;
         dest[2] = a02 * b00 + a12 * b01 + a22 * b02;
@@ -210,8 +230,8 @@ var mat4 = {
         return dest;
     },
 	rotate: function( m, v ) {
-		var t = mat4.create();
-		var r = mat4.create();
+		var t = mat4.create(),
+			r = mat4.create();
 		if( v[0] != 0 ) {
 			v[0] = v[0] * ( Math.PI / 180 );
 			t[5] = Math.cos( v[0] );
@@ -241,39 +261,39 @@ var mat4 = {
 		return mat4.multiply( m, r );
 	},
 	look: function( eye, center, up ) {
-    	var z = vec3.normalize( vec3.subtract( eye, center ) );
-    	var x = vec3.normalize( vec3.cross( up, z ) );
-    	var y = vec3.normalize( vec3.cross( z, x ) );
-    	var m = mat4.create(
-			x[0], x[1], x[2], 0,
-            y[0], y[1], y[2], 0,
-            z[0], z[1], z[2], 0,
-            0, 0, 0, 1 );
-   		var t = mat4.create(
-			1, 0, 0, -eye[0],
-            0, 1, 0, -eye[1],
-            0, 0, 1, -eye[2],
-            0, 0, 0, 1 );
+    	var z = vec3.normalize( vec3.subtract( eye, center ) ),
+    		x = vec3.normalize( vec3.cross( up, z ) ),
+    		y = vec3.normalize( vec3.cross( z, x ) ),
+    		m = mat4.create(
+				x[0], x[1], x[2], 0,
+            	y[0], y[1], y[2], 0,
+            	z[0], z[1], z[2], 0,
+            	0, 0, 0, 1 ),
+   			t = mat4.create(
+				1, 0, 0, -eye[0],
+            	0, 1, 0, -eye[1],
+            	0, 0, 1, -eye[2],
+            	0, 0, 0, 1 );
     	return mat4.multiply( m, t );
 	},
 	transpose: function( m ) {
 		var t = mat4.create();
-		t[0] = m[0];
-        t[1] = m[4];
-        t[2] = m[8];
-        t[3] = m[12];
-        t[4] = m[1];
-        t[5] = m[5];
-        t[6] = m[9];
-        t[7] = m[13];
-        t[8] = m[2];
-        t[9] = m[6];
-        t[10] = m[10];
-        t[11] = m[14];
-        t[12] = m[3];
-        t[13] = m[7];
-        t[14] = m[11];
-        t[15] = m[15];
+			t[0] = m[0];
+       		t[1] = m[4];
+        	t[2] = m[8];
+        	t[3] = m[12];
+        	t[4] = m[1];
+        	t[5] = m[5];
+        	t[6] = m[9];
+        	t[7] = m[13];
+        	t[8] = m[2];
+        	t[9] = m[6];
+        	t[10] = m[10];
+        	t[11] = m[14];
+        	t[12] = m[3];
+        	t[13] = m[7];
+        	t[14] = m[11];
+        	t[15] = m[15];
 		return t;
 	},
 	inverse: function( m ) {
@@ -297,22 +317,22 @@ var mat4 = {
             invDet;
 		invDet = 1 / d;
 		var t = mat4.clone( m );
-		t[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
-        t[1] = (-a01 * b11 + a02 * b10 - a03 * b09) * invDet;
-        t[2] = (a31 * b05 - a32 * b04 + a33 * b03) * invDet;
-        t[3] = (-a21 * b05 + a22 * b04 - a23 * b03) * invDet;
-        t[4] = (-a10 * b11 + a12 * b08 - a13 * b07) * invDet;
-        t[5] = (a00 * b11 - a02 * b08 + a03 * b07) * invDet;
-        t[6] = (-a30 * b05 + a32 * b02 - a33 * b01) * invDet;
-        t[7] = (a20 * b05 - a22 * b02 + a23 * b01) * invDet;
-        t[8] = (a10 * b10 - a11 * b08 + a13 * b06) * invDet;
-        t[9] = (-a00 * b10 + a01 * b08 - a03 * b06) * invDet;
-        t[10] = (a30 * b04 - a31 * b02 + a33 * b00) * invDet;
-        t[11] = (-a20 * b04 + a21 * b02 - a23 * b00) * invDet;
-        t[12] = (-a10 * b09 + a11 * b07 - a12 * b06) * invDet;
-        t[13] = (a00 * b09 - a01 * b07 + a02 * b06) * invDet;
-        t[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * invDet;
-        t[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
+			t[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
+        	t[1] = (-a01 * b11 + a02 * b10 - a03 * b09) * invDet;
+        	t[2] = (a31 * b05 - a32 * b04 + a33 * b03) * invDet;
+        	t[3] = (-a21 * b05 + a22 * b04 - a23 * b03) * invDet;
+        	t[4] = (-a10 * b11 + a12 * b08 - a13 * b07) * invDet;
+       		t[5] = (a00 * b11 - a02 * b08 + a03 * b07) * invDet;
+        	t[6] = (-a30 * b05 + a32 * b02 - a33 * b01) * invDet;
+        	t[7] = (a20 * b05 - a22 * b02 + a23 * b01) * invDet;
+        	t[8] = (a10 * b10 - a11 * b08 + a13 * b06) * invDet;
+        	t[9] = (-a00 * b10 + a01 * b08 - a03 * b06) * invDet;
+        	t[10] = (a30 * b04 - a31 * b02 + a33 * b00) * invDet;
+        	t[11] = (-a20 * b04 + a21 * b02 - a23 * b00) * invDet;
+        	t[12] = (-a10 * b09 + a11 * b07 - a12 * b06) * invDet;
+        	t[13] = (a00 * b09 - a01 * b07 + a02 * b06) * invDet;
+        	t[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * invDet;
+        	t[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
 		return t;
 	}
 }

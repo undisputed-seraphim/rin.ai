@@ -60,11 +60,6 @@ $rin.prototype.draw = function() {
 };
 $rin.prototype.start = function() {
 	this.scene.init();
-	gl.uniform3f( gl.getUniformLocation( rin.program(), "uAmbientColor" ), 0.6, 0.6, 0.6);
-	gl.uniform3f( gl.getUniformLocation( rin.program(), "uDiffuseColor" ), 1.5, 1.5, 1.5);
-    gl.uniform3f( gl.getUniformLocation( rin.program(), "uSpecularColor" ), 0.8, 0.8, 0.8);
-	gl.uniform3f( gl.getUniformLocation( rin.program(), "uDirectionalColor" ), 0.75, 0.75, 0.75);
-	gl.uniform3f( gl.getUniformLocation( rin.program(), "uLightDirection" ), 0.5, 0.0, 1.0);
 	rin.interval = setInterval( rin.draw, 15 );
 };
 $rin.prototype.stop = function() {
