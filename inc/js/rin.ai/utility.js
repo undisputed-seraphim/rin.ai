@@ -79,15 +79,40 @@ var quat = {
 			wy = quat[3] * quat[1],
 			wz = quat[3] * quat[2];
 		return mat4.create(
-			/*1.0 - 2.0 * (y2 + z2), 2.0 * (xy + wz), 2.0 * (xz - wy), 0.0,
-			2.0 * (xy - wz), 1.0 - 2.0 * (x2 + z2), 2.0 * (yz + wx), 0.0,
-			2.0 * (xz + wy), 2.0 * (yz - wx), 1.0 - 2.0 * (x2 + y2), 0.0,
-			0.0, 0.0, 0.0, 1.0 );*/
 			1.0 - 2.0 * (y2 + z2), 2.0 * (xy - wz), 2.0 * (xz + wy), 0.0,
 			2.0 * (xy + wz), 1.0 - 2.0 * (x2 + z2), 2.0 * (yz - wx), 0.0,
 			2.0 * (xz - wy), 2.0 * (yz + wx), 1.0 - 2.0 * (x2 + y2), 0.0,
 			0.0, 0.0, 0.0, 1.0 );
-	}
+	},
+	fromRotationMatrix: function( mat ) {
+        var dest = new Float32Array( [0, 0, 0, 0] );
+        var fTrace = mat[0] + mat[4] + mat[8];
+        var fRoot;
+        if ( fTrace > 0.0 ) {
+            fRoot = Math.sqrt(fTrace + 1.0);
+            dest[3] = 0.5 * fRoot;
+            fRoot = 0.5/fRoot;  // 1/(4w)
+            dest[0] = (mat[7]-mat[5])*fRoot;
+            dest[1] = (mat[2]-mat[6])*fRoot;
+            dest[2] = (mat[3]-mat[1])*fRoot;
+        } else {
+            var s_iNext = quat.fromRotationMatrix.s_iNext = quat.fromRotationMatrix.s_iNext || [1,2,0];
+            var i = 0;
+            if ( mat[4] > mat[0] )
+              i = 1;
+            if ( mat[8] > mat[i*3+i] )
+              i = 2;
+            var j = s_iNext[i];
+            var k = s_iNext[j];
+            fRoot = Math.sqrt(mat[i*3+i]-mat[j*3+j]-mat[k*3+k] + 1.0);
+            dest[i] = 0.5 * fRoot;
+            fRoot = 0.5 / fRoot;
+            dest[3] = (mat[k*3+j] - mat[j*3+k]) * fRoot;
+            dest[j] = (mat[j*3+i] + mat[i*3+j]) * fRoot;
+            dest[k] = (mat[k*3+i] + mat[i*3+k]) * fRoot;
+        }
+        return dest;
+    }
 }
 
 var mat4 = {
@@ -276,6 +301,87 @@ var mat4 = {
             	0, 0, 0, 1 );
     	return mat4.multiply( m, t );
 	},
+	lookAt: function (eye, center, up) {
+        var dest = mat4.create();
+
+        var x0, x1, x2, y0, y1, y2, z0, z1, z2, len,
+            eyex = eye[0],
+            eyey = eye[1],
+            eyez = eye[2],
+            upx = up[0],
+            upy = up[1],
+            upz = up[2],
+            centerx = center[0],
+            centery = center[1],
+            centerz = center[2];
+
+        if (eyex === centerx && eyey === centery && eyez === centerz) {
+            return mat4.identity(dest);
+        }
+
+        //vec3.direction(eye, center, z);
+        z0 = eyex - centerx;
+        z1 = eyey - centery;
+        z2 = eyez - centerz;
+
+        // normalize (no check needed for 0 because of early return)
+        len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+        z0 *= len;
+        z1 *= len;
+        z2 *= len;
+
+        //vec3.normalize(vec3.cross(up, z, x));
+        x0 = upy * z2 - upz * z1;
+        x1 = upz * z0 - upx * z2;
+        x2 = upx * z1 - upy * z0;
+        len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+        if (!len) {
+            x0 = 0;
+            x1 = 0;
+            x2 = 0;
+        } else {
+            len = 1 / len;
+            x0 *= len;
+            x1 *= len;
+            x2 *= len;
+        }
+
+        //vec3.normalize(vec3.cross(z, x, y));
+        y0 = z1 * x2 - z2 * x1;
+        y1 = z2 * x0 - z0 * x2;
+        y2 = z0 * x1 - z1 * x0;
+
+        len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+        if (!len) {
+            y0 = 0;
+            y1 = 0;
+            y2 = 0;
+        } else {
+            len = 1 / len;
+            y0 *= len;
+            y1 *= len;
+            y2 *= len;
+        }
+
+        dest[0] = x0;
+        dest[1] = y0;
+        dest[2] = z0;
+        dest[3] = 0;
+        dest[4] = x1;
+        dest[5] = y1;
+        dest[6] = z1;
+        dest[7] = 0;
+        dest[8] = x2;
+        dest[9] = y2;
+        dest[10] = z2;
+        dest[11] = 0;
+        dest[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+        dest[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+        dest[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+        dest[15] = 1;
+
+        return dest;
+    },
 	transpose: function( m ) {
 		var t = mat4.create();
 			t[0] = m[0];

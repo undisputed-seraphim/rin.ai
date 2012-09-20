@@ -3,7 +3,7 @@ __$r.prototype.$Scene = function $Scene() {
 	this.models = [];
 	this.lights = [];
 	this.skies = [];
-	this.terrain;
+	this.terrain = "";
 	this.time = 1200;
 	this.tick = 0;
 	this.ident = {};
@@ -14,7 +14,7 @@ __$r.prototype.$Scene = function $Scene() {
 __$r.prototype.$Scene.prototype = {
 	init: function() {
 		this.cameras.push( new rin.$Camera( 45, rin.width / rin.height, 0.1, 100.0 ) );
-		this.camera( 0 ).enable();
+		this.camera( 0 );
 		this.skies.push( new rin.$Sky( "default" ) );
 		this.sky( 0 ).init();
 		this.lights.push( new rin.$Light( "directional" ) );
@@ -60,6 +60,7 @@ __$r.prototype.$Scene.prototype = {
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
+		this.terrain.render();
 		for( var i in this.models ) { this.models[i].render(); }
 		gl.disable( gl.BLEND );
 	},

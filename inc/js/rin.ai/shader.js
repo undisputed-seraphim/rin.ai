@@ -30,6 +30,8 @@ var shaders = {
   			uniform float uMaterialShininess;\
 			uniform sampler2D uSampler;\
 			uniform bool uUseTextures;\
+			uniform bool uUseColor;\
+			uniform vec3 uColor;\
 			uniform vec3 uAmbientLightingColor;\
     		uniform vec3 uPointLightingLocation;\
 	    	uniform vec3 uDiffuseColor;\
@@ -60,6 +62,9 @@ var shaders = {
 					+ materialDiffuseColor * diffuseWeight\
 					+ materialSpecularColor * specularWeight,\
 					alpha );\
+				if( uUseColor ) {\
+					gl_FragColor = vec4( uColor, 1.0 );\
+				}\
 			}",
 		vertex: "\
 			attribute vec3 aVertex;\
