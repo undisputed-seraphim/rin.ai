@@ -13,7 +13,8 @@ __$r.prototype.$Light = function $Light( type, params ) {
 __$r.prototype.$Light.prototype = {
 	init: function() {
 		this.enabled = true;
-		document.addEventListener( "halfhour", this.update );
+		var light = this;
+		document.addEventListener( "halfhour", function() { light.update(); } );
 		this.apply();
 	},
 	apply: function() {
@@ -24,5 +25,6 @@ __$r.prototype.$Light.prototype = {
 		gl.uniform3f( gl.getUniformLocation( rin.program(), "uLightDirection" ), 0.5, 0.0, 1.0);
 	},
 	update: function() {
+		console.log( "light update" );
 	}
 }

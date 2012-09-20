@@ -3,7 +3,7 @@ __$r.prototype.$Scene = function $Scene() {
 	this.models = [];
 	this.lights = [];
 	this.skies = [];
-	this.color = [ 1.2, 1.2, 1.2 ];
+	this.terrain;
 	this.time = 1200;
 	this.tick = 0;
 	this.ident = {};
@@ -19,9 +19,9 @@ __$r.prototype.$Scene.prototype = {
 		this.sky( 0 ).init();
 		this.lights.push( new rin.$Light( "directional" ) );
 		this.light( 0 ).init();
+		this.terrain = new rin.$Terrain();
 		gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-		gl.depthFunc( gl.LEQUAL );
-	},
+		gl.depthFunc( gl.LEQUAL ); },
 	add: function( type, params ) {
 		switch( type.toLowerCase() ) {
 			case "obj":
@@ -51,9 +51,7 @@ __$r.prototype.$Scene.prototype = {
 		if( this.tick == 10 ) {
 			this.tick = 0; this.time += 1;
 			if( this.time > 2400 ) this.time = 0;
-			if( this.time % 50 == 0 ) document.dispatchEvent( new Event("halfhour") );
-		}
-	},
+			if( this.time % 50 == 0 ) document.dispatchEvent( new Event("halfhour") ); } },
 	render: function() {
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		this.tock();
