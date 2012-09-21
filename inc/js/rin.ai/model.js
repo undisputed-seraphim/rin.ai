@@ -133,7 +133,7 @@ __$r.prototype.$OBJModel.prototype = {
 		this.ready = true;
 	},
 	start: function() { var mod = this; this.interval = setInterval( function() { mod.next(); }, this.rate ); },
-	stop: function() { clearInterval( this.interval ); },
+	stop: function() { clearInterval( this.interval ); this.interval = ""; },
 	next: function() { this.current == this.range ? this.current = 1 : this.current++; },
 	buffer: function() {
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.normal[this.current] );

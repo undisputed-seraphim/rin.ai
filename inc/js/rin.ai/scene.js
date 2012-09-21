@@ -57,10 +57,10 @@ __$r.prototype.$Scene.prototype = {
 		this.tock();
 		this.camera().update();
 		//this.sky().render();
+		this.terrain.render();
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
-		this.terrain.render();
 		for( var i in this.models ) { this.models[i].render(); }
 		gl.disable( gl.BLEND );
 	},

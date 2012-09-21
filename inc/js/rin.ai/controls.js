@@ -1,7 +1,8 @@
 var Controls = {
 	enabled: false,
-	keys: { UP: 38, DOWN: 40, LEFT: 37, RIGHT: 39, W: 87, A: 65, S:83, D:68,
-		down: false, up: false, left: false, right: false, w: false, a: false, s: false, d: false },
+	keys: { UP: 38, DOWN: 40, LEFT: 37, RIGHT: 39, W: 87, A: 65, S:83, D:68, SPACE: 32, SHIFT: 16,
+		down: false, up: false, left: false, right: false, w: false, a: false, s: false, d: false,
+		space: false, shift: false },
 	any: function( type ) {
 		switch( type ) {
 			case "arrows": return (Controls.keys.down || Controls.keys.up ||
@@ -38,6 +39,8 @@ var onKeyDown = {
 			case Controls.keys.A:			Controls.keys.a =		true; break;
 			case Controls.keys.S:			Controls.keys.s =		true; break;
 			case Controls.keys.D:			Controls.keys.d =		true; break;
+			case Controls.keys.SPACE:		Controls.keys.space =	true; break;
+			case Controls.keys.SHIFT:		Controls.keys.shift =	true; break;
 		}
 	}
 }
@@ -53,6 +56,8 @@ var onKeyUp = {
 			case Controls.keys.A:			Controls.keys.a =		false; break;
 			case Controls.keys.S:			Controls.keys.s =		false; break;
 			case Controls.keys.D:			Controls.keys.d =		false; break;
+			case Controls.keys.SPACE:		Controls.keys.space =	false; break;
+			case Controls.keys.SHIFT:		Controls.keys.shift =	false; break;
 		}
 	}
 }

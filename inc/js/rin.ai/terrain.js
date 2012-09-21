@@ -4,6 +4,7 @@ __$r.prototype.$Terrain = function $Terrain( params ) {
 	this.width = 0;
 	this.zero = "highest"
 	this.hmap = [];
+	this.textures = [];
 	
 	this.vba = [];
 	this.nba = [];
@@ -13,7 +14,7 @@ __$r.prototype.$Terrain = function $Terrain( params ) {
 	this.ibo = "";
 	
 	this.ready = false;
-	this.init( params.pack || "default", params.img || "default.png" );
+	this.init( params.pack || "default", params.name || "default" );
 }
 
 __$r.prototype.$Terrain.prototype = {
@@ -21,7 +22,9 @@ __$r.prototype.$Terrain.prototype = {
 		var image = document.createElement("img"),
 			terrain = this;
 		image.onload = function(){ terrain.map( getHeightData( this ) ); };
-		image.src = "inc/scenes/"+pack+"/terrain/"+name; },
+		image.src = "inc/scenes/"+pack+"/terrain/"+name+"/map.png";
+		this.textures.push( new rin.$Texture( this.textures.length, this ) );
+		this.textures[0].element.src = "inc/scenes/"+pack+"/terrain/"+name+"/texture.png"; },
 	map: function( params ) {
 		this.width = params.width;
 		this.height = params.height;
@@ -84,18 +87,26 @@ __$r.prototype.$Terrain.prototype = {
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.nbo );
 		gl.vertexAttribPointer( rin.$program().pointers.normal, 3, gl.FLOAT, false, 0, 0 );
-		//gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseTextures" ), false);
-		gl.disableVertexAttribArray( rin.$program().pointers.texture );
 	},
 	render: function() {
 		if( this.ready ) {
-			this.buffer();
-			//gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialAmbientColor" ), 1.6, 1.6, 1.6 );
-			//gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialDiffuseColor" ), 0.5, 0.5, 0.5 );
-			//gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialSpecularColor" ), 0.5, 0.5, 0.5 );
-			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.ibo );
-			gl.drawElements( gl.TRIANGLES, this.iba.length, gl.UNSIGNED_SHORT, 0 );
-			//gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );
+			if( this.textures[0].ready ) {
+				this.buffer();
+				var normalMatrix = mat4.inverse( mat4.create() );
+				normalMatrix = mat4.transpose( normalMatrix );
+				var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
+				gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
+				gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseTextures" ), true );
+				gl.activeTexture( gl.TEXTURE0 );
+				gl.bindTexture( gl.TEXTURE_2D, this.textures[0].texture );
+				gl.uniform1i( gl.getUniformLocation( rin.program(), "uSampler" ), 0 );
+				gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialAmbientColor" ), 1.6, 1.6, 1.6 );
+				gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialDiffuseColor" ), 0.5, 0.5, 0.5 );
+				gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialSpecularColor" ), 0.5, 0.5, 0.5 );
+				gl.uniform1i( gl.getUniformLocation( rin.program(), "uMaterialShininess" ), 10 );
+				gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.ibo );
+				gl.drawElements( gl.TRIANGLES, this.iba.length, gl.UNSIGNED_SHORT, 0 );
+			}
 		}
 	},
 }
