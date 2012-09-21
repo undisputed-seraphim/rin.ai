@@ -18,6 +18,8 @@ __$r.prototype.$OBJModel = function $OBJModel( id, params ) {
 	this.ajax =			{ obj: "", mtl: "" };
 	this.b =			{ vertex: {}, texture: {}, normal: {} };
 	this.v =			{ vertices: {}, textures: {}, normals: {} };
+	this.max =			{};
+	this.min =			{};
 	this.load();
 };
 
@@ -33,14 +35,18 @@ __$r.prototype.$OBJModel.prototype = {
 	},
 	parse: function() {
 		var full = this.ajax.obj.responseText.split("\n");
-		var $v = []; var $t = []; var $n = []; var $f = {}; var $o = ""; var $m = ""; var $i = 0; var $mod = { v: [] }; var dup = false;
+		var $v = [], $t = [], $n = [], $f = {}, $o = "", $m = "", $i = 0, $mod = { v: [] }, dup = false;
+		var zmin = 0, zmax = 0, xmin = 0, xmax = 0, ymin = 0, ymax = 0;
 		for( var i in full ) {
 			var line = full[i].substring( full[i].indexOf(" ")+1 ).split(" ");
 			switch( full[i].substring( 0, full[i].indexOf(" ") ) ) {
 				case "o": $o = full[i].substring( full[i].indexOf(" ")+1 ); if( $o == "" ) $o = "_"; $f[$o] = {}; break;
 				case "mtllib": this.mtllib = full[i].substring( full[i].indexOf(" ")+1 ); break;
 				case "usemtl": $m = full[i].substring( full[i].indexOf(" ")+1 ).trim(); $f[$o][$m] = []; break;
-				case "v":  $v.push( [ line[0], line[1], line[2] ] ); break;
+				case "v":  $v.push( [ line[0], line[1], line[2] ] );
+					if( parseFloat(line[0]) > xmax ) xmax = parseFloat(line[0]);	if( parseFloat(line[0]) < xmin ) xmin = parseFloat(line[0]);
+					if( parseFloat(line[1]) > ymax ) ymax = parseFloat(line[1]);	if( parseFloat(line[1]) < ymin ) ymin = parseFloat(line[1]);
+					if( parseFloat(line[2]) > zmax ) zmax = parseFloat(line[2]);	if( parseFloat(line[2]) < zmin ) zmin = parseFloat(line[2]); break;
 				case "vt": $t.push( [ line[0], line[1] ] ); break;
 				case "vn": $n.push( [ line[0], line[1], line[2] ] ); break;
 				case "f":
@@ -57,6 +63,8 @@ __$r.prototype.$OBJModel.prototype = {
 		$v = null; $t = null; $n = null;
 		var c = 0;
 		this.mesh[this.current] = {};
+		this.max[this.current] = { x: xmax, y: ymax, z: zmax };
+		this.min[this.current] = { x: xmin, y: ymin, z: zmin };
 		this.v.textures[this.current] = [];
 		this.v.normals[this.current] = [];
 		this.v.vertices[this.current] = [];
@@ -128,6 +136,24 @@ __$r.prototype.$OBJModel.prototype = {
 					gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.mesh[i][k][j].i ), gl.STATIC_DRAW );
 				}
 			}
+			var vba = [this.min[i].x, this.max[i].y, this.min[i].z,
+						   this.max[i].x, this.max[i].y, this.min[i].z,
+						   this.max[i].x, this.min[i].y, this.min[i].z,
+						   this.min[i].x, this.min[i].y, this.min[i].z,
+						   
+						   this.min[i].x, this.max[i].y, this.max[i].z,
+						   this.max[i].x, this.max[i].y, this.max[i].z,
+						   this.max[i].x, this.min[i].y, this.max[i].z,
+						   this.min[i].x, this.min[i].y, this.max[i].z ];
+			this.min[i].iba = [ 0, 1, 3,		1, 3, 2,		4, 5, 7,	5, 7, 6,
+						   		0, 4, 3,		4, 3, 7,		1, 5, 2,	5, 2, 6,
+								0, 1, 4,		1, 4, 5,		2, 3, 6,	3, 6, 7 ];
+			this.min[i].vbo = gl.createBuffer();
+			gl.bindBuffer( gl.ARRAY_BUFFER, this.min[i].vbo );
+			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vba ), gl.STATIC_DRAW);
+			this.min[i].ibo = gl.createBuffer();
+			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.min[i].ibo );
+			gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.min[i].iba ), gl.STATIC_DRAW );
 		}
 		this.current = this.animated ? 1 : 0;
 		this.ready = true;
@@ -138,10 +164,13 @@ __$r.prototype.$OBJModel.prototype = {
 	buffer: function() {
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.normal[this.current] );
 		gl.vertexAttribPointer( rin.$program().pointers.normal, 3, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( rin.$program().pointers.normal );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.vertex[this.current] );
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( rin.$program().pointers.vertex );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.texture[this.current] );
 		gl.vertexAttribPointer( rin.$program().pointers.texture, 2, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( rin.$program().pointers.texture );
 	},
 	render: function() {
 		if( this.ready ) {
@@ -179,6 +208,19 @@ __$r.prototype.$OBJModel.prototype = {
 					gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.mesh[this.current][i][j].b );
 					gl.drawElements( gl.TRIANGLES, this.mesh[this.current][i][j].i.length, gl.UNSIGNED_SHORT, 0 );
 				}
+			}
+			if( Settings.flags.showBoundingBox ) {
+				gl.blendFunc( gl.SRC_ALPHA, gl.SRC_ALPHA );
+				gl.enable( gl.BLEND );
+				gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), true );
+				gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), 1.0, 0.0, 0.0 );
+				gl.bindBuffer( gl.ARRAY_BUFFER, this.min[this.current].vbo );
+				gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
+				gl.enableVertexAttribArray( rin.$program().pointers.vertex );
+				gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.min[this.current].ibo );
+				gl.drawElements( gl.TRIANGLES, this.min[this.current].iba.length, gl.UNSIGNED_SHORT, 0 );
+				gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );
+				gl.disable( gl.BLEND );
 			}
 			mvMatrix = temp;
 		}

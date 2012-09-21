@@ -17,9 +17,9 @@ __$r.prototype.$Camera.prototype = {
 		this.rotation = r || this.rotation; this.rot();
 		this.transform();
 		this.update();
+		return this;
 	},
-	enable: function( p, r ) {
-		this.init( p || this.position, r || this.rotation );
+	enable: function() {
 		Controls.enable("camera");
 		this.controls = true;
 	},

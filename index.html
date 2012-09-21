@@ -8,6 +8,8 @@
 
 <body id="body">
 	<label id="time"></label><br/>
+    	<input type="checkbox" id="showBoundingBox" onchange="Settings.update();" /> Show Bounding Boxes
+        <br/>
 	<canvas id="canvas" width="800" height="450"></canvas><br/><br/>
 </body>
 <script type="text/javascript" src="inc/js/rin.js"></script>
@@ -17,6 +19,7 @@
 <script type="text/javascript" src="inc/js/rin.ai/texture.js"></script>
 <script type="text/javascript" src="inc/js/rin.ai/sky.js"></script>
 <script type="text/javascript" src="inc/js/rin.ai/scene.js"></script>
+<script type="text/javascript" src="inc/js/rin.ai/settings.js"></script>
 <script type="text/javascript" src="inc/js/rin.ai/controls.js"></script>
 <script type="text/javascript" src="inc/js/rin.ai/program.js"></script>
 <script type="text/javascript" src="inc/js/rin.ai/utility.js"></script>

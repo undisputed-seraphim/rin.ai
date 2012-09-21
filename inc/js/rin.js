@@ -1,51 +1,19 @@
 (function(){
-var gl, rin,
-	modules = [ "program", "shader", "scene", "camera",
-			    "controls", "utility" ];
-
-(function(){
 
 function $rin() {
-	rin = this;
 	this.programs = [];
 	this.shaders = [];
 	this.scene = "";
+	this.interval = "";
 	this.$state = {};
-	this.modules = 6;
-	this._models = [];
-	this._ident = {};
-	this.b = { normal: "", vertex: "", texture: "" };
-	this.q = { running: false, queue: [], current: "" };
-	this.v = { texture: "", vertex: "", normal: "" };
 }
 
 $rin.prototype = {
-	program: function() { return this.programs[ this.$state[ "PROGRAM" ] ].target; },
-	$program: function() { return this.programs[ this.$state[ "PROGRAM" ] ]; },
-}
-$rin.prototype.init = function( id ) {
-	this.gl = gl = window.gl = document.getElementById( id ).getContext( 'experimental-webgl' );
-	this.width = document.getElementById( id ).width;
-	this.height = document.getElementById( id ).height;
-	this.canvas = id;
-	if( gl ) { this.load(); }
-};
-$rin.prototype.state = function( state, value ) {
-	if( value === undefined )
-		if( typeof(state) == "object" )
-			for( var i in state ) this.$state[i] = state[i];
-		else return this.$state[state];
-	else this.$state[state] = value;
-	return this;
-};
-$rin.prototype.load = function() {
-	if( this.modules != modules.length ) {
-		var script = document.createElement("script");
-		script.type = "text/javascript";
-		script.onload = function() { rin.load(); }
-		document.getElementsByTagName("head")[0].appendChild( script );
-		script.src = "inc/js/rin.ai/"+modules[this.modules++]+".js";
-	} else {
+	init: function( id ) {
+		this.gl = gl = window.gl = document.getElementById( id ).getContext( 'experimental-webgl' );
+		this.width = document.getElementById( id ).width;
+		this.height = document.getElementById( id ).height;
+		this.canvas = id;
 		this.programs.push( new this.$Program() );
 		this.shaders.push( new this.$Shader( "vertex", "default" ) );
 		this.shaders.push( new this.$Shader( "fragment", "default" ) );
@@ -53,22 +21,23 @@ $rin.prototype.load = function() {
 		this.$program().attach( this.shaders[0].target ).attach( this.shaders[1].target ).link().use().init();
 		this.scene = new this.$Scene();
 		document.dispatchEvent( new Event("rinLoaded") );
-	}
-};
-$rin.prototype.draw = function() {
-	rin.scene.render();
-};
-$rin.prototype.start = function() {
-	this.scene.init();
-	rin.interval = setInterval( rin.draw, 15 );
-};
-$rin.prototype.stop = function() {
-	clearInterval( rin.interval );
-	Controls.disable();
-};
+	},
+	state: function( state, value ) {
+		if( value === undefined )
+			if( typeof(state) == "object" )
+				for( var i in state ) this.$state[i] = state[i];
+			else return this.$state[state];
+		else this.$state[state] = value;
+		return this;
+	},
+	program: function() { return this.programs[ this.$state[ "PROGRAM" ] ].target; },
+	$program: function() { return this.programs[ this.$state[ "PROGRAM" ] ]; },
+	
+	render: function() { rin.scene.render(); },
+	start: function() { this.scene.init(); this.interval = setInterval( rin.render, 15 ); },
+	stop: function() { clearInterval( this.interval ); this.interval = ""; Controls.disable(); }
+}
 
 window.$r = window.r = window.rin = new $rin();
 window.__$r = $rin;
-})();
-
 })();

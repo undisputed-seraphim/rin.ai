@@ -14,7 +14,7 @@ __$r.prototype.$Scene = function $Scene() {
 __$r.prototype.$Scene.prototype = {
 	init: function() {
 		this.cameras.push( new rin.$Camera( 45, rin.width / rin.height, 0.1, 100.0 ) );
-		this.camera( 0 );
+		this.camera( 0 ).init().enable();
 		this.skies.push( new rin.$Sky( "default" ) );
 		this.sky( 0 ).init();
 		this.lights.push( new rin.$Light( "directional" ) );
@@ -32,11 +32,7 @@ __$r.prototype.$Scene.prototype = {
 		else { this.state( "SKY", s ); return this.sky(); } },
 	camera: function( c ) {
 		if( c === undefined ) return this.cameras[ this.$state["CAMERA"] ];
-		else {
-			if( this.camera() ) this.camera().disable();
-			this.state( "CAMERA", c );
-			this.camera().enable();
-			return this.camera(); } },
+		else { this.state( "CAMERA", c ); return this.camera(); } },
 	state: function( state, value ) {
 		if( value === undefined )
 			if( typeof(state) == "object" )
@@ -56,12 +52,30 @@ __$r.prototype.$Scene.prototype = {
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		this.tock();
 		this.camera().update();
-		//this.sky().render();
 		this.terrain.render();
+		//this.sky().render();
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
 		for( var i in this.models ) { this.models[i].render(); }
 		gl.disable( gl.BLEND );
+		/*gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), true );
+		gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), 1.0, 0.0, 0.0 );
+		var line = [ 0, 0, 0,
+					 0, 10, 0,
+					 0, 0, 0,
+					 0, -10, 0 ];
+		var iba = [ 1, 2, 3, 4 ];
+		var buffer = gl.createBuffer();
+		gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( line ), gl.STATIC_DRAW);
+		gl.vertexAttribPointer( rin.$program().pointers.vertex, 2, gl.FLOAT, false, 0, 0 );
+		gl.disableVertexAttribArray( rin.$program().pointers.texture );
+		gl.disableVertexAttribArray( rin.$program().pointers.normal );
+		var ibo = gl.createBuffer();
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, ibo );
+		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( iba ), gl.STATIC_DRAW );
+		gl.drawElements( gl.LINE_STRIP, iba.length, gl.UNSIGNED_SHORT, 0 );
+		gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );*/
 	},
 }
