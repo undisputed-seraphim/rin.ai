@@ -5,6 +5,6 @@ body.onload = function() {
 
 function goAhead() {
 	//$r.scene.add( "obj", { name: "ultimecia", range: 33 } );
-	$r.scene.add( "obj", { name: "uni", range: 5, rate: 100 } );
+	$r.scene.add( "obj", { name: "uni", range: 30, rate: 50 } );
 	$r.start();
 }
