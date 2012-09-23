@@ -2,30 +2,20 @@ __$r.prototype.$OBJModel = function $OBJModel( id, params ) {
 	params =			params || {};
 	this.id =			id;
 	this.name =			params.name || "noname";
+	
 	this.range =		params.range || 0;
 	this.animated =		this.range == 0 ? false : true;
-	this.rate =			params.rate || 50;
-	this.interval =		"";
-	this.current =		0;
-	this.textures =		{};
-	this.mesh =			{};
+	this.mesh =			new rin.$Mesh( { range: this.range } );
+	
 	this.mtllib =		"";
-	this.ready =		false;
-	this.matrix =		mat4.create();
-	this.position =		params.position || [ 0, 0, 0 ];
-	this.rotation =		params.rotation || [ 0, 0, 0 ];
-	this.faces =		0;
+	this.current =		0;
 	this.ajax =			{ obj: "", mtl: "" };
-	this.b =			{ vertex: {}, texture: {}, normal: {} };
-	this.v =			{ vertices: {}, textures: {}, normals: {} };
-	this.max =			{};
-	this.min =			{};
 	this.load();
 };
 
 __$r.prototype.$OBJModel.prototype = {
 	load: function() {
-		if( this.animated ) this.current++;
+		if( this.animated ) { this.current++; this.mesh.prop( "animated", true ); }
 		this.ajax.obj = new XMLHttpRequest();
 		this.ajax.obj.$id = this.id;
 		this.ajax.obj.onreadystatechange = function() { if( this.readyState == 4 ) r.scene.models[this.$id].parse(); };
@@ -35,7 +25,7 @@ __$r.prototype.$OBJModel.prototype = {
 	},
 	parse: function() {
 		var full = this.ajax.obj.responseText.split("\n");
-		var $v = [], $t = [], $n = [], $f = {}, $o = "", $m = "", $i = 0, $mod = { v: [] }, dup = false;
+		var $v = [], $t = [], $n = [], $f = {}, $o = "", $m = "", $i = 0, dup = false;
 		var zmin = 0, zmax = 0, xmin = 0, xmax = 0, ymin = 0, ymax = 0;
 		for( var i in full ) {
 			var line = full[i].substring( full[i].indexOf(" ")+1 ).split(" ");
@@ -43,10 +33,7 @@ __$r.prototype.$OBJModel.prototype = {
 				case "o": $o = full[i].substring( full[i].indexOf(" ")+1 ); if( $o == "" ) $o = "_"; $f[$o] = {}; break;
 				case "mtllib": this.mtllib = full[i].substring( full[i].indexOf(" ")+1 ); break;
 				case "usemtl": $m = full[i].substring( full[i].indexOf(" ")+1 ).trim(); $f[$o][$m] = []; break;
-				case "v":  $v.push( [ line[0], line[1], line[2] ] );
-					if( parseFloat(line[0]) > xmax ) xmax = parseFloat(line[0]);	if( parseFloat(line[0]) < xmin ) xmin = parseFloat(line[0]);
-					if( parseFloat(line[1]) > ymax ) ymax = parseFloat(line[1]);	if( parseFloat(line[1]) < ymin ) ymin = parseFloat(line[1]);
-					if( parseFloat(line[2]) > zmax ) zmax = parseFloat(line[2]);	if( parseFloat(line[2]) < zmin ) zmin = parseFloat(line[2]); break;
+				case "v":  $v.push( [ line[0], line[1], line[2] ] ); break;
 				case "vt": $t.push( [ line[0], line[1] ] ); break;
 				case "vn": $n.push( [ line[0], line[1], line[2] ] ); break;
 				case "f":
@@ -60,27 +47,22 @@ __$r.prototype.$OBJModel.prototype = {
 					break;
 			}
 		}
-		$v = null; $t = null; $n = null;
+		$v = null; $t = null; $n = null; $o = null; $m = null;
 		var c = 0;
-		this.mesh[this.current] = {};
-		this.max[this.current] = { x: xmax, y: ymax, z: zmax };
-		this.min[this.current] = { x: xmin, y: ymin, z: zmin };
-		this.v.textures[this.current] = [];
-		this.v.normals[this.current] = [];
-		this.v.vertices[this.current] = [];
+		this.mesh.frame( this.current );
 		for( var i in $f ) {
-			this.mesh[this.current][i] = {};
+			this.mesh.node( i );
 			for( var k in $f[i] ) {
-				this.mesh[this.current][i][k] = { i: [], b: "" };
+				this.mesh.mat( k );
 				for( var l in $f[i][k] ) {
 					for( var j = 0; j < 3; j++ ) {
-						this.mesh[this.current][i][k].i.push( c+j );
-						this.v.vertices[this.current].push( $f[i][k][l].v[j][0], $f[i][k][l].v[j][1], $f[i][k][l].v[j][2] );
-						this.v.normals[this.current].push( $f[i][k][l].n[j][0], $f[i][k][l].n[j][1], $f[i][k][l].n[j][2] );
-						$f[i][k][l].t[j] === undefined ? this.v.textures[this.current].push( 0, 0 ) :
-							this.v.textures[this.current].push( $f[i][k][l].t[j][0], $f[i][k][l].t[j][1] );
+						this.mesh.vertex( $f[i][k][l].v[j][0], $f[i][k][l].v[j][1], $f[i][k][l].v[j][2] );
+						$f[i][k][l].t[j] === undefined ? this.mesh.texture( 0, 0 ) :
+							this.mesh.texture( $f[i][k][l].t[j][0], $f[i][k][l].t[j][1] );
+						this.mesh.normal( $f[i][k][l].n[j][0], $f[i][k][l].n[j][1], $f[i][k][l].n[j][2] );
 					}
-					c += 3; this.faces++;
+					this.mesh.face( c, c+1, c+2 );
+					c += 3;
 				}
 			}
 		}
@@ -94,121 +76,39 @@ __$r.prototype.$OBJModel.prototype = {
 		}
 		if( this.current != this.range ) {
 			this.load();
-		} else this.init();
+		} else { this.mesh.init(); }
 	},
 	texture: function() {
 		var full = this.ajax.mtl.responseText.split("\n");
-		var current = "";
+		var current = "", skip = false;
 		for( var i in full ) {
 			switch( full[i].substring( 0, full[i].indexOf(" ") ) ) {
 				case "newmtl":
-					if( this.textures[current] !== undefined ) { if( this.textures[current].src === undefined ) {
-						this.textures[current].src = ""; } }
+					/*if( this.textures[current] !== undefined ) {
+						if( this.textures[current].src === undefined ) {
+							this.textures[current].src = ""; } }*/
 					current = full[i].substring( full[i].indexOf(" ")+1 ).trim();
-					if( current == "" ) current = "_"; this.textures[current] = new rin.$Texture( current, this ); break;
-				case "map_Kd": this.textures[current].element.src = "inc/models/"+this.name+"/"+
+					if( current === "" ) current = "_";
+					if( this.mesh.textures[current] === undefined ) {
+						skip = false;
+						this.mesh.textures[current] = new rin.$Texture( current, this.mesh );
+					} else skip = true;
+					break;
+				case "map_Kd": if( skip ) break; this.mesh.textures[current].element.src = "inc/models/"+this.name+"/"+
 						full[i].substring( full[i].indexOf(" ")+1 ).trim();	break;
-				case "Ns": this.textures[current].Ns = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
-				case "Ka": this.textures[current].Ka = full[i].substring( full[i].indexOf(" ")+1 ).trim().split(" "); break;
-				case "Kd": this.textures[current].Kd = full[i].substring( full[i].indexOf(" ")+1 ).trim().split(" "); break;
-				case "Ks": this.textures[current].Ks = full[i].substring( full[i].indexOf(" ")+1 ).trim().split(" "); break;
-				case "Ni": this.textures[current].Ni = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
-				case "d": this.textures[current].d = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
-				case "illum": this.textures[current].illum = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
+				case "Ns": if( skip ) break; this.mesh.textures[current].Ns = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
+				case "Ka": if( skip ) break; this.mesh.textures[current].Ka = full[i].substring( full[i].indexOf(" ")+1 ).trim().split(" "); break;
+				case "Kd": if( skip ) break; this.mesh.textures[current].Kd = full[i].substring( full[i].indexOf(" ")+1 ).trim().split(" "); break;
+				case "Ks": if( skip ) break; this.mesh.textures[current].Ks = full[i].substring( full[i].indexOf(" ")+1 ).trim().split(" "); break;
+				case "Ni": if( skip ) break; this.mesh.textures[current].Ni = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
+				case "d": if( skip ) break; this.mesh.textures[current].d = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
+				case "illum": if( skip ) break; this.mesh.textures[current].illum = full[i].substring( full[i].indexOf(" ")+1 ).trim(); break;
 			}
 		}
-	},
-	init: function() {
-		for( var i = this.animated ? 1 : 0; i <= this.range; i++ ) {
-			this.b.normal[i] = gl.createBuffer();
-			gl.bindBuffer( gl.ARRAY_BUFFER, this.b.normal[i] );
-			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.v.normals[i] ), gl.STATIC_DRAW);
-			this.b.vertex[i] = gl.createBuffer();
-			gl.bindBuffer( gl.ARRAY_BUFFER, this.b.vertex[i] );
-			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.v.vertices[i] ), gl.STATIC_DRAW );
-			this.b.texture[i] = gl.createBuffer();
-			gl.bindBuffer( gl.ARRAY_BUFFER, this.b.texture[i] );
-			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.v.textures[i] ), gl.STATIC_DRAW);
-			for( var k in this.mesh[i] ) {
-				for( var j in this.mesh[i][k] ) {
-					this.mesh[i][k][j].b = gl.createBuffer();
-					gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.mesh[i][k][j].b );
-					gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.mesh[i][k][j].i ), gl.STATIC_DRAW );
-				}
-			}
-			var vba = [this.min[i].x, this.max[i].y, this.min[i].z,
-						   this.max[i].x, this.max[i].y, this.min[i].z,
-						   this.max[i].x, this.min[i].y, this.min[i].z,
-						   this.min[i].x, this.min[i].y, this.min[i].z,
-						   
-						   this.min[i].x, this.max[i].y, this.max[i].z,
-						   this.max[i].x, this.max[i].y, this.max[i].z,
-						   this.max[i].x, this.min[i].y, this.max[i].z,
-						   this.min[i].x, this.min[i].y, this.max[i].z ];
-			this.min[i].iba = [ 0, 1, 3,		1, 3, 2,		4, 5, 7,	5, 7, 6,
-						   		0, 4, 3,		4, 3, 7,		1, 5, 2,	5, 2, 6,
-								0, 1, 4,		1, 4, 5,		2, 3, 6,	3, 6, 7 ];
-			this.min[i].vbo = gl.createBuffer();
-			gl.bindBuffer( gl.ARRAY_BUFFER, this.min[i].vbo );
-			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vba ), gl.STATIC_DRAW);
-			this.min[i].ibo = gl.createBuffer();
-			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.min[i].ibo );
-			gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.min[i].iba ), gl.STATIC_DRAW );
-		}
-		this.current = this.animated ? 1 : 0;
-		this.ready = true;
-	},
-	start: function() { var mod = this; this.interval = setInterval( function() { mod.next(); }, this.rate ); },
-	stop: function() { clearInterval( this.interval ); this.interval = ""; },
-	next: function() { this.current == this.range ? this.current = 1 : this.current++; },
-	buffer: function() {
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.normal[this.current] );
-		gl.vertexAttribPointer( rin.$program().pointers.normal, 3, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.normal );
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.vertex[this.current] );
-		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.vertex );
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.b.texture[this.current] );
-		gl.vertexAttribPointer( rin.$program().pointers.texture, 2, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.texture );
 	},
 	render: function() {
-		if( this.ready ) {
-			this.buffer();
-			if( this.interval == "" && this.animated ) { this.start(); }
-			var normalMatrix = mat4.inverse( this.matrix );
-			normalMatrix = mat4.transpose( normalMatrix );
-			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
-			gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
-			var temp = mat4.clone( mvMatrix );
-			mvMatrix = mat4.translate( mvMatrix, [ this.position[0], this.position[1], this.position[2] ] );
-			setMatrixUniforms();
-			for( var i in this.mesh[this.current] ) {
-				for( var j in this.mesh[this.current][i] ) {
-					j = j.trim();
-					if( this.textures[j] !== undefined ) if( this.textures[j].texture != "" && this.textures[j].ready ) {
-						gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseTextures" ), true );
-						gl.enableVertexAttribArray( rin.$program().pointers.texture );
-						gl.activeTexture( gl.TEXTURE0 );
-						gl.bindTexture( gl.TEXTURE_2D, this.textures[j].texture );
-						gl.uniform1i( gl.getUniformLocation( rin.program(), "uSampler" ), 0 );
-					} else {
-						gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseTextures" ), false);
-						gl.disableVertexAttribArray( rin.$program().pointers.texture );
-					} if( this.textures[j] !== undefined ) {
-						if( this.textures[j].Ka !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialAmbientColor" ),
-							this.textures[j].Ka[0], this.textures[j].Ka[1], this.textures[j].Ka[2] );
-						if( this.textures[j].Ks !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialSpecularColor" ),
-							this.textures[j].Ks[0], this.textures[j].Ks[1], this.textures[j].Ks[2] );
-						if( this.textures[j].Kd !== undefined ) gl.uniform3f( gl.getUniformLocation( rin.program(), "uMaterialDiffuseColor" ),
-							this.textures[j].Kd[0], this.textures[j].Kd[1], this.textures[j].Kd[2] );
-						if( this.textures[j].Ns !== undefined ) gl.uniform1f( gl.getUniformLocation( rin.program(), "uMaterialShininess" ),
-							10 );
-					}
-					gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.mesh[this.current][i][j].b );
-					gl.drawElements( gl.TRIANGLES, this.mesh[this.current][i][j].i.length, gl.UNSIGNED_SHORT, 0 );
-				}
-			}
+		this.mesh.render();
+		/*if( this.ready ) {
 			if( Settings.flags.showBoundingBox ) {
 				gl.blendFunc( gl.SRC_ALPHA, gl.SRC_ALPHA );
 				gl.enable( gl.BLEND );
@@ -223,6 +123,6 @@ __$r.prototype.$OBJModel.prototype = {
 				gl.disable( gl.BLEND );
 			}
 			mvMatrix = temp;
-		}
+		}*/
 	}
 };

@@ -23,6 +23,7 @@ __$r.prototype.$Scene.prototype = {
 		gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 		gl.depthFunc( gl.LEQUAL ); },
 	add: function( type, params ) {
+		if( typeof type != "string" ) { this.models.push( type ); return; }
 		switch( type.toLowerCase() ) {
 			case "obj":
 				this.models.push( new rin.$OBJModel( this.models.length, params ) );
@@ -49,15 +50,16 @@ __$r.prototype.$Scene.prototype = {
 			if( this.time > 2400 ) this.time = 0;
 			if( this.time % 50 == 0 ) document.dispatchEvent( new Event("halfhour") ); } },
 	render: function() {
+		window.requestAnimFrame( r.scene.render, rin.canvas );
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-		this.tock();
-		this.camera().update();
+		//this.tock();
+		r.scene.camera().update();
 		//this.terrain.render();
 		//this.sky().render();
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
-		for( var i in this.models ) { this.models[i].render(); }
+		for( var i in r.scene.models ) { r.scene.models[i].render(); }
 		gl.disable( gl.BLEND );
 		/*gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), true );
 		gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), 1.0, 0.0, 0.0 );

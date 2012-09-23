@@ -4,7 +4,7 @@ function $rin() {
 	this.programs = [];
 	this.shaders = [];
 	this.scene = "";
-	this.interval = "";
+	this.timeout = "";
 	this.$state = {};
 }
 
@@ -13,7 +13,7 @@ $rin.prototype = {
 		this.gl = gl = window.gl = document.getElementById( id ).getContext( 'experimental-webgl' );
 		this.width = document.getElementById( id ).width;
 		this.height = document.getElementById( id ).height;
-		this.canvas = id;
+		this.canvas = document.getElementById( id );
 		this.programs.push( new this.$Program() );
 		this.shaders.push( new this.$Shader( "vertex", "default" ) );
 		this.shaders.push( new this.$Shader( "fragment", "default" ) );
@@ -33,11 +33,30 @@ $rin.prototype = {
 	program: function() { return this.programs[ this.$state[ "PROGRAM" ] ].target; },
 	$program: function() { return this.programs[ this.$state[ "PROGRAM" ] ]; },
 	
-	render: function() { rin.scene.render(); },
-	start: function() { this.scene.init(); this.interval = setInterval( rin.render, 15 ); },
-	stop: function() { clearInterval( this.interval ); this.interval = ""; Controls.disable(); }
+	start: function() { this.scene.init(); rin.scene.render(); },
 }
 
 window.$r = window.r = window.rin = new $rin();
 window.__$r = $rin;
+
+window.requestAnimFrame = (function() {
+	return window.requestAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
+		function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+			return rin.timeout = window.setTimeout( callback, 1000/60 );
+		};
+})();
+
+window.cancelAnimFrame = (function() {
+  return window.cancelAnimationFrame ||
+         window.webkitCancelAnimationFrame ||
+         window.mozCancelAnimationFrame ||
+         window.oCancelAnimationFrame ||
+         window.msCancelAnimationFrame ||
+         window.clearTimeout;
+})();
+
 })();

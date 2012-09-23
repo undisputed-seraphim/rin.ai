@@ -32,6 +32,7 @@ var shaders = {
 			uniform bool uUseTextures;\
 			uniform bool uUseColor;\
 			uniform vec3 uColor;\
+			uniform float uAlpha;\
 			uniform vec3 uAmbientLightingColor;\
     		uniform vec3 uPointLightingLocation;\
 	    	uniform vec3 uDiffuseColor;\
@@ -50,12 +51,15 @@ var shaders = {
 				float specularBrightness = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShininess);\
 				specularWeight = uSpecularColor * specularBrightness;\
 				float alpha = 1.0;\
+				vec3 color = uColor;\
 				if (uUseTextures) {\
 			      	vec4 texelColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
 		    	  	materialAmbientColor = materialAmbientColor * texelColor.rgb;\
 					materialDiffuseColor = materialDiffuseColor * texelColor.rgb;\
 					materialSpecularColor = materialSpecularColor * texelColor.rgb;\
 					alpha = texelColor.a;\
+				} else {\
+					color = vec3( color * ambientWeight + color * diffuseWeight );\
 				}\
 				gl_FragColor = vec4(\
 					materialAmbientColor * ambientWeight\
@@ -63,7 +67,7 @@ var shaders = {
 					+ materialSpecularColor * specularWeight,\
 					alpha );\
 				if( uUseColor ) {\
-					gl_FragColor = vec4( uColor, 1.0 );\
+					gl_FragColor = vec4( color, uAlpha );\
 				}\
 			}",
 		vertex: "\
