@@ -2,11 +2,14 @@
 
 __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
+	this.type =		params.type || gl.TRIANGLES;
 	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {} };
 	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {} };
+	this.faces =	0;
+	this.bbox =		params.bbox || {};
 	this.textures =	{};
 	this.color =	params.color || [ 1.0, 0.0, 0.0 ];
-	this.alpha =	params.alpha || 1.0;
+	this.alpha =	params.alpha || 1;
 	
 	this.rotation =	[ 0.0, 0.0, 0.0 ];
 	this.position = [ 0.0, 0.0, 0.0 ];
@@ -55,6 +58,10 @@ __$r.prototype.$Mesh.prototype = {
 					gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.ba.iba[i][k][j] ), gl.STATIC_DRAW );
 				}
 			}
+			if( this.bbox !== true ) this.bbox[i] = new rin.$Primitive( "cube",
+				{ xmin: this.min[i].x, ymin: this.min[i].y, zmin: this.min[i].z,
+				  xmax: this.max[i].x, ymax: this.max[i].y, zmax: this.max[i].z,
+				  bbox: true, method: "wire" } );
 		}
 		this.colored = this.textured ? this.colored ? true : false : true;
 		this.current = this.animated ? 1 : 0;
@@ -63,8 +70,7 @@ __$r.prototype.$Mesh.prototype = {
 	frame: function( index, f ) {
 		if( f === false ) { this.index = index; this.current = ""; this.material = ""; return; }
 		if( this.ba.vba[ index ] !== undefined && f !== true ) return this;
-		this.index = index;
-		this.current = "";
+		this.index = index; this.current = ""; this.faces[ index ] = 0;
 		this.ba.vba[ index ] = [];		this.ba.nba[ index ] = [];
 		this.ba.tba[ index ] = [];		this.ba.iba[ index ] = {};
 		this.bo.vbo[ index ] = [];		this.bo.nbo[ index ] = [];
@@ -100,8 +106,15 @@ __$r.prototype.$Mesh.prototype = {
 	updateMinMax: function( x, y, z ) {
 		if( this.min[ this.index ].x === "" ) {
 			this.min[ this.index ].x = x; this.max[ this.index ].x = x;
+			this.min[ this.index ].y = y; this.max[ this.index ].y = y;
+			this.min[ this.index ].z = z; this.max[ this.index ].z = z;
 		} else {
 			if( x < this.min[ this.index ].x ) this.min[ this.index ].x = x;
+			if( x > this.max[ this.index ].x ) this.max[ this.index ].x = x;
+			if( y < this.min[ this.index ].y ) this.min[ this.index ].y = y;
+			if( y > this.max[ this.index ].y ) this.max[ this.index ].y = y;
+			if( z < this.min[ this.index ].z ) this.min[ this.index ].z = z;
+			if( z > this.max[ this.index ].z ) this.max[ this.index ].z = z;
 		}
 	},
 	prop: function( prop, val ) { if( val === undefined ) return this[prop]; this[prop] = val; },
@@ -122,8 +135,13 @@ __$r.prototype.$Mesh.prototype = {
 		return this;
 	},
 	face: function( x, y, z ) {
-		this.check();
+		this.check(); this.faces[ this.index ]++;
 		this.ba.iba[ this.index ][ this.current ][ this.material ].push( x, y, z );
+		return this;
+	},
+	line: function( s, f ) {
+		this.check();
+		this.ba.iba[ this.index ][ this.current ][ this.material ].push( s, f );
 		return this;
 	},
 	start: function() { var mesh = this; this.interval = setInterval( function() { mesh.next(); }, this.rate ); },
@@ -149,6 +167,7 @@ __$r.prototype.$Mesh.prototype = {
 	},
 	render: function() {
 		if( this.ready ) {
+			if( Settings.flags.showBoundingBox && this.bbox !== true ) this.bbox[ this.current ].render();
 			this.buffer();
 			if( this.interval === "" && this.animated ) { this.start(); }
 			var normalMatrix = mat4.inverse( this.matrix );
@@ -180,7 +199,7 @@ __$r.prototype.$Mesh.prototype = {
 							this.textures[j].Kd[0], this.textures[j].Kd[1], this.textures[j].Kd[2] );
 						gl.uniform1f( gl.getUniformLocation( rin.program(), "uMaterialShininess" ), 10 ); }
 					gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.bo.ibo[ this.current ][i][j] );
-					gl.drawElements( gl.TRIANGLES, this.ba.iba[ this.current ][i][j].length, gl.UNSIGNED_SHORT, 0 );
+					gl.drawElements( this.type, this.ba.iba[ this.current ][i][j].length, gl.UNSIGNED_SHORT, 0 );
 				}
 			}
 			mvMatrix = temp;

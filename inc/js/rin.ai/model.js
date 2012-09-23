@@ -106,23 +106,5 @@ __$r.prototype.$OBJModel.prototype = {
 			}
 		}
 	},
-	render: function() {
-		this.mesh.render();
-		/*if( this.ready ) {
-			if( Settings.flags.showBoundingBox ) {
-				gl.blendFunc( gl.SRC_ALPHA, gl.SRC_ALPHA );
-				gl.enable( gl.BLEND );
-				gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), true );
-				gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), 1.0, 0.0, 0.0 );
-				gl.bindBuffer( gl.ARRAY_BUFFER, this.min[this.current].vbo );
-				gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
-				gl.enableVertexAttribArray( rin.$program().pointers.vertex );
-				gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.min[this.current].ibo );
-				gl.drawElements( gl.TRIANGLES, this.min[this.current].iba.length, gl.UNSIGNED_SHORT, 0 );
-				gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );
-				gl.disable( gl.BLEND );
-			}
-			mvMatrix = temp;
-		}*/
-	}
+	render: function() { this.mesh.render(); }
 };
