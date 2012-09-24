@@ -97,10 +97,11 @@ __$r.prototype.$Mesh.prototype = {
 		return this;
 	},
 	check: function() {
-		if( this.index !== "" && this.current !== "" ) return;
+		if( this.index !== "" && this.current !== "" && this.material !== "" ) return;
 		else {
 			if( this.index === "" ) this.frame( 0 );
-			if( this.current === "" ) this.node( "noname" );
+			if( this.current === "" ) this.node( "default" );
+			if( this.material === "" ) this.mat( "default" );
 		}
 	},
 	updateMinMax: function( x, y, z ) {
@@ -116,6 +117,10 @@ __$r.prototype.$Mesh.prototype = {
 			if( z < this.min[ this.index ].z ) this.min[ this.index ].z = z;
 			if( z > this.max[ this.index ].z ) this.max[ this.index ].z = z;
 		}
+	},
+	collision: function( m ) {
+		if( this.min[ this.current ].y <
+			m.max[ m.current ].y ) console.log( "gotcha" );
 	},
 	prop: function( prop, val ) { if( val === undefined ) return this[prop]; this[prop] = val; },
 	vertex: function( x, y, z ) {
