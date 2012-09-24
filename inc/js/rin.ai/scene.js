@@ -61,23 +61,5 @@ __$r.prototype.$Scene.prototype = {
 		gl.enable( gl.BLEND );
 		for( var i in r.scene.models ) { r.scene.models[i].render(); }
 		gl.disable( gl.BLEND );
-		/*gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), true );
-		gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), 1.0, 0.0, 0.0 );
-		var line = [ 0, 0, 0,
-					 0, 10, 0,
-					 0, 0, 0,
-					 0, -10, 0 ];
-		var iba = [ 1, 2, 3, 4 ];
-		var buffer = gl.createBuffer();
-		gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( line ), gl.STATIC_DRAW);
-		gl.vertexAttribPointer( rin.$program().pointers.vertex, 2, gl.FLOAT, false, 0, 0 );
-		gl.disableVertexAttribArray( rin.$program().pointers.texture );
-		gl.disableVertexAttribArray( rin.$program().pointers.normal );
-		var ibo = gl.createBuffer();
-		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, ibo );
-		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( iba ), gl.STATIC_DRAW );
-		gl.drawElements( gl.LINE_STRIP, iba.length, gl.UNSIGNED_SHORT, 0 );
-		gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );*/
 	},
 }

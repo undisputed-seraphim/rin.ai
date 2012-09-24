@@ -1,33 +1,42 @@
 (function() {
 
+/*
+TODO:
+	-ability to reset mesh arrays/buffers
+	-change bbox values to be set and subtract / add when needed, instead of calculating seperate variables
+	-change mesh so that bounding boxes are special and only get required variables
+*/
+
 __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
-	this.type =		params.type || gl.TRIANGLES;
+	this.type =		params.type || "object";
+	this.mode =		params.mode || gl.TRIANGLES;
 	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {} };
 	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {} };
-	this.faces =	0;
-	this.bbox =		params.bbox || {};
+	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
 	this.color =	params.color || [ 1.0, 0.0, 0.0 ];
 	this.alpha =	params.alpha || 1;
 	
-	this.rotation =	[ 0.0, 0.0, 0.0 ];
-	this.position = [ 0.0, 0.0, 0.0 ];
+	this.rotation =	params.rotation || [ 0.0, 0.0, 0.0 ];
+	this.position = params.position || [ 0.0, 0.0, 0.0 ];
 	this.translate =mat4.create();
 	this.rotate =	mat4.create();
 	this.matrix =	mat4.create();
+	this.physics =	this.bbox === true ? "" : new rin.$Physics( this, params );
 	
-	this.min =		{};
-	this.max =		{};
+	this.min =		{ x: "", y: "", z: "" };
+	this.max =		{ x: "", y: "", z: "" };
+	this.faces =	{};
 	this.index =	"";
 	this.current =	"";
 	this.material =	"";
 	
-	this.animation ="default";
 	this.range =	params.range || 0;
 	this.rate =		params.rate || 50;
 	this.animated =	this.range == 0 ? false : true;
 	this.amap =		this.animated ? params.amap || { "default": [ 1, this.range ] } : {};
+	for( var i in this.amap ) { this.animation = params.animation || i; break; }
 	this.interval =	"";
 	
 	this.textured =	false;
@@ -58,13 +67,11 @@ __$r.prototype.$Mesh.prototype = {
 					gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( this.ba.iba[i][k][j] ), gl.STATIC_DRAW );
 				}
 			}
-			if( this.bbox !== true ) this.bbox[i] = new rin.$Primitive( "cube",
-				{ xmin: this.min[i].x, ymin: this.min[i].y, zmin: this.min[i].z,
-				  xmax: this.max[i].x, ymax: this.max[i].y, zmax: this.max[i].z,
-				  bbox: true, method: "wire" } );
 		}
+		this.pos(); this.rot(); this.transform();
 		this.colored = this.textured ? this.colored ? true : false : true;
-		this.current = this.animated ? 1 : 0;
+		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
+		if( this.bbox !== true ) this.physics.init();
 		this.ready = true;
 	},
 	frame: function( index, f ) {
@@ -75,8 +82,6 @@ __$r.prototype.$Mesh.prototype = {
 		this.ba.tba[ index ] = [];		this.ba.iba[ index ] = {};
 		this.bo.vbo[ index ] = [];		this.bo.nbo[ index ] = [];
 		this.bo.tbo[ index ] = [];		this.bo.ibo[ index ] = {};
-		this.min[ index ] = { x: "", y: "", z: "" };
-		this.max[ index ] = { x: "", y: "", z: "" };
 		return this;
 	},
 	node: function( current, f ) {
@@ -105,23 +110,42 @@ __$r.prototype.$Mesh.prototype = {
 		}
 	},
 	updateMinMax: function( x, y, z ) {
-		if( this.min[ this.index ].x === "" ) {
-			this.min[ this.index ].x = x; this.max[ this.index ].x = x;
-			this.min[ this.index ].y = y; this.max[ this.index ].y = y;
-			this.min[ this.index ].z = z; this.max[ this.index ].z = z;
+		if( this.min.x === "" ) {
+			this.min.x = x; this.max.x = x;
+			this.min.y = y; this.max.y = y;
+			this.min.z = z; this.max.z = z;
 		} else {
-			if( x < this.min[ this.index ].x ) this.min[ this.index ].x = x;
-			if( x > this.max[ this.index ].x ) this.max[ this.index ].x = x;
-			if( y < this.min[ this.index ].y ) this.min[ this.index ].y = y;
-			if( y > this.max[ this.index ].y ) this.max[ this.index ].y = y;
-			if( z < this.min[ this.index ].z ) this.min[ this.index ].z = z;
-			if( z > this.max[ this.index ].z ) this.max[ this.index ].z = z;
+			if( x < this.min.x ) this.min.x = x;
+			if( x > this.max.x ) this.max.x = x;
+			if( y < this.min.y ) this.min.y = y;
+			if( y > this.max.y ) this.max.y = y;
+			if( z < this.min.z ) this.min.z = z;
+			if( z > this.max.z ) this.max.z = z;
 		}
 	},
-	collision: function( m ) {
-		if( this.min[ this.current ].y <
-			m.max[ m.current ].y ) console.log( "gotcha" );
-	},
+	pos: function() { this.posTo( this.position ); },
+	posTo: function( v ) {
+		this.position = v || this.position;
+		if( this.bbox !== true ) {
+			this.bbox.min.x = this.min.x + this.position[0]; this.bbox.max.x = this.max.x + this.position[0];
+			this.bbox.min.y = this.min.y + this.position[1]; this.bbox.max.y = this.max.y + this.position[1];
+			this.bbox.min.z = this.min.z + this.position[2]; this.bbox.max.z = this.max.z + this.position[2]; }
+		this.translate = mat4.translate( mat4.create(), [ this.position[0], this.position[1], this.position[2] ] ); },
+	rot: function() { this.rotTo( this.rotation ); },
+	rotTo: function( v ) {
+		this.rotation = [ v[0] != this.rotation[0] ? v[0] * Math.PI / 180 : this.rotation[0],
+						  v[1] != this.rotation[1] ? v[1] * Math.PI / 180 : this.rotation[1],
+						  v[2] != this.rotation[2] ? v[2] * Math.PI / 180 : this.rotation[2] ];
+		var rotateX = quat.create( [ 1.0, 0.0, 0.0 ], this.rotation[0] ),
+			rotateY = quat.create( [ 0.0, 1.0, 0.0 ], this.rotation[1] ),
+			rotateZ = quat.create( [ 0.0, 0.0, 1.0 ], this.rotation[2] );
+		this.rotate = quat.mat4( quat.multiply( quat.multiply( rotateX, rotateY ), rotateZ ) ); },
+	transform: function() { this.matrix = mat4.multiply( mat4.multiply( mat4.create(), this.rotate ), this.translate ); },
+	move: function( step, side, rise ) {
+		this.position[0] += this.rotate[8] * step + ( this.rotate[0] * side ) + ( this.rotate[4] * rise );
+		this.position[1] += this.rotate[9] * step + ( this.rotate[1] * side ) + ( this.rotate[5] * rise );
+		this.position[2] += this.rotate[10] * step + ( this.rotate[2] * side ) + ( this.rotate[6] * rise );
+		this.pos(); },
 	prop: function( prop, val ) { if( val === undefined ) return this[prop]; this[prop] = val; },
 	vertex: function( x, y, z ) {
 		this.check();
@@ -172,7 +196,12 @@ __$r.prototype.$Mesh.prototype = {
 	},
 	render: function() {
 		if( this.ready ) {
-			if( Settings.flags.showBoundingBox && this.bbox !== true ) this.bbox[ this.current ].render();
+			if( this.bbox !== true ) this.physics.update();
+			if( Settings.flags.showBoundingBox && this.bbox !== true ) {
+				this.bbox.box = new rin.$Primitive( "cube",
+					{ xmin: this.bbox.min.x, ymin: this.bbox.min.y, zmin: this.bbox.min.z,
+			  		  xmax: this.bbox.max.x, ymax: this.bbox.max.y, zmax: this.bbox.max.z,
+			  		  bbox: true, method: "wire" } ).render(); }
 			this.buffer();
 			if( this.interval === "" && this.animated ) { this.start(); }
 			var normalMatrix = mat4.inverse( this.matrix );
@@ -180,7 +209,9 @@ __$r.prototype.$Mesh.prototype = {
 			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
 			gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
 			var temp = mat4.clone( mvMatrix );
-			mvMatrix = mat4.translate( mvMatrix, [ this.position[0], this.position[1], this.position[2] ] );
+			mvMatrix = mat4.multiply( mat4.multiply( mvMatrix, mat4.inverse( this.rotate ) ), this.translate );
+			//mvMatrix = mat4.translate( mvMatrix, [ this.position[0], this.position[1], this.position[2] ] );
+			//mvMatrix = this.matrix;
 			setMatrixUniforms();
 			for( var i in this.bo.ibo[ this.current ] ) {
 				for( var j in this.bo.ibo[ this.current ][i] ) {
@@ -204,7 +235,7 @@ __$r.prototype.$Mesh.prototype = {
 							this.textures[j].Kd[0], this.textures[j].Kd[1], this.textures[j].Kd[2] );
 						gl.uniform1f( gl.getUniformLocation( rin.program(), "uMaterialShininess" ), 10 ); }
 					gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.bo.ibo[ this.current ][i][j] );
-					gl.drawElements( this.type, this.ba.iba[ this.current ][i][j].length, gl.UNSIGNED_SHORT, 0 );
+					gl.drawElements( this.mode, this.ba.iba[ this.current ][i][j].length, gl.UNSIGNED_SHORT, 0 );
 				}
 			}
 			mvMatrix = temp;

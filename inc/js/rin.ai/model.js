@@ -1,11 +1,13 @@
 __$r.prototype.$OBJModel = function $OBJModel( id, params ) {
 	params =			params || {};
+	this.type =			params.type || "object";
 	this.id =			id;
 	this.name =			params.name || "noname";
 	
 	this.range =		params.range || 0;
+	params.range =		this.range;
 	this.animated =		this.range == 0 ? false : true;
-	this.mesh =			new rin.$Mesh( { range: this.range } );
+	this.mesh =			new rin.$Mesh( params );
 	
 	this.mtllib =		"";
 	this.current =		0;

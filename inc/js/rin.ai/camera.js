@@ -15,6 +15,7 @@ __$r.prototype.$Camera.prototype = {
 		gl.uniformMatrix4fv( gl.getUniformLocation( rin.program(), "uPMatrix"), false, mat4.flatten( this.perspective ) );
 		this.position = p || this.position; this.pos();
 		this.rotation = r || this.rotation; this.rot();
+		//this.look( [0,0,0], [0,1,0] ); this.rot();
 		this.transform();
 		this.update();
 		return this;
@@ -88,6 +89,14 @@ __$r.prototype.$Camera.prototype = {
 				if( Controls.keys.shift )	this.rise +=		0.05;
 				this.move( this.step, this.side, this.rise );
 				this.transform();
+			}
+			if( Controls.keys.j ) {
+				r.scene.models[0].mesh.physics.jump();
+			}
+			if( Controls.any( "numpad" ) ) {
+				if( Controls.keys.numpad8 ) r.scene.models[0].mesh.move( .01, 0, 0 );
+				if( Controls.keys.numpad2 ) r.scene.models[0].mesh.move( -.01, 0, 0 );
+				if( Controls.keys.numpad4 ) { r.scene.models[0].mesh.rotation[1] += .03; r.scene.models[0].mesh.rot(); }
 			}
 		}
 		mvMatrix = this.matrix;

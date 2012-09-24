@@ -28,7 +28,7 @@ __$r.prototype.$Primitive.prototype = {
 				 .vertex( xmin, ymax, zmax ).vertex( xmax, ymax, zmax )
 				 .vertex( xmax, ymin, zmax ).vertex( xmin, ymin, zmax );
 		if( this.method == "solid" ) {
-			this.mesh.type = gl.TRIANGLES;
+			this.mesh.mode = gl.TRIANGLES;
 			this.mesh.normal( 0, 0, -1 ).normal( 0, 0, -1 )
 					 .normal( 0, 0, -1 ).normal( 0, 0, -1 )
 					 .normal( 0, 0, 1 ).normal( 0, 0, 1 )
@@ -37,7 +37,7 @@ __$r.prototype.$Primitive.prototype = {
 					 .face( 0, 4, 3 ).face( 4, 3, 7 ).face( 1, 5, 2 ).face( 5, 2, 6 )
 					 .face( 0, 1, 4 ).face( 1, 4, 5 ).face( 2, 3, 6 ).face( 3, 6, 7 );
 		} else if( this.method == "wire" ) {
-			this.mesh.type = gl.LINES;
+			this.mesh.mode = gl.LINES;
 			this.mesh.line( 0, 1 ).line( 1, 2 ).line( 2, 3 ).line( 3, 0 ).line( 0, 4 )
 					 .line( 4, 5 ).line( 5, 6 ).line( 6, 7 ).line( 7, 4 ).line( 7, 3 )
 					 .line( 6, 2 ).line( 5, 1 );

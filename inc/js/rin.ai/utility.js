@@ -18,7 +18,7 @@ var vec3 = {
 	cross: function( a, b ) {
 		return vec3.create( a[1] * b[2] - a[2] * b[1],
 						 -( a[0] * b[2] - a[2] * b[0] ),
-						    a[0] * b[1] - a[1] - b[0] ); },
+						    a[0] * b[1] - a[1] * b[0] ); },
 }
 
 var quat = {
