@@ -11,9 +11,10 @@ __$r.prototype.$Physics = function $Physics( target, params ) {
 	this.imass = 1 / this.mass;
 	this.speed = 0;
 	this.direction = [0,-1,0];
-	this.gravity = params.gravity || 9.81;
+	this.gravity = params.gravity || -9.81;
 	this.strength = params.strength || 15.00;
-	this.forces = [ 0, this.gravity * this.imass, 0 ];
+	this.f_gravity = this.imass * this.gravity;
+	this.legstrength = params.legstrength || 0.25;
 	this.dt = 0.09;
 	
 	this.tick = new Date().getTime();
@@ -29,35 +30,57 @@ __$r.prototype.$Physics.prototype = {
 		}
 	},
 	update: function() {
-		if( r.scene.terrain.mesh.max.y <= this.target.bbox.min.y + LEEWAY ) this.ground();
+		if( r.scene.terrain.mesh.max.y + LEEWAY <= this.target.bbox.min.y &&
+		   	!this.falling && !this.jumping ) this.ground();
 		if( this.falling ) {
-			this.target.position[1] += this.speed;
+			this.speed = this.f_gravity * this.dt;
+			//console.log( this.speed );
+			if( this.target.position[1] + this.speed < r.scene.terrain.mesh.max.y )
+				this.target.position[1] = r.scene.terrain.mesh.max.y - LEEWAY;
+			else this.target.position[1] += this.speed;
 			this.target.pos();
 			this.target.transform();
-			this.speed *= this.forces[1];
+			this.dt += 0.02;
 			this.ground();
+		} else if( this.jumping ) {
+			this.speed = this.legstrength + ( this.f_gravity * this.dt );
+			//console.log( this.speed );
+			if( this.speed < 0 ) {
+				this.jumping = false;
+				this.dt = 0.02;
+				this.fall();
+			} else {
+				this.target.position[1] += this.speed;
+				this.target.pos();
+				this.target.transform();
+				this.dt += 0.02;
+			}
 		}
 	},
 	fall: function() {
 		if( !this.grounded ) {
 			this.falling = true;
-			this.speed += this.forces[1] * -1 * this.dt;
 		}
 	},
 	jump: function() {
-
+		if( this.grounded ) {
+			this.grounded = false;
+			this.dt = 0.02;
+			this.jumping = true;
+		}
 	},
 	ground: function() {
+		console.log( "ground check" );
 		if( this.target != r.scene.terrain.mesh && !this.grounded ) {
-			if( !this.falling ) {
+			if( !this.falling && !this.jumping ) {
 				if( r.scene.terrain.mesh.max.y <= this.target.bbox.min.y + LEEWAY ) {
+					this.dt = 0.02;
 					this.fall();
-					this.falling = true;
 				}
 			} else if( this.falling ) {
 				if( r.scene.terrain.mesh.max.y >= this.target.bbox.min.y + LEEWAY ) {
 					this.falling = false;
-					this.speed = 0;
+					this.speed = 0; this.dt = 0;
 					this.grounded = true;
 				}
 			}

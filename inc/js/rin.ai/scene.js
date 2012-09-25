@@ -19,15 +19,14 @@ __$r.prototype.$Scene.prototype = {
 		this.sky( 0 ).init();
 		this.lights.push( new rin.$Light( "directional" ) );
 		this.light( 0 ).init();
-		this.terrain = new rin.$Terrain();
+		this.terrain = new rin.$Terrain( { physics: false } );
 		gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 		gl.depthFunc( gl.LEQUAL ); },
 	add: function( type, params ) {
 		if( typeof type != "string" ) { this.models.push( type ); return; }
 		switch( type.toLowerCase() ) {
-			case "obj":
-				this.models.push( new rin.$OBJModel( this.models.length, params ) );
-				break; } },
+			case "obj":	this.models.push( new rin.$OBJModel( this.models.length, params ) ); break;
+			case "dae": this.models.push( new rin.$DAEModel( this.models.length, params ) ); break; } },
 	sky: function( s ) {
 		if( s === undefined ) return this.skies[ this.$state["SKY"] ];
 		else { this.state( "SKY", s ); return this.sky(); } },

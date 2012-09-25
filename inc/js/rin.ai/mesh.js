@@ -23,7 +23,7 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	this.translate =mat4.create();
 	this.rotate =	mat4.create();
 	this.matrix =	mat4.create();
-	this.physics =	this.bbox === true ? "" : new rin.$Physics( this, params );
+	this.physics =	params.physics || new rin.$Physics( this, params );
 	
 	this.min =		{ x: "", y: "", z: "" };
 	this.max =		{ x: "", y: "", z: "" };
@@ -201,7 +201,7 @@ __$r.prototype.$Mesh.prototype = {
 				this.bbox.box = new rin.$Primitive( "cube",
 					{ xmin: this.bbox.min.x, ymin: this.bbox.min.y, zmin: this.bbox.min.z,
 			  		  xmax: this.bbox.max.x, ymax: this.bbox.max.y, zmax: this.bbox.max.z,
-			  		  bbox: true, method: "wire" } ).render(); }
+			  		  bbox: true, method: "wire", physics: false } ).render(); }
 			this.buffer();
 			if( this.interval === "" && this.animated ) { this.start(); }
 			var normalMatrix = mat4.inverse( this.matrix );
