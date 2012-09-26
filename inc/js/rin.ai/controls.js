@@ -70,8 +70,8 @@ var Controls = {
 		document.onkeyup = null;
 	},
 	onKeyDown: function( ev ) {
-		ev.preventDefault();
-		ev.stopPropagation();
+		//ev.preventDefault();
+		//ev.stopPropagation();
 		switch( ev.keyCode ) {
 			case Controls.keys.UP:			Controls.keys.up =		true; break;
 			case Controls.keys.DOWN:		Controls.keys.down =	true; break;
@@ -198,8 +198,8 @@ var Controls = {
 		}
 	},
 	onMouseDown: function( ev ) {
-		ev.preventDefault();
-		ev.stopPropagation();
+		//ev.preventDefault();
+		//ev.stopPropagation();
 		switch( ev.button ) {
 			case Controls.keys.LMOUSE:		Controls.keys.lmouse =	true; break;
 			case Controls.keys.RMOUSE:		Controls.keys.rmouse =	true; break;
