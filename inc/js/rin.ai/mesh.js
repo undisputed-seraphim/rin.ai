@@ -23,7 +23,7 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	this.translate =mat4.create();
 	this.rotate =	mat4.create();
 	this.matrix =	mat4.create();
-	this.physics =	params.physics || new rin.$Physics( this, params );
+	this.physics =	params.physics === false ? true : new rin.$Physics( this, params );
 	
 	this.min =		{ x: "", y: "", z: "" };
 	this.max =		{ x: "", y: "", z: "" };
@@ -71,7 +71,7 @@ __$r.prototype.$Mesh.prototype = {
 		this.pos(); this.rot(); this.transform();
 		this.colored = this.textured ? this.colored ? true : false : true;
 		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
-		if( this.bbox !== true ) this.physics.init();
+		if( this.bbox !== true && this.physics !== true ) this.physics.init();
 		this.ready = true;
 	},
 	frame: function( index, f ) {
@@ -140,7 +140,9 @@ __$r.prototype.$Mesh.prototype = {
 			rotateY = quat.create( [ 0.0, 1.0, 0.0 ], this.rotation[1] ),
 			rotateZ = quat.create( [ 0.0, 0.0, 1.0 ], this.rotation[2] );
 		this.rotate = quat.mat4( quat.multiply( quat.multiply( rotateX, rotateY ), rotateZ ) ); },
-	transform: function() { this.matrix = mat4.multiply( mat4.multiply( mat4.create(), this.rotate ), this.translate ); },
+	transform: function() {
+		this.matrix = mat4.multiply( mat4.multiply( mvMatrix, this.rotate ), this.translate );
+	},
 	move: function( step, side, rise ) {
 		this.position[0] += this.rotate[8] * step + ( this.rotate[0] * side ) + ( this.rotate[4] * rise );
 		this.position[1] += this.rotate[9] * step + ( this.rotate[1] * side ) + ( this.rotate[5] * rise );
@@ -196,7 +198,7 @@ __$r.prototype.$Mesh.prototype = {
 	},
 	render: function() {
 		if( this.ready ) {
-			if( this.bbox !== true ) this.physics.update();
+			if( this.bbox !== true && this.physics !== true ) this.physics.update();
 			if( Settings.flags.showBoundingBox && this.bbox !== true ) {
 				this.bbox.box = new rin.$Primitive( "cube",
 					{ xmin: this.bbox.min.x, ymin: this.bbox.min.y, zmin: this.bbox.min.z,

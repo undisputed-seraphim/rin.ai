@@ -30,17 +30,22 @@ __$r.prototype.$Physics.prototype = {
 		}
 	},
 	update: function() {
-		if( r.scene.terrain.mesh.max.y + LEEWAY <= this.target.bbox.min.y &&
+		if( r.scene.terrain.mesh.max.y + LEEWAY <= this.target.position[1] &&
 		   	!this.falling && !this.jumping ) this.ground();
+		else if( r.scene.terrain.mesh.max.y - LEEWAY >= this.target.position[1] && !this.grounded ) this.fix();
 		if( this.falling ) {
 			this.speed = this.f_gravity * this.dt;
 			//console.log( this.speed );
-			if( this.target.position[1] + this.speed < r.scene.terrain.mesh.max.y )
+			if( this.target.bbox.min.y + this.speed < r.scene.terrain.mesh.max.y ) {
 				this.target.position[1] = r.scene.terrain.mesh.max.y - LEEWAY;
-			else this.target.position[1] += this.speed;
+				console.log(this.target);
+			}
+			else {
+				this.target.position[1] += this.speed;
+				this.dt += 0.02;
+			}
 			this.target.pos();
 			this.target.transform();
-			this.dt += 0.02;
 			this.ground();
 		} else if( this.jumping ) {
 			this.speed = this.legstrength + ( this.f_gravity * this.dt );
@@ -57,6 +62,12 @@ __$r.prototype.$Physics.prototype = {
 			}
 		}
 	},
+	fix: function() {
+		this.target.position[1] = r.scene.terrain.mesh.max.y;
+		this.target.pos();
+		this.target.transform();
+		this.grounded = true;
+	},
 	fall: function() {
 		if( !this.grounded ) {
 			this.falling = true;
@@ -70,7 +81,7 @@ __$r.prototype.$Physics.prototype = {
 		}
 	},
 	ground: function() {
-		console.log( "ground check" );
+		//console.log( "ground check" );
 		if( this.target != r.scene.terrain.mesh && !this.grounded ) {
 			if( !this.falling && !this.jumping ) {
 				if( r.scene.terrain.mesh.max.y <= this.target.bbox.min.y + LEEWAY ) {

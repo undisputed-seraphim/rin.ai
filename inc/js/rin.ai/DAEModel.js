@@ -27,7 +27,7 @@ function getElementsByAttribute( oElm, strTagName, strAttributeName, strAttribut
     var oAttributeValue = ( typeof strAttributeValue != "undefined" ) ? new RegExp( "(^|\\s)" + strAttributeValue + "(\\s|$)", "i" ) : null;
     var oCurrent;
     var oAttribute;
-    for( var i  =0; i < arrElements.length; i++ ) {
+    for( var i = 0; i < arrElements.length; i++ ) {
         oCurrent = arrElements[i];
         oAttribute = oCurrent.getAttribute && oCurrent.getAttribute( strAttributeName );
         if( typeof oAttribute == "string" && oAttribute.length > 0 ){
@@ -45,119 +45,74 @@ __$r.prototype.$DAEModel.prototype = {
 		rin.$Ajax( this, this.file, "parse", "xml" );
 	},
 	parse: function( data ) {
-		/*var $vertices = {},
-			current = "",
-			vertices = data.getElementsByTagName( "vertices" ),
-			triangles = data.getElementsByTagName( "triangles" );
-		for( var i in vertices ) {
-			if( vertices[i].nodeType === 1 ) {
-				current = vertices[i].getAttribute( "id" );
-				$vertices[ current ] = { position: [], normal: [], texcoord: [], vertex: [] };
-				for( var j in vertices[i].childNodes ) {
-					if( vertices[i].childNodes[j].nodeName == "input" ) {
-						switch( vertices[i].childNodes[j].getAttribute( "semantic" ).toLowerCase() ) {
-							case "position": $vertices[ current ].position = data.getElementById( vertices[i].childNodes[j].
-								getAttribute("source").substring(1) ).textContent.trim().split(" ").map(parseFloat); break;
-							case "normal": $vertices[ current ].normal = data.getElementById( vertices[i].childNodes[j].
-								getAttribute("source").substring(1) ).textContent.trim().split(" ").map(parseFloat); break;
-							case "texcoord": $vertices[ current ].texcoord = data.getElementById( vertices[i].childNodes[j].
-								getAttribute("source").substring(1) ).textContent.trim().split(" ").map(parseFloat); break;
-						}
-					}
-				}
-			}
-		}
-		var max = 0, newMax = 0;
-		for( var i in triangles ) {
-			if( triangles[i].nodeType === 1 ) {
-				for( var j in triangles[i].childNodes ) {
-					if( triangles[i].childNodes[j].nodeName == "input" ) {
-						current = triangles[i].childNodes[j].getAttribute( "source" ).substring(1);
-						this.textures[ current ] = triangles[i].getAttribute( "material" );
-						$vertices[ current ].vertex = triangles[i].childNodes[j].nextSibling.
-							nextSibling.textContent.trim().split(" ").map(parseFloat).map(function(x) {
-								if( x > newMax ) newMax = x;
-								return x + max;
-							});
-						max += 1 + newMax; newMax = 0;
-					}
-				}
-			}
-		}
-		var instance_mats = data.getElementsByTagName( "instance_material" );
-		for( var i in $vertices ) {
-			for( var j in instance_mats ) {
-				if( instance_mats[j].nodeType === 1 ) {
-					if( instance_mats[j].getAttribute( "symbol" ) == this.textures[i] )
-						this.textures[i] = data.getElementById( data.getElementById(data.getElementById( instance_mats[j].getAttribute("target").substring(1) ).
-							childNodes[1].getAttribute("url").substring(1)).childNodes[1].childNodes[1].childNodes[1].childNodes[1].
-								textContent ).childNodes[1].textContent;
-				}
-			}
-		}
-		for( var i in this.textures ) {
-			this.mesh.textures[i] = new rin.$Texture( i, this.mesh );
-			this.mesh.textures[i].element.src = "inc/models/"+this.name+"/textures/"+this.textures[i].substring( this.textures[i].lastIndexOf("/") + 1 );
-		}
-		var index = 0, face = [];
-		console.log( $vertices, this );*/
-		
-		
 		var $dae = { vertex: {}, position: {}, texcoord: {}, normal: {} },
 			$temp = { vertex: {}, position: {}, texcoord: {}, normal: {} },
 			$p = data.getElementsByTagName( "polylist" ),
-			$c = "", max = 0, newMax = 0;
+			$m = parseFloat( getElementsByAttribute( data , "unit", "meter" )[0].getAttribute("meter") ),
+			$c = "", max = 0, newMax = 0, face = {}, $i = 0;
+		console.log( $m );
+		this.mesh.frame(0);
+		this.mesh.node(0);
 		for( var i in $p ) {
 			if( $p[i].nodeType === 1 ) {
-				$c = $p[i].getAttribute( "material" );
+				$c = $p[i].getAttribute( "material" ),
 				$a = getElementsByAttribute( doc( $p[i].parentNode ), "input", "semantic", [ "position", "vertex", "texcoord", "normal" ] );
 				for( var j in $a ) {
 					if( $a[j].nodeType === 1 ) {
+						max = 0;
 						switch( $a[j].getAttribute( "semantic" ).toLowerCase() ) {
 							case "vertex": $temp.vertex[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
 								.substring(1) ).parentNode, "p" )[0].textContent.trim().split(" ").map(parseFloat); break;
 							case "position": $temp.position[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
-								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat).map(function(x){return x/10000;}); break;
+								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat)
+									.map( function(x) {
+										if( face[max] === undefined ) face[max] = [];
+										else if( face[max].length === 3 ) max++;
+										if( face[max] === undefined ) face[max] = [];
+										face[max].push(x)
+									}); $temp.position[$c] = face; max = 0; face = {}; break;
 							case "normal": $temp.normal[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
-								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
+								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat)
+									.map( function(x) {
+										if( face[max] === undefined ) face[max] = [];
+										else if( face[max].length === 3 ) max++;
+										if( face[max] === undefined ) face[max] = [];
+										face[max].push(x)
+									}); $temp.normal[$c] = face; max = 0; face = {}; break;
 							case "texcoord": $temp.texcoord[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
-								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
+								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat)
+									.map( function(x) {
+										if( face[max] === undefined ) face[max] = [];
+										else if( face[max].length === 2 ) max++;
+										if( face[max] === undefined ) face[max] = [];
+										face[max].push(x)
+									}); $temp.texcoord[$c] = face; max = 0; face = {}; break;
 						}
 					}
 				}
-				$dae.position[$c] = []; $dae.vertex[$c] = []; $dae.normal[$c] = []; $dae.texcoord[$c] = [];
-				for( var j = 0; j < $temp.vertex[ $c ].length; j += 3 ) {
-					$dae.vertex[ $c ].push( $temp.vertex[$c][j] );
-					$dae.position[ $c ].push( $temp.position[$c][ $temp.vertex[$c][j] ] );
-					$dae.normal[ $c ].push( $temp.vertex[$c][j+1] );
-					$dae.texcoord[ $c ].push( $temp.vertex[$c][j+2] );
+				this.mesh.mat( $c );
+				this.mesh.textures[$c] = new rin.$Texture( $c, this.mesh );
+				this.mesh.textures[$c].element.src = "inc/models/"+this.name+"/textures/"+$c+".png";
+				face = [];
+				for( var j = 0; j < $temp.vertex[ $c ].length; j+=3 ) {
+					this.mesh.vertex( $temp.position[$c][ $temp.vertex[$c][j] ][0],
+									  $temp.position[$c][ $temp.vertex[$c][j] ][1],
+									  $temp.position[$c][ $temp.vertex[$c][j] ][2] );
+					this.mesh.normal( $temp.normal[$c][ $temp.vertex[$c][j+1] ][0],
+									  $temp.normal[$c][ $temp.vertex[$c][j+1] ][1],
+									  $temp.normal[$c][ $temp.vertex[$c][j+1] ][2] );
+					this.mesh.texture( $temp.texcoord[$c][ $temp.vertex[$c][j+2] ][0],
+									   $temp.texcoord[$c][ $temp.vertex[$c][j+2] ][1] );
+					face.push( $i ); $i++;
+					if( face.length === 3 ) {
+						this.mesh.face( face[0], face[1], face[2] );
+						face = [];
+					}
 				}
 			}
 		}
-		this.mesh.frame(0);
-		this.mesh.node(0);
-		for( var i in $dae.vertex ) {
-			this.mesh.mat(i);
-			this.mesh.ba.vba[0] = this.mesh.ba.vba[0].concat( $dae.position[i] );
-			this.mesh.ba.tba[0] = this.mesh.ba.tba[0].concat( $dae.texcoord[i] );
-			this.mesh.ba.nba[0] = this.mesh.ba.nba[0].concat( $dae.normal[i] );
-			this.mesh.ba.iba[0][0][i] = $dae.vertex[i];
-		}
-		
 		//rin.$Ajax( this, "test.txt", "finish" );
 		console.log( $dae, this.mesh );
-		/*this.mesh.frame( 0 );
-		this.mesh.node( 0 );
-		for( var i in $vertices ) {
-			this.mesh.mat(i);
-			this.mesh.ba.vba[0] = this.mesh.ba.vba[0].concat( $vertices[i].position );
-			this.mesh.ba.tba[0] = this.mesh.ba.tba[0].concat( $vertices[i].texcoord );
-			this.mesh.ba.nba[0] = this.mesh.ba.nba[0].concat( $vertices[i].normal );
-			this.mesh.ba.iba[0][0][i] = $vertices[i].vertex;
-		}*/
-		//this.mesh.textured = true;
-		//this.mesh.normaled = true;
-		this.mesh.colored = true;
 		this.mesh.init();
 	},
 	/*finish: function( data ) {

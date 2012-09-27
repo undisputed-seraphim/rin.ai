@@ -91,12 +91,15 @@ __$r.prototype.$Camera.prototype = {
 				this.transform();
 			}
 			if( Controls.keys.j ) {
-				r.scene.models[0].mesh.physics.jump();
+				r.scene.models[1].mesh.physics.jump();
 			}
 			if( Controls.any( "numpad" ) ) {
 				if( Controls.keys.numpad8 ) r.scene.models[0].mesh.move( .01, 0, 0 );
 				if( Controls.keys.numpad2 ) r.scene.models[0].mesh.move( -.01, 0, 0 );
-				if( Controls.keys.numpad4 ) { r.scene.models[0].mesh.rotation[1] += .03; r.scene.models[0].mesh.rot(); }
+				if( Controls.keys.numpad4 ) { r.scene.models[0].mesh.rotation[1] += .03; }
+				r.scene.models[0].mesh.rot(); 
+				r.scene.models[0].mesh.pos();
+				r.scene.models[0].mesh.transform();
 			}
 		}
 		mvMatrix = this.matrix;
