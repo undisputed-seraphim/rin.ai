@@ -45,7 +45,7 @@ __$r.prototype.$DAEModel.prototype = {
 		rin.$Ajax( this, this.file, "parse", "xml" );
 	},
 	parse: function( data ) {
-		var $vertices = {},
+		/*var $vertices = {},
 			current = "",
 			vertices = data.getElementsByTagName( "vertices" ),
 			triangles = data.getElementsByTagName( "triangles" );
@@ -97,31 +97,56 @@ __$r.prototype.$DAEModel.prototype = {
 		}
 		for( var i in this.textures ) {
 			this.mesh.textures[i] = new rin.$Texture( i, this.mesh );
-			this.mesh.textures[i].element.src = "inc/models/"+this.name+"/textures/"+this.textures[i].substring( this.textures[i].lastIndexOf("/") + 1 )
+			this.mesh.textures[i].element.src = "inc/models/"+this.name+"/textures/"+this.textures[i].substring( this.textures[i].lastIndexOf("/") + 1 );
 		}
 		var index = 0, face = [];
-		console.log( $vertices, this );
+		console.log( $vertices, this );*/
 		
 		
 		var $dae = { vertex: {}, position: {}, texcoord: {}, normal: {} },
-			$a = getElementsByAttribute( data, "input", "semantic", [ "position", "vertex", "texcoord", "normal" ] ),
-			$c = "";
-		for( var i in $a ) {
-			switch( $a[i].getAttribute( "semantic" ).toLowerCase() ) {
-				case "vertex": $c = $a[i].getAttribute( "source" ).substring(1); $dae.vertex[ $c ] =
-					getChildrenByTagName( data.getElementById( $c ).parentNode, "p" )[0].textContent.trim().split(" ").map(parseFloat); break;
-				case "position": $c = $a[i].getAttribute( "source" ).substring(1); $dae.position[ $c ] =
-					getChildrenByTagName( data.getElementById( $c ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
-				case "normal": $c = $a[i].getAttribute( "source" ).substring(1); $dae.normal[ $c ] =
-					getChildrenByTagName( data.getElementById( $c ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
-				case "texcoord": $c = $a[i].getAttribute( "source" ).substring(1); $dae.texcoord[ $c ] =
-					getChildrenByTagName( data.getElementById( $c ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
+			$temp = { vertex: {}, position: {}, texcoord: {}, normal: {} },
+			$p = data.getElementsByTagName( "polylist" ),
+			$c = "", max = 0, newMax = 0;
+		for( var i in $p ) {
+			if( $p[i].nodeType === 1 ) {
+				$c = $p[i].getAttribute( "material" );
+				$a = getElementsByAttribute( doc( $p[i].parentNode ), "input", "semantic", [ "position", "vertex", "texcoord", "normal" ] );
+				for( var j in $a ) {
+					if( $a[j].nodeType === 1 ) {
+						switch( $a[j].getAttribute( "semantic" ).toLowerCase() ) {
+							case "vertex": $temp.vertex[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
+								.substring(1) ).parentNode, "p" )[0].textContent.trim().split(" ").map(parseFloat); break;
+							case "position": $temp.position[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
+								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat).map(function(x){return x/10000;}); break;
+							case "normal": $temp.normal[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
+								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
+							case "texcoord": $temp.texcoord[ $c ] = getChildrenByTagName( data.getElementById( $a[j].getAttribute( "source" )
+								.substring(1) ), "float_array" )[0].textContent.trim().split(" ").map(parseFloat); break;
+						}
+					}
+				}
+				$dae.position[$c] = []; $dae.vertex[$c] = []; $dae.normal[$c] = []; $dae.texcoord[$c] = [];
+				for( var j = 0; j < $temp.vertex[ $c ].length; j += 3 ) {
+					$dae.vertex[ $c ].push( $temp.vertex[$c][j] );
+					$dae.position[ $c ].push( $temp.position[$c][ $temp.vertex[$c][j] ] );
+					$dae.normal[ $c ].push( $temp.vertex[$c][j+1] );
+					$dae.texcoord[ $c ].push( $temp.vertex[$c][j+2] );
+				}
 			}
+		}
+		this.mesh.frame(0);
+		this.mesh.node(0);
+		for( var i in $dae.vertex ) {
+			this.mesh.mat(i);
+			this.mesh.ba.vba[0] = this.mesh.ba.vba[0].concat( $dae.position[i] );
+			this.mesh.ba.tba[0] = this.mesh.ba.tba[0].concat( $dae.texcoord[i] );
+			this.mesh.ba.nba[0] = this.mesh.ba.nba[0].concat( $dae.normal[i] );
+			this.mesh.ba.iba[0][0][i] = $dae.vertex[i];
 		}
 		
 		//rin.$Ajax( this, "test.txt", "finish" );
-		console.log( $dae );
-		this.mesh.frame( 0 );
+		console.log( $dae, this.mesh );
+		/*this.mesh.frame( 0 );
 		this.mesh.node( 0 );
 		for( var i in $vertices ) {
 			this.mesh.mat(i);
@@ -129,10 +154,10 @@ __$r.prototype.$DAEModel.prototype = {
 			this.mesh.ba.tba[0] = this.mesh.ba.tba[0].concat( $vertices[i].texcoord );
 			this.mesh.ba.nba[0] = this.mesh.ba.nba[0].concat( $vertices[i].normal );
 			this.mesh.ba.iba[0][0][i] = $vertices[i].vertex;
-		}
-		this.mesh.textured = true;
-		this.mesh.normaled = true;
-		this.mesh.colored = false;
+		}*/
+		//this.mesh.textured = true;
+		//this.mesh.normaled = true;
+		this.mesh.colored = true;
 		this.mesh.init();
 	},
 	/*finish: function( data ) {
