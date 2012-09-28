@@ -442,3 +442,45 @@ var mat4 = {
 		return t;
 	}
 }
+
+function doc( element ) {
+	var doc = document.implementation.createHTMLDocument( "temp" );
+	doc.documentElement.innerHTML = '<!DOCTYPE html><html><head></head><body></body></html>';
+	doc.body.appendChild( element.cloneNode(true) );
+	return doc;
+}
+
+function getChildrenByTagName( element, tag, depth ) {
+	if( typeof tag == "object" ) {
+		var temp = [];
+		for( var i in tag ) {
+			var j = doc(element).getElementsByTagName( tag[i] );
+			for( var k in j ) {
+				if( j[k].nodeType === 1 ) {
+					temp.push( j[k] );
+				}
+			}
+		}
+		return temp;
+	} else return doc(element).getElementsByTagName( tag );
+}
+
+function getElementsByAttribute( oElm, strTagName, strAttributeName, strAttributeValue ) {
+	if( typeof strAttributeValue == "object" ) strAttributeValue.map( function(x){ return x.toLowerCase(); } );
+    var arrElements = ( strTagName == "*" && oElm.all ) ? oElm.all : oElm.getElementsByTagName( strTagName );
+    var arrReturnElements = new Array();
+    var oAttributeValue = ( typeof strAttributeValue != "undefined" ) ? new RegExp( "(^|\\s)" + strAttributeValue + "(\\s|$)", "i" ) : null;
+    var oCurrent;
+    var oAttribute;
+    for( var i = 0; i < arrElements.length; i++ ) {
+        oCurrent = arrElements[i];
+        oAttribute = oCurrent.getAttribute && oCurrent.getAttribute( strAttributeName );
+        if( typeof oAttribute == "string" && oAttribute.length > 0 ){
+            if( typeof strAttributeValue == "undefined" || ( oAttributeValue && typeof strAttributeValue == "object" ?
+					strAttributeValue.indexOf( oAttribute.toLowerCase() ) != -1 : oAttributeValue.test( oAttribute ) ) ){
+                arrReturnElements.push( oCurrent );
+            }
+        }
+    }
+    return arrReturnElements;
+}
