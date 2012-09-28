@@ -91,7 +91,7 @@ __$r.prototype.$Camera.prototype = {
 				this.transform();
 			}
 			if( Controls.keys.j ) {
-				r.scene.models[1].mesh.physics.jump();
+				r.scene.models[0].mesh.physics.jump();
 			}
 			if( Controls.any( "numpad" ) ) {
 				if( Controls.keys.numpad8 ) r.scene.models[0].mesh.move( .01, 0, 0 );
