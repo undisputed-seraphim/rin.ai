@@ -1,6 +1,7 @@
 var Settings = {
 	flags: {
-		showBoundingBox: false
+		showBoundingBox: false,
+		showSkeleton: false,
 	},
 	visible: function( item, bool ) {
 		if( bool === undefined ) return Settings.flags[item];

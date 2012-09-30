@@ -11,7 +11,7 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
 	this.type =		params.type || "object";
 	this.mode =		params.mode || gl.TRIANGLES;
-	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {} };
+	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, vba2: [] };
 	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {} };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
@@ -180,6 +180,10 @@ __$r.prototype.$Mesh.prototype = {
 	next: function() { this.current == this.amap[ this.animation ][1] ? this.current = this.amap[ this.animation ][0] : this.current++; },
 	buffer: function() {
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
+		if( this.ba.vba2.length > 0 ) {
+			gl.bufferSubData( gl.ARRAY_BUFFER, 0, new Float32Array( this.ba.vba2 ) );
+			this.ba.vba2 = [];
+		}
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 		gl.enableVertexAttribArray( rin.$program().pointers.vertex );
 		if( this.normaled ) {

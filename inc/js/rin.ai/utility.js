@@ -1,5 +1,6 @@
 var vec3 = {
 	create: function( x, y, z ) {
+		if( typeof x == "object" ) return new Float32Array( [ x[0], x[1], x[2] ] );
     	return new Float32Array( [ x || 0, y || 0, z || 0 ] ); },
     add: function( a, b ) {
     	return new Float32Array( [ a[0] + b[0], a[1] + b[1], a[2] + b[2] ] ); },
@@ -12,6 +13,12 @@ var vec3 = {
 	magnitude: function( v ) {
 		return ( parseFloat(v[0] * v[0]) + parseFloat(v[1] * v[1]) + parseFloat(v[2] * v[2]) );
 	},
+	scale: function( v, s ) {
+		return new Float32Array( [ v[0] * s, v[1] * s, v[2] * s ] );
+	},
+	average: function( v, w ) {
+		return new Float32Array( [ (v[0]+w[0])/2, (v[1]+w[1])/2, (v[2]+w[2])/2 ] );
+	},
 	dot: function( a, b ) {
 		return ( a[0] * b[0] ) + ( a[1] * b[1] ) + ( a[2] * b[2] );
 	},
@@ -19,6 +26,11 @@ var vec3 = {
 		return vec3.create( a[1] * b[2] - a[2] * b[1],
 						 -( a[0] * b[2] - a[2] * b[0] ),
 						    a[0] * b[1] - a[1] * b[0] ); },
+	transform: function( v, m ) {
+		return vec3.create( m[0] * v[0] + m[1] * v[0] + m[2] * v[0] + m[3] * v[0],
+							m[4] * v[1] + m[5] * v[1] + m[6] * v[1] + m[7] * v[1],
+							m[8] * v[2] + m[9] * v[2] + m[10]* v[2] + m[11]* v[2] );
+	}
 }
 
 var quat = {
@@ -136,6 +148,12 @@ var mat4 = {
 		    m[4],	m[5],	m[6],	m[7],
 			m[8],	m[9],	m[10],	m[11],
 			m[12],	m[13],	m[14],	m[15] ] ); },
+	average: function( m, n ) {
+		return new Float32Array(
+		  [	(m[0]+n[0])/2,	(m[1]+n[1])/2,	(m[2]+n[2])/2,	(m[3]+n[3])/2,
+		  	(m[4]+n[4])/2,	(m[5]+n[5])/2,	(m[6]+n[6])/2,	(m[7]+n[7])/2,
+		  	(m[8]+n[8])/2,	(m[9]+n[9])/2,	(m[10]+n[10])/2,(m[11]+n[11])/2,
+		  	(m[12]+n[12])/2,(m[13]+n[13])/2,(m[14]+n[14])/2,(m[15]+n[15])/2 ] ); },
 	flatten: function( m ) {
 		return new Float32Array(
 		  [ m[0],	m[4],	m[8],	m[12],
@@ -484,3 +502,5 @@ function getElementsByAttribute( oElm, strTagName, strAttributeName, strAttribut
     }
     return arrReturnElements;
 }
+
+function nothing() { }
