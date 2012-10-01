@@ -27,9 +27,12 @@ var vec3 = {
 						 -( a[0] * b[2] - a[2] * b[0] ),
 						    a[0] * b[1] - a[1] * b[0] ); },
 	transform: function( v, m ) {
-		return vec3.create( m[0] * v[0] + m[1] * v[0] + m[2] * v[0] + m[3] * v[0],
+		/*return vec3.create( m[0] * v[0] + m[1] * v[0] + m[2] * v[0] + m[3] * v[0],
 							m[4] * v[1] + m[5] * v[1] + m[6] * v[1] + m[7] * v[1],
-							m[8] * v[2] + m[9] * v[2] + m[10]* v[2] + m[11]* v[2] );
+							m[8] * v[2] + m[9] * v[2] + m[10]* v[2] + m[11]* v[2] );*/
+		return vec3.create( m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3],
+							m[4] * v[0] + m[5] * v[1] + m[6] * v[2] + m[7],
+							m[8] * v[0] + m[9] * v[1] + m[10]* v[2] + m[11] );
 	}
 }
 
@@ -469,6 +472,7 @@ function doc( element ) {
 }
 
 function getChildrenByTagName( element, tag, depth ) {
+	if( element === undefined ) return [];
 	if( typeof tag == "object" ) {
 		var temp = [];
 		for( var i in tag ) {
@@ -504,3 +508,46 @@ function getElementsByAttribute( oElm, strTagName, strAttributeName, strAttribut
 }
 
 function nothing() { }
+
+	/*finish: function( data ) {
+		var $questions = [], current = 0, $answers = [], $letter = "";
+		data = data.split("\n");
+		//new RegExp( "(^|\\s)" + strAttributeValue + "(\\s|$)", "i" )
+		for( var i in data ) {
+			if( new RegExp( "[\\d].\t" ).test( data[i] ) ) {
+				$current = $questions.length;
+				$letter = "";
+				$questions.push( data[i].substring( data[i].indexOf("\t") +1 ) );
+				$answers[$current] = {};
+			} else if( new RegExp( "[\\w][)]\t" ).test( data[i] ) ) {
+				$letter = data[i].substring( 0, data[i].indexOf(")") );
+				$answers[ $current ][ data[i].substring( 0, data[i].indexOf(")") ) ] = data[i].substring( data[i].indexOf("\t") +1 );
+			} else if( new RegExp( "Answer:" ).test( data[i] ) ) {
+				$answers[ $current ].answer = data[i].trim().substring( data[i].trim().lastIndexOf(" ") +1 );
+			} else {
+				if( data[i].trim() != "" && data[i].substring(0, 4) != "TYPE" && data[i].substring(0, 6) != "POINTS" ) {
+					if( $letter === "" ) { $questions[$current] += '\n'+data[i].trim(); }
+					else { $answers[ $current ][ $letter ] += data[i].trim(); }
+				}
+			}
+		}
+		for( var i in $questions ) {
+			$questions[i] = $questions[i].replace(/>/g, "&gt;").replace(/</g,"&lt;").replace(/=/g,"\\=").replace(/{/g,"\\{").replace(/}/g,"\\}")
+				.replace(/[\u2018|\u2019|\u201A]/g, "\'").replace(/[\u201C|\u201D|\u201E]/g, "\"").replace(/[\u2013|\u2014]/g, "-")
+				.replace(/[\u2265]/g, "&ge;").replace(/[\u2264]/g, "&le;").replace(/[\u2022]/g, "&#8226;").replace(/\u2026/g, "...");
+			$questions[i] += "{";
+			for( var j in $answers[i] ) {
+				$answers[i][j] = $answers[i][j].replace(/>/g, "&gt;").replace(/</g,"&lt;").replace(/=/g,"\\=").replace(/{/g,"\\{").replace(/}/g,"\\}")
+					.replace(/[\u2018|\u2019|\u201A]/g, "\'").replace(/[\u201C|\u201D|\u201E]/g, "\"").replace(/[\u2013|\u2014]/g, "-")
+					.replace(/[\u2265]/g, "&ge;").replace(/[\u2264]/g, "&le;").replace(/[\u2022]/g, "&#8226;").replace(/\u2026/g, "...");
+			}
+		}
+		console.log( $questions, $answers );
+		for( var i in $questions ) {
+			document.getElementById("t").value += $questions[i] + '\n';
+			document.getElementById("t").value += ($answers[i].answer == "a" ? "="+$answers[i].a : "~"+$answers[i].a) + '\n';
+			document.getElementById("t").value += ($answers[i].answer == "b" ? "="+$answers[i].b : "~"+$answers[i].b) + '\n';
+			document.getElementById("t").value += ($answers[i].answer == "c" ? "="+$answers[i].c : "~"+$answers[i].c) + '\n';
+			document.getElementById("t").value += ($answers[i].answer == "d" ? "="+$answers[i].d : "~"+$answers[i].d) + "}\n\n";
+		}
+	},*/

@@ -203,11 +203,6 @@ __$r.prototype.$Mesh.prototype = {
 	render: function() {
 		if( this.ready ) {
 			if( this.bbox !== true && this.physics !== true ) this.physics.update();
-			if( Settings.flags.showBoundingBox && this.bbox !== true ) {
-				this.bbox.box = new rin.$Primitive( "cube",
-					{ xmin: this.bbox.min.x, ymin: this.bbox.min.y, zmin: this.bbox.min.z,
-			  		  xmax: this.bbox.max.x, ymax: this.bbox.max.y, zmax: this.bbox.max.z,
-			  		  bbox: true, method: "wire", physics: false } ).render(); }
 			this.buffer();
 			if( this.interval === "" && this.animated ) { this.start(); }
 			var normalMatrix = mat4.inverse( this.matrix );
