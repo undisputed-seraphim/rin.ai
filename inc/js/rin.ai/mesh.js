@@ -10,7 +10,7 @@ TODO:
 __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
 	this.type =		params.type || "object";
-	this.mode =		params.mode || gl.TRIANGLES;
+	this.mode =		params.mode !== undefined ? params.mode : gl.TRIANGLES;
 	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, vba2: [] };
 	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {} };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };

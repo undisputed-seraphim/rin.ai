@@ -182,7 +182,7 @@ __$r.prototype.$DAEModel.prototype = {
 		} 
 		console.log( this.skeleton );
 		this.mesh.init();
-		this.animate(0);
+		this.animate(1);
 	},
 	$skeleton: function $skeleton( params ) { this.init( params ); },
 	$bone: function $bone( id, parent ) { this.init( id, parent ); },
@@ -237,27 +237,9 @@ __$r.prototype.$DAEModel.prototype = {
 				temp[ this.$i[i][k] * 3 + 1 ] = temp2[1];
 				temp[ this.$i[i][k] * 3 + 2 ] = temp2[2];
 			}
+			this.mesh.ba.vba2 = temp;
 		}
-		this.mesh.ba.vba2 = temp || [];
-		/*for( var j in this.skeleton.inf[ bone.id ] ) {
-			inf = this.skeleton.inf[ bone.id ];
-			for( var k in this.$i[ j ] ) {
-				temp2 = vec3.add( this.$v[ this.$i[j][k] ], vec3.transform( this.$v[ this.$i[j][k] ], bone.sMatrix ) );
-				//if( dt !== undefined ) bone.matrix = mat4.multiply( bone.matrix, mat4.multiply( mat4.create(), bone.anima.matrix[dt] ) );
-				//temp2 = vec3.average( this.$v[ this.$i[ j ][k] ], vec3.transform( vec3.transform( vec3.transform( this.$v[ this.$i[ j ][k] ],
-				//	mat4.create() ), bone.iMatrix ), bone.matrix ) );
-				//temp2 = vec3.transform( this.$v[ this.$i[j][k] ], mat4.multiply( bone.iMatrix, bone.matrix ) );
-				temp[ this.$i[ j ][k] * 3 ] == this.mesh.ba.vba[0][ this.$i[ j ][k] * 3 ] ?
-					temp[ this.$i[ j ][k] * 3 ] = temp2[0] :
-					temp[ this.$i[ j ][k] * 3 ] = (temp[ this.$i[ j ][k] * 3 ] + temp2[0]) / 2;
-				temp[ this.$i[ j ][k] * 3 + 1 ] == this.mesh.ba.vba[0][ this.$i[ j ][k] * 3 + 1 ] ?
-					temp[ this.$i[ j ][k] * 3 + 1 ] = temp2[1] :
-					temp[ this.$i[ j ][k] * 3 + 1 ] = ( temp[ this.$i[ j ][k] * 3 + 1 ] + temp2[1] ) / 2;
-				temp[ this.$i[ j ][k] * 3 + 2 ] == this.mesh.ba.vba[0][ this.$i[ j ][k] * 3 + 2 ] ?
-					temp[ this.$i[ j ][k] * 3 + 2 ] = temp2[2] :
-					temp[ this.$i[ j ][k] * 3 + 2 ] = ( temp[ this.$i[ j ][k] * 3 + 2 ] + temp2[2] ) / 2;
-			}
-		} if( bone.targets.length === 0 ) { }*/
+		this.mesh.ba.vba2 = temp;
 	},
 	process: function( dt ) {
 		if( this.stack.length === 0 ) {
@@ -266,7 +248,7 @@ __$r.prototype.$DAEModel.prototype = {
 		var bone = this.stack.pop(), inf = "",
 			bone = this.skeleton.bones[ bone ];
 		bone.matrix =  bone.jMatrix;
-		if( this.skeleton.bones[this.skeleton.root].anima.time[0] !== undefined && dt !== undefined ) {
+		if( dt !== undefined ) if( this.skeleton.bones[this.skeleton.root].anima.time[dt] !== undefined ) {
 			bone.matrix =  bone.anima.matrix[dt]; }
 		if( bone.parent !== null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
 		bone.sMatrix = mat4.multiply( bone.matrix, bone.iMatrix );
@@ -314,11 +296,6 @@ __$r.prototype.$DAEModel.prototype.$skeleton.prototype = {
 		this.count++;
 		this.bones[ node.id ] = node;
 		this.bones[ parent ].addBone( node.id );
-	},
-	clean: function() {
-		for( var i in this.bones ) {
-			this.bones[i].clean();
-		}
 	},
 	getMatrices: function() {
 		for( var i in this.bones ) {
