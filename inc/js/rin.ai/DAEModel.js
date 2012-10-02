@@ -10,7 +10,11 @@ __$r.prototype.$DAEModel = function $DAEModel( id, params ) {
 	this.$v = [];
 	this.$i = [];
 	this.stack = [];
-	this.file = "inc/models/"+this.name+"/"+this.name+".dae";
+	this.dt = 0;
+	this.interval = "";
+	this.pack = params.pack === undefined ? "models/" : "packs/"+params.pack+"/models/";
+	this.file = "inc/"+this.pack+this.name+"/"+this.name+".dae";
+	this.ready = false;
 	this.init();
 }
 
@@ -30,7 +34,7 @@ __$r.prototype.$DAEModel.prototype = {
 				$a = getChildrenByTagName( polylist[i], "p" )[0].textContent.trim().split(" ").map( parseFloat );
 				this.mesh.mat( $m );
 				this.mesh.textures[ $m ] = new rin.$Texture( $m, this.mesh );
-				this.mesh.textures[ $m ].element.src = "inc/models/"+this.name+"/textures/"+$m+".png";
+				this.mesh.textures[ $m ].element.src = "inc/"+this.pack+this.name+"/textures/"+$m+".png";
 				temp = getChildrenByTagName( polylist[i], "input" );
 				for( var j in temp ) {
 					if( temp[j].nodeType === 1 ) {
@@ -112,7 +116,7 @@ __$r.prototype.$DAEModel.prototype = {
 					if( nodes[j].parentNode.tagName == "vertex_weights" ) {
 						switch( nodes[j].getAttribute( "semantic" ).toLowerCase() ) {
 							case "joint": $i = 0; for( var k in vcount ) { for( var l = 0; l < vcount[k]; l++ ) {
-								this.skeleton.bones[ $sources[$c][ v[$i] ] ].addTarget( parseInt(k) + parseInt($0) );
+								//this.skeleton.bones[ $sources[$c][ v[$i] ] ].addTarget( parseInt(k) + parseInt($0) );
 								//if( this.all.vertex[ parseInt(k) + parseInt($0) ] === undefined ) this.all.vertex[ parseInt(k)+parseInt($0) ] = [];
 								if ( this.skeleton.inf[ $sources[$c][ v[$i] ] ] === undefined ) {
 									this.skeleton.inf[ $sources[$c][ v[$i] ] ] = {};
@@ -120,25 +124,32 @@ __$r.prototype.$DAEModel.prototype = {
 									this.skeleton.inf[ $sources[$c][ v[$i] ] ][ parseInt(k) + parseInt($0) ] = []; } $i+=2;
 								} } prev = $c; break;
 							case "weight": $i = 1; for( var k in vcount ) { for( var l = 0; l < vcount[k]; l++ ) {
-								this.skeleton.bones[ $sources[prev][ v[$i-1] ] ].addWeight( parseFloat( $sources[$c][ v[$i] ] ) );
+								//this.skeleton.bones[ $sources[prev][ v[$i-1] ] ].addWeight( parseFloat( $sources[$c][ v[$i] ] ) );
 								if( this.inf[ parseInt(k) + parseInt($0) ] === undefined ) this.inf[ parseInt(k) + parseInt($0) ] = {};
 								if( this.inf[ parseInt(k) + parseInt($0) ][ $sources[prev][v[$i-1]] ] === undefined ) 
 									this.inf[ parseInt(k) + parseInt($0) ][ $sources[prev][v[$i-1]] ] = 1;
 								this.inf[ parseInt(k) + parseInt($0) ][$sources[prev][v[$i-1]]] = parseFloat( $sources[$c][ v[$i] ] );
 								this.skeleton.inf[ $sources[prev][ v[$i-1] ] ][ parseInt(k) + parseInt($0) ].push( parseFloat( $sources[$c][ v[$i] ] ) );
-								$i+=2;
-								} } break;
+								$i+=2; } } break;
 						}
 					} else {
 						switch( nodes[j].getAttribute( "semantic" ).toLowerCase() ) {
 							case "joint": prev = $c; break;
 							case "inv_bind_matrix": $i = 0; for( var k in $sources[prev] ) {
 								if( this.skeleton.bones[$sources[prev][k]] === undefined ) nothing();
-								else this.skeleton.bones[ $sources[prev][k] ].iMatrix = mat4.create(
-									$sources[$c][$i][0],$sources[$c][$i][1],$sources[$c][$i][2],$sources[$c][$i][3],
-									$sources[$c][$i][4],$sources[$c][$i][5],$sources[$c][$i][6],$sources[$c][$i][7],
-									$sources[$c][$i][8],$sources[$c][$i][9],$sources[$c][$i][10],$sources[$c][$i][11],
-									$sources[$c][$i][12],$sources[$c][$i][13],$sources[$c][$i][14],$sources[$c][$i][15] );
+								else {
+									this.skeleton.bones[ $sources[prev][k] ].iMatrix = mat4.create(
+										$sources[$c][$i][0],$sources[$c][$i][1],$sources[$c][$i][2],$sources[$c][$i][3],
+										$sources[$c][$i][4],$sources[$c][$i][5],$sources[$c][$i][6],$sources[$c][$i][7],
+										$sources[$c][$i][8],$sources[$c][$i][9],$sources[$c][$i][10],$sources[$c][$i][11],
+										$sources[$c][$i][12],$sources[$c][$i][13],$sources[$c][$i][14],$sources[$c][$i][15] );
+									/*this.skeleton.bones[ $sources[prev][k]].iQuat = quat.fromRotationMatrix(
+										this.skeleton.bones[ $sources[prev][k] ].iMatrix );
+									this.skeleton.bones[ $sources[prev][k]].iTran = vec3.create(
+										this.skeleton.bones[ $sources[prev][k] ].iMatrix[3],
+										this.skeleton.bones[ $sources[prev][k] ].iMatrix[7],
+										this.skeleton.bones[ $sources[prev][k] ].iMatrix[11] );*/
+								}
 								$i++; } break;
 						}
 					}
@@ -174,7 +185,10 @@ __$r.prototype.$DAEModel.prototype = {
 						this.skeleton.bones[ $p ].anima.ident[ $sources[$c][k] ] = this.skeleton.bones[$p].anima.time.length;
 						this.skeleton.bones[ $p ].anima.time.push( $sources[$c][k] ); } } break;
 					case "output": for( var k in $sources[$c] ) { if( this.skeleton.bones[$p] !== undefined ) {
-						this.skeleton.bones[ $p ].anima.matrix.push( $sources[$c][k] ); } } break;
+						this.skeleton.bones[ $p ].anima.matrix.push( $sources[$c][k] );
+						/*this.skeleton.bones[$p].anima.quat.push(quat.fromRotationMatrix($sources[$c][k]));
+						this.skeleton.bones[$p].anima.tran.push( vec3.create(
+							$sources[$c][k][3], $sources[$c][k][7], $sources[$c][k][11] ) );*/ } } break;
 					case "interpolation": for( var k in $sources[$c] ) { if( this.skeleton.bones[$p] !== undefined ) {
 						this.skeleton.bones[ $p ].anima.interp.push( $sources[$c][k] ); } } break;
 				}
@@ -182,7 +196,8 @@ __$r.prototype.$DAEModel.prototype = {
 		} 
 		console.log( this.skeleton );
 		this.mesh.init();
-		this.animate(1);
+		if( anilist.length > 0 ) this.buffer();
+		else this.ready = true;
 	},
 	$skeleton: function $skeleton( params ) { this.init( params ); },
 	$bone: function $bone( id, parent ) { this.init( id, parent ); },
@@ -224,7 +239,7 @@ __$r.prototype.$DAEModel.prototype = {
 		}
 		this.skeleton.mesh.init();
 	},
-	apply: function() {
+	apply: function( dt ) {
 		var temp = this.mesh.ba.vba[0].slice(), temp2 = "";
 		for( var i in this.inf ) {
 			for( var k in this.$i[ i ] ) {
@@ -236,42 +251,52 @@ __$r.prototype.$DAEModel.prototype = {
 				temp[ this.$i[i][k] * 3 ] = temp2[0];
 				temp[ this.$i[i][k] * 3 + 1 ] = temp2[1];
 				temp[ this.$i[i][k] * 3 + 2 ] = temp2[2];
+				this.mesh.alterVertex( this.mesh.current, this.$i[i][k] * 3, temp2 );
 			}
-			this.mesh.ba.vba2 = temp;
 		}
-		this.mesh.ba.vba2 = temp;
+		//this.mesh.ba.vba2 = temp;
+		this.ready = true;
+		/*this.skeleton.animations[ dt ].v = temp;
+		if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
+		else { this.ready = true; this.start(); }*/
 	},
 	process: function( dt ) {
 		if( this.stack.length === 0 ) {
-			this.apply();
+			this.apply( dt );
 			return; }
 		var bone = this.stack.pop(), inf = "",
 			bone = this.skeleton.bones[ bone ];
-		bone.matrix =  bone.jMatrix;
+		bone.matrix = bone.jMatrix;
 		if( dt !== undefined ) if( this.skeleton.bones[this.skeleton.root].anima.time[dt] !== undefined ) {
-			bone.matrix =  bone.anima.matrix[dt]; }
+			bone.matrix = bone.anima.matrix[dt]; }
 		if( bone.parent !== null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
 		bone.sMatrix = mat4.multiply( bone.matrix, bone.iMatrix );
 		for( var i in bone.children ) this.stack.push( bone.children[i] );
 		this.process( dt );
 	},
-	animate: function( dt ) {
+	buffer: function( dt ) {
+		//console.log( "1" );
+		if( this.skeleton.animations.length === 0 )
+			for( var i in this.skeleton.bones[this.skeleton.root].anima.ident )
+				this.skeleton.animations.push( { t: i, v: [] } );
 		this.stack = [];
 		this.stack.push( this.skeleton.root );
-		if( dt !== undefined ) dt = this.skeleton.bones[ this.skeleton.root ].anima.time[dt] === undefined ? undefined : dt;
+		if( dt === undefined ) dt = 0;
 		this.process( dt );
 	},
-	update: function( dt ) { this.animate( dt ); },
-			//console.log( current.anima.time[index], current.anima.interp[index], current.anima.matrix[index] );
+	update: function() { this.mesh.ba.vba2 = this.skeleton.animations[ this.dt ].v; this.dt++; if(this.skeleton.animations[ this.dt ]===undefined) this.dt = 0; },
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 100 ); },
 	render: function() {
-		if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
-				this.mesh.bbox.box = new rin.$Primitive( "cube",
-					{ xmin: this.mesh.bbox.min.x, ymin: this.mesh.bbox.min.y, zmin: this.mesh.bbox.min.z,
-			  		  xmax: this.mesh.bbox.max.x, ymax: this.mesh.bbox.max.y, zmax: this.mesh.bbox.max.z,
-			  		  bbox: true, method: "wire", physics: false } ).render(); }
-		if( Settings.flags.showSkeleton ) {
-			this.skeleton.mesh.render();
-		} else this.mesh.render();
+		if( this.ready ) {
+			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
+					this.mesh.bbox.box = new rin.$Primitive( "cube",
+						{ xmin: this.mesh.bbox.min.x, ymin: this.mesh.bbox.min.y, zmin: this.mesh.bbox.min.z,
+				  		  xmax: this.mesh.bbox.max.x, ymax: this.mesh.bbox.max.y, zmax: this.mesh.bbox.max.z,
+			  			  bbox: true, method: "wire", physics: false } ).render(); }
+			if( Settings.flags.showSkeleton ) {
+				this.skeleton.mesh.render();
+			} else this.mesh.render();
+		}
 	}
 }
 
@@ -279,6 +304,7 @@ __$r.prototype.$DAEModel.prototype.$skeleton.prototype = {
 	init: function( params ) {
 		params = params || {};
 		this.bones = {};
+		this.animations = [];
 		this.inf = {};
 		this.root = "";
 		this.count = 0;
@@ -310,15 +336,25 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		this.parent = parent;
 		this.children = [];
 		this.location = "";
-		this.anima = { ident: {}, time: [], matrix: [], interp: [] };
+		this.anima = { ident: {}, time: [], matrix: [], quat: [], tran: [], interp: [] };
 		this.weights = [];
 		this.targets = [];
 		
 		this.jMatrix = "";
+		//this.jQuat = "";
+		//this.jTran = "";
+		
 		this.iMatrix = "";
+		//this.iQuat = "";
+		//this.iTran = "";
+		
 		this.sMatrix = "";
+		//this.sQuat = "";
+		//this.sTran = "";
 		
 		this.matrix = "";
+		//this.quat = "";
+		//this.tran = "";
 	},
 	addBone: function( bone ) { this.children.push( bone ); },
 	addTarget: function( target ) { this.targets.push( target ); },
@@ -327,5 +363,7 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		var temp = data.getElementById( this.id ).childNodes[1].textContent.trim().split(" ").map( parseFloat );
 		this.jMatrix = mat4.create( temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7],
 								   temp[8], temp[9], temp[10], temp[11], temp[12], temp[13], temp[14], temp[15] );
+		//this.jQuat = quat.fromRotationMatrix( this.jMatrix );
+		//this.jTran = vec3.create( this.jMatrix[3], this.jMatrix[7], this.jMatrix[11] );
 	}
 }

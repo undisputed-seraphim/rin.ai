@@ -74,10 +74,12 @@ var shaders = {
 			attribute vec3 aVertex;\
 			attribute vec2 aTexture;\
 			attribute vec3 aNormal;\
+			attribute float aIndex;\
    			uniform mat4 uMVMatrix;\
 			uniform mat4 uVMatrix;\
 	      	uniform mat4 uPMatrix;\
 			uniform mat4 uNMatrix;\
+			uniform mat4 bMatrix;\
 			uniform vec3 uAmbientColor;\
 			uniform vec3 uLightDirection;\
 			uniform vec3 uDirectionalColor;\
@@ -87,7 +89,7 @@ var shaders = {
 			varying vec3 vPosition;\
 			varying vec3 vLightDirection;\
 	    	void main(void) {\
-		        gl_Position = uPMatrix * uMVMatrix * vec4(aVertex, 1.0);\
+		        gl_Position = uPMatrix * uMVMatrix * bMatrix * vec4(aVertex, 1.0);\
 	    	    vPosition = gl_Position.xyz;\
 				vTextureCoord = aTexture;\
     			highp vec3 directionalLightColor = uDirectionalColor;\

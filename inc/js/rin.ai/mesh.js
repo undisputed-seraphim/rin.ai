@@ -12,7 +12,7 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	this.type =		params.type || "object";
 	this.mode =		params.mode !== undefined ? params.mode : gl.TRIANGLES;
 	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, vba2: [] };
-	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {} };
+	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, temp: "" };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
 	this.color =	params.color || [ 1.0, 0.0, 0.0 ];
@@ -52,6 +52,7 @@ __$r.prototype.$Mesh.prototype = {
 			this.bo.vbo[i] = gl.createBuffer();
 			gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[i] );
 			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.ba.vba[i] ), gl.STATIC_DRAW);
+			this.bo.temp
 			if( this.normaled ) {
 				this.bo.nbo[i] = gl.createBuffer();
 				gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.nbo[i] );
@@ -73,6 +74,10 @@ __$r.prototype.$Mesh.prototype = {
 		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
 		if( this.bbox !== true && this.physics !== true ) this.physics.init();
 		this.ready = true;
+	},
+	alterVertex: function( buffer, offset, v ) {
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
+		gl.bufferSubData( gl.ARRAY_BUFFER, offset * 4, new Float32Array( v ) );
 	},
 	frame: function( index, f ) {
 		if( f === false ) { this.index = index; this.current = ""; this.material = ""; return; }
@@ -179,6 +184,7 @@ __$r.prototype.$Mesh.prototype = {
 	stop: function() { clearInterval( this.interval ); this.interval = ""; },
 	next: function() { this.current == this.amap[ this.animation ][1] ? this.current = this.amap[ this.animation ][0] : this.current++; },
 	buffer: function() {
+		gl.uniformMatrix4fv(gl.getUniformLocation( rin.program(), "bMatrix" ), false, new Float32Array( mat4.flatten( mat4.create() ) ) );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
 		if( this.ba.vba2.length > 0 ) {
 			gl.bufferSubData( gl.ARRAY_BUFFER, 0, new Float32Array( this.ba.vba2 ) );

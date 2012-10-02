@@ -83,7 +83,8 @@ var quat = {
 			q[3] * r[2] + q[2] * r[3] + q[0] * r[1] - q[1] * r[0],
 			q[3] * r[3] - q[0] * r[0] - q[1] * r[1] - q[2] * r[2] );
 	},
-	mat4: function( quat ) {
+	mat4: function( quat, t ) {
+		t = t || vec3.create( 0.0, 0.0, 0.0 );
 		var x2 = quat[0] * quat[0],
 			y2 = quat[1] * quat[1],
 			z2 = quat[2] * quat[2],
@@ -94,9 +95,9 @@ var quat = {
 			wy = quat[3] * quat[1],
 			wz = quat[3] * quat[2];
 		return mat4.create(
-			1.0 - 2.0 * (y2 + z2), 2.0 * (xy - wz), 2.0 * (xz + wy), 0.0,
-			2.0 * (xy + wz), 1.0 - 2.0 * (x2 + z2), 2.0 * (yz - wx), 0.0,
-			2.0 * (xz - wy), 2.0 * (yz + wx), 1.0 - 2.0 * (x2 + y2), 0.0,
+			1.0 - 2.0 * (y2 + z2), 2.0 * (xy - wz), 2.0 * (xz + wy), t[0],
+			2.0 * (xy + wz), 1.0 - 2.0 * (x2 + z2), 2.0 * (yz - wx), t[1],
+			2.0 * (xz - wy), 2.0 * (yz + wx), 1.0 - 2.0 * (x2 + y2), t[2],
 			0.0, 0.0, 0.0, 1.0 );
 	},
 	fromRotationMatrix: function( mat ) {

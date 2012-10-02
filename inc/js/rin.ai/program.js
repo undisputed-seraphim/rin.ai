@@ -11,6 +11,8 @@ __$r.prototype.$Program.prototype = {
 		gl.enableVertexAttribArray( this.pointers.normal );
 		this.pointers.texture = gl.getAttribLocation( this.target,  "aTexture" );
 		gl.enableVertexAttribArray( this.pointers.texture );
+		this.pointers.index = gl.getAttribLocation( this.target,  "aVertex" );
+		gl.enableVertexAttribArray( this.pointers.index );
 	},
 	attribute: function( name ) {
 		return gl.getAttribLocation( this.target, name );
@@ -27,6 +29,6 @@ function setMatrixUniforms() {
   //var pUniform = r.gl.getUniformLocation( r.program(), "uPMatrix");
   //r.gl.uniformMatrix4fv( pUniform, false, mat4.flatten( perspectiveMatrix ) );
  
-  var mvUniform = r.gl.getUniformLocation( r.program(), "uMVMatrix");
-  r.gl.uniformMatrix4fv( mvUniform, false, mat4.flatten( mvMatrix ) );
+  var mvUniform = gl.getUniformLocation( r.program(), "uMVMatrix");
+  gl.uniformMatrix4fv( mvUniform, false, mat4.flatten( mvMatrix ) );
 }
