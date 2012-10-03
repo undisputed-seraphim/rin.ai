@@ -11,8 +11,8 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
 	this.type =		params.type || "object";
 	this.mode =		params.mode !== undefined ? params.mode : gl.TRIANGLES;
-	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, vba2: [] };
-	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, temp: "" };
+	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, i: [], w: [], amat: [] };
+	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, bindex: "", bweight: "", i: "", w: "", amat: "" };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
 	this.color =	params.color || [ 1.0, 0.0, 0.0 ];
@@ -52,7 +52,6 @@ __$r.prototype.$Mesh.prototype = {
 			this.bo.vbo[i] = gl.createBuffer();
 			gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[i] );
 			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.ba.vba[i] ), gl.STATIC_DRAW);
-			this.bo.temp
 			if( this.normaled ) {
 				this.bo.nbo[i] = gl.createBuffer();
 				gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.nbo[i] );
@@ -69,6 +68,11 @@ __$r.prototype.$Mesh.prototype = {
 				}
 			}
 		}
+		var temp = mat4.create();
+		for( var i = 0; i < this.ba.vba[0].length; i+=3 ) { this.ba.i.push( i ); }
+		this.bo.i = gl.createBuffer();
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.i );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.ba.i ), gl.STATIC_DRAW );
 		this.pos(); this.rot(); this.transform();
 		this.colored = this.textured ? this.colored ? true : false : true;
 		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
@@ -184,12 +188,12 @@ __$r.prototype.$Mesh.prototype = {
 	stop: function() { clearInterval( this.interval ); this.interval = ""; },
 	next: function() { this.current == this.amap[ this.animation ][1] ? this.current = this.amap[ this.animation ][0] : this.current++; },
 	buffer: function() {
-		gl.uniformMatrix4fv(gl.getUniformLocation( rin.program(), "bMatrix" ), false, new Float32Array( mat4.flatten( mat4.create() ) ) );
+		//gl.uniformMatrix4fv(gl.getUniformLocation( rin.program(), "bMatrix" ), false, new Float32Array( mat4.flatten( mat4.create() ) ) );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
-		if( this.ba.vba2.length > 0 ) {
+		/*if( this.ba.vba2.length > 0 ) {
 			gl.bufferSubData( gl.ARRAY_BUFFER, 0, new Float32Array( this.ba.vba2 ) );
 			this.ba.vba2 = [];
-		}
+		}*/
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 		gl.enableVertexAttribArray( rin.$program().pointers.vertex );
 		if( this.normaled ) {
@@ -205,6 +209,15 @@ __$r.prototype.$Mesh.prototype = {
 			gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), this.color[0], this.color[1], this.color[2] );
 			gl.uniform1f( gl.getUniformLocation( rin.program(), "uAlpha" ), this.alpha );
 		} else gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.i );
+		gl.vertexAttribPointer( rin.$program().pointers.index, 1, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( rin.$program().pointers.index );
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.bindex );
+		gl.vertexAttribPointer( rin.$program().pointers.bindex, 4, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( rin.$program().pointers.bindex );
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.bweight );
+		gl.vertexAttribPointer( rin.$program().pointers.bweight, 4, gl.FLOAT, false, 0, 0 );
+		gl.enableVertexAttribArray( rin.$program().pointers.bweight );
 	},
 	render: function() {
 		if( this.ready ) {

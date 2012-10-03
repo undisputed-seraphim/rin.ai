@@ -11,8 +11,12 @@ __$r.prototype.$Program.prototype = {
 		gl.enableVertexAttribArray( this.pointers.normal );
 		this.pointers.texture = gl.getAttribLocation( this.target,  "aTexture" );
 		gl.enableVertexAttribArray( this.pointers.texture );
-		this.pointers.index = gl.getAttribLocation( this.target,  "aVertex" );
+		this.pointers.index = gl.getAttribLocation( this.target,  "aIndex" );
 		gl.enableVertexAttribArray( this.pointers.index );
+		this.pointers.bindex = gl.getAttribLocation( this.target,  "bIndex" );
+		gl.enableVertexAttribArray( this.pointers.bindex );
+		this.pointers.bweight = gl.getAttribLocation( this.target,  "bWeight" );
+		gl.enableVertexAttribArray( this.pointers.bweight );
 	},
 	attribute: function( name ) {
 		return gl.getAttribLocation( this.target, name );

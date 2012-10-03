@@ -71,15 +71,28 @@ var shaders = {
 				}\
 			}",
 		vertex: "\
+			struct bone {\
+				mat4 iMat;\
+				mat4 jMat;\
+				mat4 wMat;\
+				mat4 fMat[2];\
+				int parent;\
+			};\
+			struct weight {\
+				int b[3];\
+				float w[3];\
+				int count;\
+			};\
 			attribute vec3 aVertex;\
 			attribute vec2 aTexture;\
 			attribute vec3 aNormal;\
 			attribute float aIndex;\
+			attribute vec4 bIndex;\
+			attribute vec4 bWeight;\
    			uniform mat4 uMVMatrix;\
 			uniform mat4 uVMatrix;\
 	      	uniform mat4 uPMatrix;\
 			uniform mat4 uNMatrix;\
-			uniform mat4 bMatrix;\
 			uniform vec3 uAmbientColor;\
 			uniform vec3 uLightDirection;\
 			uniform vec3 uDirectionalColor;\
@@ -88,9 +101,15 @@ var shaders = {
 			varying vec4 vNormal;\
 			varying vec3 vPosition;\
 			varying vec3 vLightDirection;\
+			\
+			uniform mat4 fMats[89];\
 	    	void main(void) {\
-		        gl_Position = uPMatrix * uMVMatrix * bMatrix * vec4(aVertex, 1.0);\
+				if( aIndex == 0.0 ) {\
+				}\
+		        gl_Position = uPMatrix * uMVMatrix * ( vec4( aVertex, 1.0 ) );\
 	    	    vPosition = gl_Position.xyz;\
+				vTextureCoord = vec2( aIndex, bIndex.x );\
+				vTextureCoord = vec2( bWeight.x, bIndex.x );\
 				vTextureCoord = aTexture;\
     			highp vec3 directionalLightColor = uDirectionalColor;\
 	    		vLightDirection = uLightDirection;\
@@ -103,3 +122,17 @@ var shaders = {
 }
 
 })();
+
+/*for( int i = 0; i < 89; i++ ) {\
+						cBones[i] = bones[i];\
+						cBones[i].wMat = bones[i].jMat;\
+						cBones[i].wMat = bones[i].fMat[0];\
+						if( bones[i].parent != -1 ) {\
+							for( int j = 0; j < 89; j++ ) {\
+								if( j == bones[i].parent ) {\
+									cBones[i].wMat = cBones[ j ].wMat * cBones[i].wMat;\
+									break;\
+								}\
+							}\
+						}\
+					}\*/
