@@ -9,12 +9,6 @@ __$r.prototype.$DAEModel = function $DAEModel( id, params ) {
 	this.inf = [];
 	this.$v = [];
 	this.$i = [];
-	this.parents = {};
-	this.bindex = [];
-	this.bweight = [];
-	this.tempf = {};
-	this.tempi = {};
-	this.tempj = {};
 	this.stack = [];
 	this.dt = 0;
 	this.interval = "";
@@ -258,21 +252,17 @@ __$r.prototype.$DAEModel.prototype = {
 				temp[ this.$i[i][k] * 3 ] = temp2[0];
 				temp[ this.$i[i][k] * 3 + 1 ] = temp2[1];
 				temp[ this.$i[i][k] * 3 + 2 ] = temp2[2];
-				this.mesh.alterVertex( this.mesh.current, this.$i[i][k] * 3, temp2 );
 			}
 		}
-		//this.mesh.ba.vba2 = temp;
-		this.ready = true;
 		this.skeleton.animations[ dt ].v = temp;
 		if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
 		else { this.ready = true; this.start(); }
 	},
 	process: function( dt ) {
 		if( this.stack.length === 0 ) {
-			//this.apply( dt );
-			if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
+			this.apply( dt );
+			//if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
 			//else { this.ready = true; this.start(); }
-			else this.ready = true;
 			return; }
 		var bone = this.stack.pop(), inf = "",
 			bone = this.skeleton.bones[ bone ];
@@ -288,49 +278,15 @@ __$r.prototype.$DAEModel.prototype = {
 		//console.log( "1" );
 		if( this.skeleton.animations.length === 0 )
 			for( var i in this.skeleton.bones[this.skeleton.root].anima.ident )
-				this.skeleton.animations.push( { bmat0: [], bmat1: [], bmat2: [], bmat3: [] } );
-		this.stack = []; var bone = "", i = 0, l = 0, i = 0, bindex = [], bweight = [], temp2 = "", temp3 = "";
+				this.skeleton.animations.push( { v: "", t: "" } );
+		this.stack = []; var bone = "";
 		this.stack.push( this.skeleton.root );
-		while( this.stack.length > 0 ) {
-			bone = this.stack.pop(), bone = this.skeleton.bones[ bone ];
-			this.parents[ bone.id ] = i; i++;
-			this.tempf[ bone.id ] = [];
-			this.tempi[bone.id] = bone.iMatrix;
-			this.tempj[bone.id] = bone.jMatrix;
-			for( var q in bone.anima.matrix ) this.tempf[bone.id][q] = bone.anima.matrix[q];
-			for( var j in bone.children ) this.stack.push( bone.children[j] );
-		} for( var i in this.$i ) {
-			for( var j in this.$i[i] ) {
-				bweight = [ -1, -1, -1, -1 ];
-				bindex = [ -1, -1, -1, -1 ]; var s = 0;
-				for( var k in this.inf[j] ) {
-					bweight[ s ] = parseFloat( this.inf[j][k] );
-					bindex[ s ] = parseFloat( this.parents[ k ] );
-					s++;
-				}
-				this.bindex[ this.$i[i][j] ] = bindex.slice();
-				this.bweight[ this.$i[i][j] ] = bweight.slice();
-			}
-		} console.log( this.bindex, this.bweight, this.parents, this.tempf, this.tempi, this.tempj );
-		bindex = []; bweight = [];
-		for( var i in this.bindex ) {
-			bindex.push( this.bindex[i][0], this.bindex[i][1], this.bindex[i][2], this.bindex[i][3] );
-			bweight.push( this.bweight[i][0], this.bweight[i][1], this.bweight[i][2], this.bweight[i][3] );
-		}
-		this.mesh.bo.bindex = gl.createBuffer();
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.mesh.bo.bindex );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( bindex ), gl.STATIC_DRAW);
-		this.mesh.bo.bweight = gl.createBuffer();
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.mesh.bo.bweight );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( bweight ), gl.STATIC_DRAW);
-		this.ready = true;
-		//if( dt === undefined ) dt = 0;
-		//this.process( dt );
+		if( dt === undefined ) dt = 0;
+		this.process( dt );
 	},
-	update: function() {
-		
-		this.dt++; if(this.skeleton.animations[ this.dt ]===undefined) this.dt = 0; },
-	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 100 ); },
+	update: function() { this.mesh.ba.vba2 = this.skeleton.animations[ this.dt ].v;
+		this.dt++; if( this.skeleton.animations[ this.dt ]===undefined ) this.dt = 0; },
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 150 ); },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {

@@ -71,24 +71,10 @@ var shaders = {
 				}\
 			}",
 		vertex: "\
-			struct bone {\
-				mat4 iMat;\
-				mat4 jMat;\
-				mat4 wMat;\
-				mat4 fMat[2];\
-				int parent;\
-			};\
-			struct weight {\
-				int b[3];\
-				float w[3];\
-				int count;\
-			};\
 			attribute vec3 aVertex;\
 			attribute vec2 aTexture;\
 			attribute vec3 aNormal;\
 			attribute float aIndex;\
-			attribute vec4 bIndex;\
-			attribute vec4 bWeight;\
    			uniform mat4 uMVMatrix;\
 			uniform mat4 uVMatrix;\
 	      	uniform mat4 uPMatrix;\
@@ -101,15 +87,10 @@ var shaders = {
 			varying vec4 vNormal;\
 			varying vec3 vPosition;\
 			varying vec3 vLightDirection;\
-			\
-			uniform mat4 fMats[89];\
 	    	void main(void) {\
-				if( aIndex == 0.0 ) {\
-				}\
 		        gl_Position = uPMatrix * uMVMatrix * ( vec4( aVertex, 1.0 ) );\
 	    	    vPosition = gl_Position.xyz;\
-				vTextureCoord = vec2( aIndex, bIndex.x );\
-				vTextureCoord = vec2( bWeight.x, bIndex.x );\
+				vTextureCoord = vec2( aIndex, aIndex );\
 				vTextureCoord = aTexture;\
     			highp vec3 directionalLightColor = uDirectionalColor;\
 	    		vLightDirection = uLightDirection;\
@@ -122,7 +103,11 @@ var shaders = {
 }
 
 })();
-
+/*bone.matrix = bone.jMatrix;
+		if( dt !== undefined ) if( this.skeleton.bones[this.skeleton.root].anima.time[dt] !== undefined ) {
+			bone.matrix = bone.anima.matrix[dt]; }
+		if( bone.parent !== null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
+		bone.sMatrix = mat4.multiply( bone.matrix, bone.iMatrix );*/
 /*for( int i = 0; i < 89; i++ ) {\
 						cBones[i] = bones[i];\
 						cBones[i].wMat = bones[i].jMat;\

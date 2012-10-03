@@ -11,8 +11,8 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
 	this.type =		params.type || "object";
 	this.mode =		params.mode !== undefined ? params.mode : gl.TRIANGLES;
-	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, i: [], w: [], amat: [] };
-	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, bindex: "", bweight: "", i: "", w: "", amat: "" };
+	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, i: [], vba2: [] };
+	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, i: "" };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
 	this.color =	params.color || [ 1.0, 0.0, 0.0 ];
@@ -78,10 +78,6 @@ __$r.prototype.$Mesh.prototype = {
 		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
 		if( this.bbox !== true && this.physics !== true ) this.physics.init();
 		this.ready = true;
-	},
-	alterVertex: function( buffer, offset, v ) {
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
-		gl.bufferSubData( gl.ARRAY_BUFFER, offset * 4, new Float32Array( v ) );
 	},
 	frame: function( index, f ) {
 		if( f === false ) { this.index = index; this.current = ""; this.material = ""; return; }
@@ -190,10 +186,10 @@ __$r.prototype.$Mesh.prototype = {
 	buffer: function() {
 		//gl.uniformMatrix4fv(gl.getUniformLocation( rin.program(), "bMatrix" ), false, new Float32Array( mat4.flatten( mat4.create() ) ) );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
-		/*if( this.ba.vba2.length > 0 ) {
+		if( this.ba.vba2.length > 0 ) {
 			gl.bufferSubData( gl.ARRAY_BUFFER, 0, new Float32Array( this.ba.vba2 ) );
 			this.ba.vba2 = [];
-		}*/
+		}
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 		gl.enableVertexAttribArray( rin.$program().pointers.vertex );
 		if( this.normaled ) {
@@ -212,12 +208,6 @@ __$r.prototype.$Mesh.prototype = {
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.i );
 		gl.vertexAttribPointer( rin.$program().pointers.index, 1, gl.FLOAT, false, 0, 0 );
 		gl.enableVertexAttribArray( rin.$program().pointers.index );
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.bindex );
-		gl.vertexAttribPointer( rin.$program().pointers.bindex, 4, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.bindex );
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.bweight );
-		gl.vertexAttribPointer( rin.$program().pointers.bweight, 4, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.bweight );
 	},
 	render: function() {
 		if( this.ready ) {

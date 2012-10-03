@@ -53,7 +53,7 @@ __$r.prototype.$Scene.prototype = {
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		//this.tock();
 		r.scene.camera().update();
-		//r.scene.terrain.render();
+		r.scene.terrain.render();
 		//this.sky().render();
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );

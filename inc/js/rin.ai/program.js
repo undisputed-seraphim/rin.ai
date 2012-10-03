@@ -7,16 +7,12 @@ __$r.prototype.$Program.prototype = {
 	init: function() {
 		this.pointers.vertex = gl.getAttribLocation( this.target, "aVertex" );
 		gl.enableVertexAttribArray( this.pointers.vertex );
-		this.pointers.normal = gl.getAttribLocation( this.target,  "aNormal" );
+		this.pointers.normal = gl.getAttribLocation( this.target, "aNormal" );
 		gl.enableVertexAttribArray( this.pointers.normal );
-		this.pointers.texture = gl.getAttribLocation( this.target,  "aTexture" );
+		this.pointers.texture = gl.getAttribLocation( this.target, "aTexture" );
 		gl.enableVertexAttribArray( this.pointers.texture );
-		this.pointers.index = gl.getAttribLocation( this.target,  "aIndex" );
+		this.pointers.index = gl.getAttribLocation( this.target, "aIndex" );
 		gl.enableVertexAttribArray( this.pointers.index );
-		this.pointers.bindex = gl.getAttribLocation( this.target,  "bIndex" );
-		gl.enableVertexAttribArray( this.pointers.bindex );
-		this.pointers.bweight = gl.getAttribLocation( this.target,  "bWeight" );
-		gl.enableVertexAttribArray( this.pointers.bweight );
 	},
 	attribute: function( name ) {
 		return gl.getAttribLocation( this.target, name );
