@@ -9,6 +9,7 @@ __$r.prototype.$DAEModel = function $DAEModel( id, params ) {
 	this.inf = [];
 	this.$v = [];
 	this.$i = [];
+	this.parents = {};
 	this.stack = [];
 	this.dt = 0;
 	this.interval = "";
@@ -241,36 +242,63 @@ __$r.prototype.$DAEModel.prototype = {
 		this.skeleton.mesh.init();
 	},
 	apply: function( dt ) {
-		var temp = this.mesh.ba.vba[0].slice(), temp2 = "";
+		//var temp = this.mesh.ba.vba[0].slice(), temp2 = "";
+		var temp2 = "";
 		for( var i in this.inf ) {
 			for( var k in this.$i[ i ] ) {
 				temp2 = [0,0,0];
 				for( var j in this.inf[i] ) {
 					temp2 = vec3.add( temp2, vec3.scale( vec3.transform( this.$v[ this.$i[i][k] ],
-						this.skeleton.bones[ j ].sMatrix ), this.inf[i][j] ) );
+						this.skeleton.bones[ j ].sMatrix[dt] ), this.inf[i][j] ) );
 				}
-				temp[ this.$i[i][k] * 3 ] = temp2[0];
-				temp[ this.$i[i][k] * 3 + 1 ] = temp2[1];
-				temp[ this.$i[i][k] * 3 + 2 ] = temp2[2];
+				//temp[ this.$i[i][k] * 3 ] = temp2[0];
+				//temp[ this.$i[i][k] * 3 + 1 ] = temp2[1];
+				//temp[ this.$i[i][k] * 3 + 2 ] = temp2[2];
+				this.mesh.alterVertex( this.$i[i][k] * 3, temp2 );
 			}
 		}
-		this.skeleton.animations[ dt ].v = temp;
-		if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
-		else { this.ready = true; this.start(); }
+		//this.skeleton.animations[ dt ].v = temp;
+		//if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
+		//else { this.ready = true; /*this.start();*/ }
+	},
+	setBoneMats: function( dt ) {
+		for( var i in this.parents ) {
+			gl.uniformMatrix4fv( gl.getUniformLocation( rin.program(), "sMats["+this.parents[ i ]+"]" ),
+				false, mat4.flatten( this.skeleton.bones[i].sMatrix[ dt ] ) );
+		}
 	},
 	process: function( dt ) {
 		if( this.stack.length === 0 ) {
-			this.apply( dt );
-			//if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
-			//else { this.ready = true; this.start(); }
-			return; }
+			//this.apply( dt );
+			if( dt + 1 != this.skeleton.animations.length ) this.buffer( dt + 1 );
+			else {
+				var bdata = [], wdata = [], temp2 = "", m = 0;
+				for( var i in this.inf ) {
+					for( var k in this.$i[ i ] ) {
+						bdata[ this.$i[i][k] ] = new Array( -1, -1, -1, -1 );
+						wdata[ this.$i[i][k] ] = new Array( -1, -1, -1, -1 ); m = 0;
+						for( var j in this.inf[i] ) {
+							bdata[ this.$i[i][k] ][ m ] = this.parents[ j ];
+							wdata[ this.$i[i][k] ][ m ] = this.inf[i][k]; m++;
+						}
+					}
+				} for( var i in bdata ) {
+					this.mesh.ba.b.push( bdata[i][0], bdata[i][1], bdata[i][2], bdata[i][3] );
+					this.mesh.ba.w.push( wdata[i][0], wdata[i][1], wdata[i][2], wdata[i][3] );
+				}
+				this.setBoneMats( 0 );
+				console.log( bdata, this.parents );
+				this.dt = 0;
+				this.ready = true;
+			} return; }
 		var bone = this.stack.pop(), inf = "",
 			bone = this.skeleton.bones[ bone ];
+		if( this.parents[bone.id] === undefined ) { this.parents[bone.id] = this.dt; this.dt++; }
 		bone.matrix = bone.jMatrix;
 		if( dt !== undefined ) if( this.skeleton.bones[this.skeleton.root].anima.time[dt] !== undefined ) {
 			bone.matrix = bone.anima.matrix[dt]; }
 		if( bone.parent !== null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
-		bone.sMatrix = mat4.multiply( bone.matrix, bone.iMatrix );
+		bone.sMatrix[dt] = mat4.multiply( bone.matrix, bone.iMatrix );
 		for( var i in bone.children ) this.stack.push( bone.children[i] );
 		this.process( dt );
 	},
@@ -278,7 +306,7 @@ __$r.prototype.$DAEModel.prototype = {
 		//console.log( "1" );
 		if( this.skeleton.animations.length === 0 )
 			for( var i in this.skeleton.bones[this.skeleton.root].anima.ident )
-				this.skeleton.animations.push( { v: "", t: "" } );
+				this.skeleton.animations.push( new Array() );
 		this.stack = []; var bone = "";
 		this.stack.push( this.skeleton.root );
 		if( dt === undefined ) dt = 0;
@@ -349,7 +377,7 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		//this.iQuat = "";
 		//this.iTran = "";
 		
-		this.sMatrix = "";
+		this.sMatrix = [];
 		//this.sQuat = "";
 		//this.sTran = "";
 		

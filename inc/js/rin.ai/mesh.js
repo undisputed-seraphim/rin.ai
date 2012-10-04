@@ -11,8 +11,8 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
 	this.type =		params.type || "object";
 	this.mode =		params.mode !== undefined ? params.mode : gl.TRIANGLES;
-	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, i: [], vba2: [] };
-	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, i: "" };
+	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, i: [], b: [], w: [], vba2: [] };
+	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, i: "", b: "", w: "" };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
 	this.color =	params.color || [ 1.0, 0.0, 0.0 ];
@@ -78,6 +78,10 @@ __$r.prototype.$Mesh.prototype = {
 		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
 		if( this.bbox !== true && this.physics !== true ) this.physics.init();
 		this.ready = true;
+	},
+	alterVertex: function( offset, v ) {
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[0] );
+		gl.bufferSubData( gl.ARRAY_BUFFER, offset * 4, v );
 	},
 	frame: function( index, f ) {
 		if( f === false ) { this.index = index; this.current = ""; this.material = ""; return; }

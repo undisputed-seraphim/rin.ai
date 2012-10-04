@@ -76,7 +76,6 @@ var shaders = {
 			attribute vec3 aNormal;\
 			attribute float aIndex;\
    			uniform mat4 uMVMatrix;\
-			uniform mat4 uVMatrix;\
 	      	uniform mat4 uPMatrix;\
 			uniform mat4 uNMatrix;\
 			uniform vec3 uAmbientColor;\
@@ -88,7 +87,7 @@ var shaders = {
 			varying vec3 vPosition;\
 			varying vec3 vLightDirection;\
 	    	void main(void) {\
-		        gl_Position = uPMatrix * uMVMatrix * ( vec4( aVertex, 1.0 ) );\
+		        gl_Position = uPMatrix * uMVMatrix * vec4( aVertex, 1.0 );\
 	    	    vPosition = gl_Position.xyz;\
 				vTextureCoord = vec2( aIndex, aIndex );\
 				vTextureCoord = aTexture;\
@@ -101,7 +100,8 @@ var shaders = {
 			}"
 	}
 }
-
+/*temp2 = vec3.add( temp2, vec3.scale( vec3.transform( this.$v[ this.$i[i][k] ],
+						this.skeleton.bones[ j ].sMatrix[dt] ), this.inf[i][j] ) );*/
 })();
 /*bone.matrix = bone.jMatrix;
 		if( dt !== undefined ) if( this.skeleton.bones[this.skeleton.root].anima.time[dt] !== undefined ) {

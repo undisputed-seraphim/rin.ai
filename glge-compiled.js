@@ -18726,6 +18726,7 @@ GLGE.Collada.prototype.getAnimations=function(){
 	}else{
 		var animationClips=this.xml.getElementsByTagName("animation_clip");
 		var animations=this.xml.getElementsByTagName("animation");
+		console.log( animations );
 		if(animationClips.length==0){
 			animations.name="default";
 			var clips=[animations];

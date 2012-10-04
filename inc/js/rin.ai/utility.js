@@ -462,6 +462,13 @@ var mat4 = {
         	t[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * invDet;
         	t[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
 		return t;
+	},
+	scale: function( m, s ) {
+		return new Float32Array(
+		  [	m[0] * s, m[1] * s, m[2] * s, m[3] * s,
+			m[4] * s, m[5] * s, m[6] * s, m[7] * s,
+			m[8] * s, m[9] * s, m[10] * s, m[11] * s,
+			m[12] * s, m[13] * s, m[14] * s, m[15] * s ] );
 	}
 }
 
