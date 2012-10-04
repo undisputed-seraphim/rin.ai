@@ -3,6 +3,7 @@ body.onload = function() {
 	$r.init( "canvas" );
 }
 
+
 function goAhead() {
 	/*$r.scene.add( "obj", { name: "ultimecia", range: 250, position: [-1,0,0], animation: "next",
 		amap: { "idle": [1, 33], "hit1": [34, 52], "hit2": [53, 75],

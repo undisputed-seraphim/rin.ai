@@ -286,7 +286,7 @@ __$r.prototype.$DAEModel.prototype = {
 	},
 	update: function() { this.mesh.ba.vba2 = this.skeleton.animations[ this.dt ].v;
 		this.dt++; if( this.skeleton.animations[ this.dt ]===undefined ) this.dt = 0; },
-	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 150 ); },
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 100 ); },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
