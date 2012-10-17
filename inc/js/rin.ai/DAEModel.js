@@ -144,12 +144,6 @@ __$r.prototype.$DAEModel.prototype = {
 										$sources[$c][$i][4],$sources[$c][$i][5],$sources[$c][$i][6],$sources[$c][$i][7],
 										$sources[$c][$i][8],$sources[$c][$i][9],$sources[$c][$i][10],$sources[$c][$i][11],
 										$sources[$c][$i][12],$sources[$c][$i][13],$sources[$c][$i][14],$sources[$c][$i][15] );
-									/*this.skeleton.bones[ $sources[prev][k]].iQuat = quat.fromRotationMatrix(
-										this.skeleton.bones[ $sources[prev][k] ].iMatrix );
-									this.skeleton.bones[ $sources[prev][k]].iTran = vec3.create(
-										this.skeleton.bones[ $sources[prev][k] ].iMatrix[3],
-										this.skeleton.bones[ $sources[prev][k] ].iMatrix[7],
-										this.skeleton.bones[ $sources[prev][k] ].iMatrix[11] );*/
 								}
 								$i++; } break;
 						}
@@ -158,7 +152,6 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		}
 		this.createSkeleton();
-		//console.log( this.all.vertex, this.$v, this.$i );
 		for( var i in this.$i ) {
 			for( var j in this.$i[i] ) {
 				max = Math.max( max, this.$i[i][j] );
@@ -196,10 +189,31 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		} 
 		console.log( this.skeleton );
+		for( var i = 0; i < this.inf.length; i++ ) {
+			/* grab values for current index */
+			var btmp = [-1,-1,-1,-1];
+			var wtmp = [0,0,0,0];
+			var $$i = 0;
+			for( var k in this.inf[i] ) {
+				btmp[$$i] = this.skeleton.ident[k];
+				wtmp[$$i] = this.inf[i][k];
+				$$i++;
+			}
+			/* apply values to all real indices */
+			for( var j = 0; j < this.$i[i].length; j++ ) {
+				this.mesh.ba.b[this.$i[i][j]*4] = btmp[0];
+				this.mesh.ba.b[this.$i[i][j]*4+1] = btmp[1];
+				this.mesh.ba.b[this.$i[i][j]*4+2] = btmp[2];
+				this.mesh.ba.b[this.$i[i][j]*4+3] = btmp[3];
+				this.mesh.ba.w[this.$i[i][j]*4] = wtmp[0];
+				this.mesh.ba.w[this.$i[i][j]*4+1] = wtmp[1];
+				this.mesh.ba.w[this.$i[i][j]*4+2] = wtmp[2];
+				this.mesh.ba.w[this.$i[i][j]*4+3] = wtmp[3];
+			}
+		}
 		this.mesh.init();
-		if( anilist.length > 0 ) this.buffer();
-		else this.ready = true;
-		//this.ready = true;
+		//if( anilist.length > 0 ) this.buffer(0);
+		this.ready = true;
 	},
 	$skeleton: function $skeleton( params ) { this.init( params ); },
 	$bone: function $bone( id, parent ) { this.init( id, parent ); },
@@ -241,76 +255,28 @@ __$r.prototype.$DAEModel.prototype = {
 		}
 		this.skeleton.mesh.init();
 	},
-	apply: function( dt ) {
-		//var temp = this.mesh.ba.vba[0].slice(), temp2 = "";
-		var temp2 = "";
-		for( var i in this.inf ) {
-			for( var k in this.$i[ i ] ) {
-				temp2 = [0,0,0];
-				for( var j in this.inf[i] ) {
-					temp2 = vec3.add( temp2, vec3.scale( vec3.transform( this.$v[ this.$i[i][k] ],
-						this.skeleton.bones[ j ].sMatrix[dt] ), this.inf[i][j] ) );
-				}
-				//temp[ this.$i[i][k] * 3 ] = temp2[0];
-				//temp[ this.$i[i][k] * 3 + 1 ] = temp2[1];
-				//temp[ this.$i[i][k] * 3 + 2 ] = temp2[2];
-				this.mesh.alterVertex( this.$i[i][k] * 3, temp2 );
-			}
-		}
-		//this.skeleton.animations[ dt ].v = temp;
-		//if( this.skeleton.animations[ dt + 1 ] !== undefined ) this.buffer( dt + 1 );
-		//else { this.ready = true; /*this.start();*/ }
-	},
-	setBoneMats: function( dt ) {
-		for( var i in this.parents ) {
-			gl.uniformMatrix4fv( gl.getUniformLocation( rin.program(), "sMats["+this.parents[ i ]+"]" ),
-				false, mat4.flatten( this.skeleton.bones[i].sMatrix[ dt ] ) );
-		}
-	},
-	process: function( dt ) {
-		if( this.stack.length === 0 ) {
-			//this.apply( dt );
-			if( dt + 1 != this.skeleton.animations.length ) this.buffer( dt + 1 );
-			else {
-				var bdata = [], wdata = [], temp2 = "", m = 0;
-				for( var i in this.inf ) {
-					for( var k in this.$i[ i ] ) {
-						bdata[ this.$i[i][k] ] = new Array( -1, -1, -1, -1 );
-						wdata[ this.$i[i][k] ] = new Array( -1, -1, -1, -1 ); m = 0;
-						for( var j in this.inf[i] ) {
-							bdata[ this.$i[i][k] ][ m ] = this.parents[ j ];
-							wdata[ this.$i[i][k] ][ m ] = this.inf[i][k]; m++;
-						}
-					}
-				} for( var i in bdata ) {
-					this.mesh.ba.b.push( bdata[i][0], bdata[i][1], bdata[i][2], bdata[i][3] );
-					this.mesh.ba.w.push( wdata[i][0], wdata[i][1], wdata[i][2], wdata[i][3] );
-				}
-				this.setBoneMats( 0 );
-				console.log( bdata, this.parents );
-				this.dt = 0;
-				this.ready = true;
-			} return; }
-		var bone = this.stack.pop(), inf = "",
-			bone = this.skeleton.bones[ bone ];
-		if( this.parents[bone.id] === undefined ) { this.parents[bone.id] = this.dt; this.dt++; }
-		bone.matrix = bone.jMatrix;
-		if( dt !== undefined ) if( this.skeleton.bones[this.skeleton.root].anima.time[dt] !== undefined ) {
-			bone.matrix = bone.anima.matrix[dt]; }
-		if( bone.parent !== null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
-		bone.sMatrix[dt] = mat4.multiply( bone.matrix, bone.iMatrix );
-		for( var i in bone.children ) this.stack.push( bone.children[i] );
-		this.process( dt );
-	},
 	buffer: function( dt ) {
-		//console.log( "1" );
-		if( this.skeleton.animations.length === 0 )
-			for( var i in this.skeleton.bones[this.skeleton.root].anima.ident )
-				this.skeleton.animations.push( new Array() );
-		this.stack = []; var bone = "";
+		/* go through bone stack and update matrices, send to glsl uniforms */
+		this.stack = [];
 		this.stack.push( this.skeleton.root );
-		if( dt === undefined ) dt = 0;
-		this.process( dt );
+		for( var i = 0; this.stack.length != 0; i++ ) {
+			current = this.stack.pop();
+			var bone = this.skeleton.bones[current];
+			bone.matrix = bone.jMatrix;
+			bone.matrix = bone.anima.matrix[dt];
+			if( bone.parent != null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
+			bone.sMatrix = mat4.multiply( bone.matrix, bone.iMatrix );
+			
+			var qtmp = mat4.quat( bone.sMatrix );
+			var ttmp = [ bone.sMatrix[3], bone.sMatrix[7], bone.sMatrix[11] ];
+			gl.uniform4f( gl.getUniformLocation( rin.program(), "quats["+this.skeleton.ident[current]+"]" ),
+				qtmp[0], qtmp[1], qtmp[2], qtmp[3] );
+			gl.uniform3f( gl.getUniformLocation( rin.program(), "trans["+this.skeleton.ident[current]+"]" ),
+				ttmp[0], ttmp[1], ttmp[2] );
+			
+			for( var j in bone.children )
+				this.stack.push( bone.children[j] );
+		}
 	},
 	update: function() { this.mesh.ba.vba2 = this.skeleton.animations[ this.dt ].v;
 		this.dt++; if( this.skeleton.animations[ this.dt ]===undefined ) this.dt = 0; },
@@ -333,6 +299,7 @@ __$r.prototype.$DAEModel.prototype.$skeleton.prototype = {
 	init: function( params ) {
 		params = params || {};
 		this.bones = {};
+		this.ident = {};
 		this.animations = [];
 		this.inf = {};
 		this.root = "";
@@ -343,11 +310,13 @@ __$r.prototype.$DAEModel.prototype.$skeleton.prototype = {
 	setRoot: function( root ) { this.root = root; },
 	setData: function( data ) { this.data = data; },
 	addBone: function( bone, root ) {
+		this.ident[ bone.id ] = this.count;
 		this.count++;
 		this.bones[ bone.id ] = bone;
 		if( root === true ) this.root = bone.id;
 	},
 	addNode: function( parent, node ) {
+		this.ident[ node.id ] = this.count;
 		this.count++;
 		this.bones[ node.id ] = node;
 		this.bones[ parent ].addBone( node.id );
@@ -370,20 +339,12 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		this.targets = [];
 		
 		this.jMatrix = "";
-		//this.jQuat = "";
-		//this.jTran = "";
 		
 		this.iMatrix = "";
-		//this.iQuat = "";
-		//this.iTran = "";
 		
-		this.sMatrix = [];
-		//this.sQuat = "";
-		//this.sTran = "";
+		this.sMatrix = "";
 		
 		this.matrix = "";
-		//this.quat = "";
-		//this.tran = "";
 	},
 	addBone: function( bone ) { this.children.push( bone ); },
 	addTarget: function( target ) { this.targets.push( target ); },
@@ -392,7 +353,5 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		var temp = data.getElementById( this.id ).childNodes[1].textContent.trim().split(" ").map( parseFloat );
 		this.jMatrix = mat4.create( temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7],
 								   temp[8], temp[9], temp[10], temp[11], temp[12], temp[13], temp[14], temp[15] );
-		//this.jQuat = quat.fromRotationMatrix( this.jMatrix );
-		//this.jTran = vec3.create( this.jMatrix[3], this.jMatrix[7], this.jMatrix[11] );
 	}
 }

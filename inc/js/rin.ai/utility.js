@@ -469,6 +469,27 @@ var mat4 = {
 			m[4] * s, m[5] * s, m[6] * s, m[7] * s,
 			m[8] * s, m[9] * s, m[10] * s, m[11] * s,
 			m[12] * s, m[13] * s, m[14] * s, m[15] * s ] );
+	},
+	quat: function( m ) {
+		var w = Math.sqrt( Math.max( 0.0, (1.0 + m[0] + m[5] + m[10]) ) ) / 2;
+		var x = Math.sqrt( Math.max( 0.0, (1.0 + m[0] - m[5] - m[10]) ) ) / 2;
+		var y = Math.sqrt( Math.max( 0.0, (1.0 - m[0] + m[5] - m[10]) ) ) / 2;
+		var z = Math.sqrt( Math.max( 0.0, (1.0 - m[0] - m[5] + m[10]) ) ) / 2;
+
+		if( m[9] - m[6] >= 0 )
+			x = x >= 0 ? x : -x;
+		else x = x < 0 ? x : -x;
+		if( m[2] - m[8] >= 0 )
+			y = y >= 0 ? y : -y;
+		else y = y < 0 ? y : -y;
+		if( m[4] - m[1] >= 0 )
+			z = z >= 0 ? z : -z;
+		else z = z < 0 ? z : -z;
+		
+		return new Float32Array( [x,y,z,w] );
+		//x = (float)_copysign( q.x, m.values[9] - m.values[6] );
+		//y = (float)_copysign( q.y, m.values[2] - m.values[8] );
+		//z = (float)_copysign( q.z, m.values[4] - m.values[1] );
 	}
 }
 
