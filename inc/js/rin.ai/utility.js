@@ -128,7 +128,36 @@ var quat = {
             dest[k] = (mat[k*3+i] + mat[i*3+k]) * fRoot;
         }
         return dest;
-    }
+    },
+	add: function( q, r ) {
+		return new Float32Array([ q[0]+r[0], q[1]+r[1], q[2]+r[2], q[3]+r[3] ]);
+	},
+	scale: function( q, s ) {
+		return new Float32Array([ q[0]*s, q[1]*s, q[2]*s, q[3]*s ]);
+	},
+	shrink: function( q, s ) {
+		return new Float32Array([ q[0]/s, q[1]/s, q[2]/s, q[3]/s ]);
+	},
+	dot: function( q, r ) {
+		return q[0]*r[0] + q[1] * r[1] + q[2] * r[2] + q[3] * r[3];
+	},
+	lerp: function( q, r, t ) {
+		return quat.normalize( new Float32Array( [q[0]*(1-t) + r[0]*t, q[1]*(1-t) + r[1]*t, q[2]*(1-t) + r[2]*t, q[3]*(1-t) + r[3]*t ] ) );
+	},
+	slerp: function( q, r, t ) {
+		var res = quat.create();
+		var dot = quat.dot( q, r );
+		if( Math.abs(dot) >= 1.0 )
+			return new Float32Array([q[0],q[1],q[2],q[3]]);
+		var halfTheta = Math.acos(dot);
+		var sinHalfTheta = Math.sqrt( 1.0 - dot * dot );
+		if( Math.abs(sinHalfTheta) < 0 ) {
+			return new Float32Array([ q[0] * 0.5 + r[0] * 0.5,q[1] * 0.5 + r[1] * 0.5,q[2] * 0.5 + r[2] * 0.5,q[3] * 0.5 + r[3] * 0.5 ]);
+		}
+		var a = Math.sin( ( 1-t) * halfTheta ) / sinHalfTheta;
+		var b = Math.sin( t * halfTheta ) / sinHalfTheta;
+		return new Float32Array([ q[0] * a + r[0] * b,q[1] * a + r[1] * b,q[2] * a + r[2] * b,q[3] * a + r[3] * b ]);
+	}
 }
 
 var mat4 = {
@@ -487,10 +516,7 @@ var mat4 = {
 		else z = z < 0 ? z : -z;
 		
 		return new Float32Array( [x,y,z,w] );
-		//x = (float)_copysign( q.x, m.values[9] - m.values[6] );
-		//y = (float)_copysign( q.y, m.values[2] - m.values[8] );
-		//z = (float)_copysign( q.z, m.values[4] - m.values[1] );
-	}
+	},
 }
 
 function doc( element ) {

@@ -212,8 +212,10 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		}
 		this.mesh.init();
-		//if( anilist.length > 0 ) this.buffer(0);
-		this.ready = true;
+		if( anilist.length > 0 ) {
+			this.buffer();
+			this.start();
+		}
 	},
 	$skeleton: function $skeleton( params ) { this.init( params ); },
 	$bone: function $bone( id, parent ) { this.init( id, parent ); },
@@ -255,20 +257,31 @@ __$r.prototype.$DAEModel.prototype = {
 		}
 		this.skeleton.mesh.init();
 	},
-	buffer: function( dt ) {
-		/* go through bone stack and update matrices, send to glsl uniforms */
+	apply: function( dt ) {
 		this.stack = [];
 		this.stack.push( this.skeleton.root );
+		var cur = dt;
+		var next = -1;
+		if( cur % 1 != 0 ) {
+			if( cur+0.5 == this.skeleton.bones[this.skeleton.root].anima.time.length )
+				next = 0;
+			else next = dt+0.5;
+			cur -= 0.5;
+		}
+		//console.log( dt, next );
 		for( var i = 0; this.stack.length != 0; i++ ) {
 			current = this.stack.pop();
 			var bone = this.skeleton.bones[current];
-			bone.matrix = bone.jMatrix;
-			bone.matrix = bone.anima.matrix[dt];
-			if( bone.parent != null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
-			bone.sMatrix = mat4.multiply( bone.matrix, bone.iMatrix );
+			var qtmp;
+			if( next != -1 ) {
+				qtmp = quat.slerp( bone.sQuat[cur], bone.sQuat[next], 0.5 );
+				ttmp = vec3.average( [ bone.sMatrix[cur][3], bone.sMatrix[cur][7], bone.sMatrix[cur][11] ],
+									 [ bone.sMatrix[next][3], bone.sMatrix[next][7], bone.sMatrix[next][11] ] );
+			} else {
+				qtmp = bone.sQuat[cur];
+				ttmp = [ bone.sMatrix[cur][3], bone.sMatrix[cur][7], bone.sMatrix[cur][11] ];
+			}
 			
-			var qtmp = mat4.quat( bone.sMatrix );
-			var ttmp = [ bone.sMatrix[3], bone.sMatrix[7], bone.sMatrix[11] ];
 			gl.uniform4f( gl.getUniformLocation( rin.program(), "quats["+this.skeleton.ident[current]+"]" ),
 				qtmp[0], qtmp[1], qtmp[2], qtmp[3] );
 			gl.uniform3f( gl.getUniformLocation( rin.program(), "trans["+this.skeleton.ident[current]+"]" ),
@@ -278,9 +291,32 @@ __$r.prototype.$DAEModel.prototype = {
 				this.stack.push( bone.children[j] );
 		}
 	},
-	update: function() { this.mesh.ba.vba2 = this.skeleton.animations[ this.dt ].v;
-		this.dt++; if( this.skeleton.animations[ this.dt ]===undefined ) this.dt = 0; },
-	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 100 ); },
+	buffer: function() {
+		for( var dt = 0; dt < this.skeleton.bones[this.skeleton.root].anima.time.length; dt++ ) {
+			this.stack = [];
+			this.stack.push( this.skeleton.root );
+			for( var i = 0; this.stack.length != 0; i++ ) {
+				current = this.stack.pop();
+				var bone = this.skeleton.bones[current];
+				bone.matrix = bone.jMatrix;
+				bone.matrix = bone.anima.matrix[dt];
+				if( bone.parent != null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
+				bone.sMatrix[dt] = mat4.multiply( bone.matrix, bone.iMatrix );
+				bone.sQuat[dt] = mat4.quat( bone.sMatrix[dt] );
+			
+				for( var j in bone.children )
+					this.stack.push( bone.children[j] );
+			}
+		}
+		this.ready = true;
+	},
+	update: function() {
+		this.dt+=0.5;
+		if( this.dt >= this.skeleton.bones[this.skeleton.root].anima.time.length )
+			this.dt = 0;
+		this.apply( this.dt );
+	},
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 50 ); },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
@@ -337,13 +373,10 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		this.anima = { ident: {}, time: [], matrix: [], quat: [], tran: [], interp: [] };
 		this.weights = [];
 		this.targets = [];
-		
 		this.jMatrix = "";
-		
 		this.iMatrix = "";
-		
-		this.sMatrix = "";
-		
+		this.sMatrix = [];
+		this.sQuat = [];
 		this.matrix = "";
 	},
 	addBone: function( bone ) { this.children.push( bone ); },

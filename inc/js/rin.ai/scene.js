@@ -58,7 +58,7 @@ __$r.prototype.$Scene.prototype = {
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
-		if( Controls.keys.b ) { console.log("here"); r.scene.models[0].buffer(1); }
+		if( Controls.keys.b ) { console.log("here"); r.scene.models[0].apply(1); }
 		for( var i in r.scene.models ) { r.scene.models[i].render(); }
 		gl.disable( gl.BLEND );
 	},
