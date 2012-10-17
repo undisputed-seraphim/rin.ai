@@ -316,7 +316,7 @@ __$r.prototype.$DAEModel.prototype = {
 			this.dt = 0;
 		this.apply( this.dt );
 	},
-	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 50 ); },
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 25 ); },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
