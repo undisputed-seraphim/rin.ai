@@ -185,16 +185,10 @@ __$r.prototype.$Mesh.prototype = {
 		this.ba.iba[ this.index ][ this.current ][ this.material ].push( s, f );
 		return this;
 	},
-	start: function() { var mesh = this; this.interval = setInterval( function() { mesh.next(); }, this.rate ); },
-	stop: function() { clearInterval( this.interval ); this.interval = ""; },
-	next: function() { this.current == this.amap[ this.animation ][1] ? this.current = this.amap[ this.animation ][0] : this.current++; },
 	buffer: function() {
-		//gl.uniformMatrix4fv(gl.getUniformLocation( rin.program(), "bMatrix" ), false, new Float32Array( mat4.flatten( mat4.create() ) ) );
+		if( this.animated ) gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), true );
+		else gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), false );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
-		//if( this.ba.vba2.length > 0 ) {
-		//	gl.bufferSubData( gl.ARRAY_BUFFER, 0, new Float32Array( this.ba.vba2 ) );
-		//	this.ba.vba2 = [];
-		//}
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 		gl.enableVertexAttribArray( rin.$program().pointers.vertex );
 		if( this.normaled ) {
@@ -221,7 +215,6 @@ __$r.prototype.$Mesh.prototype = {
 		if( this.ready ) {
 			if( this.bbox !== true && this.physics !== true ) this.physics.update();
 			this.buffer();
-			if( this.interval === "" && this.animated ) { this.start(); }
 			var normalMatrix = mat4.inverse( this.matrix );
 			normalMatrix = mat4.transpose( normalMatrix );
 			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );

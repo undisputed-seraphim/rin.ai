@@ -81,6 +81,7 @@ var shaders = {
    			uniform mat4 uMVMatrix;\
 	      	uniform mat4 uPMatrix;\
 			uniform mat4 uNMatrix;\
+			uniform bool uAnimated;\
 			uniform vec3 uAmbientColor;\
 			uniform vec3 uLightDirection;\
 			uniform vec3 uDirectionalColor;\
@@ -90,90 +91,100 @@ var shaders = {
 			varying vec3 vPosition;\
 			varying vec3 vLightDirection;\
 	    	void main(void) {\
-				vec4 pos = vec4( 0, 0, 0, 1 );\
-				vec4 tmp;\
-				float yy, zz, xy, zw, xz, yw, xx, yz, xw;\
-				if( bone.x != -1.0 ) {\
-					tmp = quats[ int(bone.x) ];\
-					yy = tmp.y*tmp.y;\
-					zz = tmp.z*tmp.z;\
-					xy = tmp.x*tmp.y;\
-					zw = tmp.z*tmp.w;\
-					xz = tmp.x*tmp.z;\
-					yw = tmp.y*tmp.w;\
-					xx = tmp.x*tmp.x;\
-					yz = tmp.y*tmp.z;\
-					xw = tmp.x*tmp.w;\
-					mat4 mtmp = mat4(\
-						vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
-						vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
-						vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
-						vec4(trans[int(bone.x)].x,trans[int(bone.x)].y,trans[int(bone.x)].z,1) );\
-					pos += weight.x * mtmp * vec4( aVertex, 1.0 );\
+				vec4 nor = vec4( 0, 0, 0, 1 );\
+				if( uAnimated ) {\
+					vec4 pos = vec4( 0, 0, 0, 1 );\
+					vec4 tmp;\
+					float yy, zz, xy, zw, xz, yw, xx, yz, xw;\
+					if( bone.x != -1.0 ) {\
+						tmp = quats[ int(bone.x) ];\
+						yy = tmp.y*tmp.y;\
+						zz = tmp.z*tmp.z;\
+						xy = tmp.x*tmp.y;\
+						zw = tmp.z*tmp.w;\
+						xz = tmp.x*tmp.z;\
+						yw = tmp.y*tmp.w;\
+						xx = tmp.x*tmp.x;\
+						yz = tmp.y*tmp.z;\
+						xw = tmp.x*tmp.w;\
+						mat4 mtmp = mat4(\
+							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
+							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
+							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
+							vec4(trans[int(bone.x)].x,trans[int(bone.x)].y,trans[int(bone.x)].z,1) );\
+						pos += weight.x * mtmp * vec4( aVertex, 1.0 );\
+						nor += weight.x * mtmp * vec4( aNormal, 1.0 );\
+					}\
+					if( bone.y != -1.0 ) {\
+						tmp = quats[ int(bone.y) ];\
+						yy = tmp.y*tmp.y;\
+						zz = tmp.z*tmp.z;\
+						xy = tmp.x*tmp.y;\
+						zw = tmp.z*tmp.w;\
+						xz = tmp.x*tmp.z;\
+						yw = tmp.y*tmp.w;\
+						xx = tmp.x*tmp.x;\
+						yz = tmp.y*tmp.z;\
+						xw = tmp.x*tmp.w;\
+						mat4 mtmp = mat4(\
+							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
+							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
+							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
+							vec4(trans[int(bone.y)].x,trans[int(bone.y)].y,trans[int(bone.y)].z,1) );\
+						pos += weight.y * mtmp * vec4( aVertex, 1.0 );\
+						nor += weight.y * mtmp * vec4( aNormal, 1.0 );\
+					}\
+					if( bone.z != -1.0 ) {\
+						tmp = quats[ int(bone.z) ];\
+						yy = tmp.y*tmp.y;\
+						zz = tmp.z*tmp.z;\
+						xy = tmp.x*tmp.y;\
+						zw = tmp.z*tmp.w;\
+						xz = tmp.x*tmp.z;\
+						yw = tmp.y*tmp.w;\
+						xx = tmp.x*tmp.x;\
+						yz = tmp.y*tmp.z;\
+						xw = tmp.x*tmp.w;\
+						mat4 mtmp = mat4(\
+							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
+							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
+							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
+							vec4(trans[int(bone.z)].x,trans[int(bone.z)].y,trans[int(bone.z)].z,1) );\
+						pos += weight.z * mtmp * vec4( aVertex, 1.0 );\
+						nor += weight.z * mtmp * vec4( aNormal, 1.0 );\
+					}\
+					if( bone.w != -1.0 ) {\
+						tmp = quats[ int(bone.w) ];\
+						yy = tmp.y*tmp.y;\
+						zz = tmp.z*tmp.z;\
+						xy = tmp.x*tmp.y;\
+						zw = tmp.z*tmp.w;\
+						xz = tmp.x*tmp.z;\
+						yw = tmp.y*tmp.w;\
+						xx = tmp.x*tmp.x;\
+						yz = tmp.y*tmp.z;\
+						xw = tmp.x*tmp.w;\
+						mat4 mtmp = mat4(\
+							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
+							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
+							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
+							vec4(trans[int(bone.w)].x,trans[int(bone.w)].y,trans[int(bone.w)].z,1) );\
+						pos += weight.w * mtmp * vec4( aVertex, 1.0 );\
+						nor += weight.w * mtmp * vec4( aNormal, 1.0 );\
+					}\
+					gl_Position = uPMatrix * uMVMatrix * vec4( pos.xyz, 1.0 );\
 				}\
-				if( bone.y != -1.0 ) {\
-					tmp = quats[ int(bone.y) ];\
-					yy = tmp.y*tmp.y;\
-					zz = tmp.z*tmp.z;\
-					xy = tmp.x*tmp.y;\
-					zw = tmp.z*tmp.w;\
-					xz = tmp.x*tmp.z;\
-					yw = tmp.y*tmp.w;\
-					xx = tmp.x*tmp.x;\
-					yz = tmp.y*tmp.z;\
-					xw = tmp.x*tmp.w;\
-					mat4 mtmp = mat4(\
-						vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
-						vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
-						vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
-						vec4(trans[int(bone.y)].x,trans[int(bone.y)].y,trans[int(bone.y)].z,1) );\
-					pos += weight.y * mtmp * vec4( aVertex, 1.0 );\
+				else {\
+					gl_Position = uPMatrix * uMVMatrix * vec4( aVertex, 1.0 );\
+					nor = vec4( aNormal, 1.0 );\
 				}\
-				if( bone.z != -1.0 ) {\
-					tmp = quats[ int(bone.z) ];\
-					yy = tmp.y*tmp.y;\
-					zz = tmp.z*tmp.z;\
-					xy = tmp.x*tmp.y;\
-					zw = tmp.z*tmp.w;\
-					xz = tmp.x*tmp.z;\
-					yw = tmp.y*tmp.w;\
-					xx = tmp.x*tmp.x;\
-					yz = tmp.y*tmp.z;\
-					xw = tmp.x*tmp.w;\
-					mat4 mtmp = mat4(\
-						vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
-						vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
-						vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
-						vec4(trans[int(bone.z)].x,trans[int(bone.z)].y,trans[int(bone.z)].z,1) );\
-					pos += weight.z * mtmp * vec4( aVertex, 1.0 );\
-				}\
-				if( bone.w != -1.0 ) {\
-					tmp = quats[ int(bone.w) ];\
-					yy = tmp.y*tmp.y;\
-					zz = tmp.z*tmp.z;\
-					xy = tmp.x*tmp.y;\
-					zw = tmp.z*tmp.w;\
-					xz = tmp.x*tmp.z;\
-					yw = tmp.y*tmp.w;\
-					xx = tmp.x*tmp.x;\
-					yz = tmp.y*tmp.z;\
-					xw = tmp.x*tmp.w;\
-					mat4 mtmp = mat4(\
-						vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0.0),\
-						vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0.0),\
-						vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0.0),\
-						vec4(trans[int(bone.w)].x,trans[int(bone.w)].y,trans[int(bone.w)].z,1) );\
-					pos += weight.w * mtmp * vec4( aVertex, 1.0 );\
-				}\
-		        gl_Position = uPMatrix * uMVMatrix * vec4( pos.xyz, 1.0 );\
 	    	    vPosition = gl_Position.xyz;\
-				vTextureCoord = vec2( bone.x, weight.x );\
 				vTextureCoord = aTexture;\
     			highp vec3 directionalLightColor = uDirectionalColor;\
 	    		vLightDirection = uLightDirection;\
-    			highp vec4 transformedNormal = uNMatrix * vec4(aNormal, 1.0);\
+				highp vec4 transformedNormal = uNMatrix * vec4(nor.xyz, 1.0);\
     			vNormal = transformedNormal;\
-				highp float directional = max(dot(aNormal.xyz, uLightDirection), 0.0);\
+				highp float directional = max(dot(nor.xyz, uLightDirection), 0.0);\
     			vAmbientLight = uAmbientColor + (directionalLightColor * directional);\
 			}"
 	}

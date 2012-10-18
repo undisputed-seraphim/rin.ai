@@ -139,7 +139,7 @@ var quat = {
 		return new Float32Array([ q[0]/s, q[1]/s, q[2]/s, q[3]/s ]);
 	},
 	dot: function( q, r ) {
-		return q[0]*r[0] + q[1] * r[1] + q[2] * r[2] + q[3] * r[3];
+		return q[0]*r[0] + q[1]*r[1] + q[2]*r[2] + q[3]*r[3];
 	},
 	lerp: function( q, r, t ) {
 		return quat.normalize( new Float32Array( [q[0]*(1-t) + r[0]*t, q[1]*(1-t) + r[1]*t, q[2]*(1-t) + r[2]*t, q[3]*(1-t) + r[3]*t ] ) );
