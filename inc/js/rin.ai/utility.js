@@ -146,17 +146,22 @@ var quat = {
 	},
 	slerp: function( q, r, t ) {
 		var res = quat.create();
-		var dot = quat.dot( q, r );
+		var p = new Float32Array( [ r[0], r[1], r[2], r[3] ] );
+		var dot = quat.dot( q, p );
+		if (dot < 0) {
+ 			p[0] = -p[0]; p[1] = -p[1]; p[2] = -p[2];
+			dot = -dot;
+		}
 		if( Math.abs(dot) >= 1.0 )
 			return new Float32Array([q[0],q[1],q[2],q[3]]);
 		var halfTheta = Math.acos(dot);
 		var sinHalfTheta = Math.sqrt( 1.0 - dot * dot );
 		if( Math.abs(sinHalfTheta) < 0 ) {
-			return new Float32Array([ q[0] * 0.5 + r[0] * 0.5,q[1] * 0.5 + r[1] * 0.5,q[2] * 0.5 + r[2] * 0.5,q[3] * 0.5 + r[3] * 0.5 ]);
+			return new Float32Array([ q[0] * 0.5 + p[0] * 0.5,q[1] * 0.5 + p[1] * 0.5,q[2] * 0.5 + p[2] * 0.5,q[3] * 0.5 + p[3] * 0.5 ]);
 		}
 		var a = Math.sin( ( 1-t) * halfTheta ) / sinHalfTheta;
 		var b = Math.sin( t * halfTheta ) / sinHalfTheta;
-		return new Float32Array([ q[0] * a + r[0] * b,q[1] * a + r[1] * b,q[2] * a + r[2] * b,q[3] * a + r[3] * b ]);
+		return new Float32Array([ q[0] * a + p[0] * b,q[1] * a + p[1] * b,q[2] * a + p[2] * b,q[3] * a + p[3] * b ]);
 	}
 }
 

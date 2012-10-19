@@ -194,7 +194,7 @@ __$r.prototype.$DAEModel.prototype = {
 		console.log( this.skeleton );
 		for( var i = 0; i < this.inf.length; i++ ) {
 			/* grab values for current index */
-			var btmp = [-1,-1,-1,-1];
+			var btmp = [-1.0,-1.0,-1.0,-1.0];
 			var wtmp = [0,0,0,0];
 			var $$i = 0;
 			for( var k in this.inf[i] ) {
@@ -202,7 +202,6 @@ __$r.prototype.$DAEModel.prototype = {
 				wtmp[$$i] = this.inf[i][k];
 				$$i++;
 			}
-			/* apply values to all real indices */
 			for( var j = 0; j < this.$i[i].length; j++ ) {
 				this.mesh.ba.b[this.$i[i][j]*4] = btmp[0];
 				this.mesh.ba.b[this.$i[i][j]*4+1] = btmp[1];
@@ -277,6 +276,8 @@ __$r.prototype.$DAEModel.prototype = {
 			var bone = this.skeleton.bones[current];
 			var qtmp;
 			if( dt != 0 ) {
+				//qtmp = bone.sQuat[this.dt];
+				//ttmp = [ bone.sMatrix[this.dt][3], bone.sMatrix[this.dt][7], bone.sMatrix[this.dt][11] ];
 				qtmp = quat.slerp( bone.sQuat[this.dt], bone.sQuat[next], dt );
 				ttmp = [ bone.sMatrix[this.dt][3]*(1-dt) + bone.sMatrix[next][3]*dt,
 						 bone.sMatrix[this.dt][7]*(1-dt) + bone.sMatrix[next][7]*dt,
@@ -315,7 +316,9 @@ __$r.prototype.$DAEModel.prototype = {
 		this.ready = true;
 	},
 	update: function() {
-		/* beginning, send 0 as difference */
+		this.dt = 0;
+		this.apply( 0 );
+		return;
 		if( this.prev == 0 ) {
 			this.dt = 0;
 			this.prev = new Date().getTime();
