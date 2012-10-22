@@ -7,12 +7,13 @@ __$r.prototype.$Scene = function $Scene() {
 	this.time = 1200;
 	this.tick = 0;
 	this.ident = {};
-	
+	this.initialized = false;
 	this.$state = {};
 }
 
 __$r.prototype.$Scene.prototype = {
 	init: function() {
+		this.initialized = true;
 		this.cameras.push( new rin.$Camera( 45, rin.width / rin.height, 0.1, 100.0 ) );
 		this.camera( 0 ).init().enable();
 		this.skies.push( new rin.$Sky( "default" ) );
@@ -57,9 +58,7 @@ __$r.prototype.$Scene.prototype = {
 		gl.enable( gl.DEPTH_TEST );
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
-		if( Controls.keys.b ) { console.log("here"); r.scene.models[0].apply(r.scene.models[0].dt++); }
 		for( var i in r.scene.models ) { r.scene.models[i].render(); }
 		gl.disable( gl.BLEND );
-		window.requestAnimFrame( r.scene.render, rin.canvas );
 	},
 }

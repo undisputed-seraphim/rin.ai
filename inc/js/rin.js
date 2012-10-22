@@ -3,7 +3,9 @@
 function $rin() {
 	this.programs = [];
 	this.shaders = [];
+	this.running = false;
 	this.scene = "";
+	this.time = 0;
 	this.timeout = "";
 	this.$state = {};
 }
@@ -33,14 +35,17 @@ $rin.prototype = {
 	program: function() { return this.programs[ this.$state[ "PROGRAM" ] ].target; },
 	$program: function() { return this.programs[ this.$state[ "PROGRAM" ] ]; },
 	
-	start: function() { this.scene.init(); rin.scene.render(); },
+	start: function() { if( !this.scene.initialized ) this.scene.init(); this.running = true; this.time = 0; this.render(); },
+	restart: function() { this.running = true; this.render(); },
+	stop: function() { this.running = false; },
+	render: function() { if( r.running ) { rin.scene.render(); window.requestAnimFrame( r.render, rin.canvas ); } }
 }
 
 window.$r = window.r = window.rin = new $rin();
 window.__$r = $rin;
 
 window.requestAnimFrame = (function() {
-	return window.requestAnimationFrame ||
+    return window.requestAnimationFrame ||
 		window.webkitRequestAnimationFrame ||
 		window.mozRequestAnimationFrame ||
 		window.oRequestAnimationFrame ||
@@ -51,12 +56,12 @@ window.requestAnimFrame = (function() {
 })();
 
 window.cancelAnimFrame = (function() {
-  return window.cancelAnimationFrame ||
-         window.webkitCancelAnimationFrame ||
-         window.mozCancelAnimationFrame ||
-         window.oCancelAnimationFrame ||
-         window.msCancelAnimationFrame ||
-         window.clearTimeout;
+    return window.cancelAnimationFrame ||
+        window.webkitCancelAnimationFrame ||
+        window.mozCancelAnimationFrame ||
+        window.oCancelAnimationFrame ||
+        window.msCancelAnimationFrame ||
+        window.clearTimeout;
 })();
 
 })();
