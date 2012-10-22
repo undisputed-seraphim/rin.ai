@@ -3,10 +3,13 @@ __$r.prototype.$DAEModel = function $DAEModel( id, params ) {
 	this.id = id;
 	this.name = params.name || "noname";
 	this.skeleton = new this.$skeleton( params );
+	this.mesh = new rin.$Mesh( params );
 	this.textures = {};
 	
-	this.mesh = new rin.$Mesh( params );
 	this.animations = 0;
+	this.amap = { "default": [0, 4000] }
+	this.anima = "default";
+	
 	this.inf = [];
 	this.$v = [];
 	this.$i = [];
@@ -175,7 +178,7 @@ __$r.prototype.$DAEModel.prototype = {
 						$sources[ $c ].push( stride === 1 ? face[0] : face ); face = []; } });
 				}
 				$p = getChildrenByTagName( source.parentNode, "channel" )[0].getAttribute( "target" );
-				$p = $p.substring( 0, $p.indexOf("/") )
+				$p = $p.substring( 0, $p.indexOf("/") );
 				switch( anilist[i].getAttribute( "semantic" ).toLowerCase() ) {
 					case "input": for( var k in $sources[$c] ) { if( this.skeleton.bones[$p] !== undefined ) {
 						this.skeleton.bones[ $p ].anima.ident[ $sources[$c][k] ] = this.skeleton.bones[$p].anima.time.length;
@@ -192,12 +195,15 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		} 
 		console.log( this.skeleton );
+		$bcheck = [];
 		for( var i = 0; i < this.inf.length; i++ ) {
 			/* grab values for current index */
 			var btmp = [-1.0,-1.0,-1.0,-1.0];
 			var wtmp = [0,0,0,0];
 			var $$i = 0;
 			for( var k in this.inf[i] ) {
+				if( $bcheck[this.skeleton.ident[k]] == undefined )
+					$bcheck[this.skeleton.ident[k]] = k;
 				btmp[$$i] = this.skeleton.ident[k];
 				wtmp[$$i] = this.inf[i][k];
 				$$i++;
@@ -268,7 +274,7 @@ __$r.prototype.$DAEModel.prototype = {
 		this.stack = [];
 		this.stack.push( this.skeleton.root );
 		var next = -1;
-		if( this.dt+1 == this.skeleton.times.length ) next = 0;
+		if( this.dt+1 == this.amap[this.anima][1] ) next = this.amap[this.anima][0];
 		else next = this.dt+1;
 		
 		for( var i = 0; this.stack.length != 0; i++ ) {
@@ -291,7 +297,7 @@ __$r.prototype.$DAEModel.prototype = {
 				qtmp[0], qtmp[1], qtmp[2], qtmp[3] );
 			gl.uniform3f( gl.getUniformLocation( rin.program(), "trans["+this.skeleton.ident[current]+"]" ),
 				ttmp[0], ttmp[1], ttmp[2] );
-			
+				
 			for( var j in bone.children )
 				this.stack.push( bone.children[j] );
 		}
@@ -316,31 +322,31 @@ __$r.prototype.$DAEModel.prototype = {
 		this.ready = true;
 	},
 	update: function() {
-		this.dt = 0;
-		this.apply( 0 );
-		return;
+		//this.dt = 11;
+		//this.apply(0);
+		//return;
 		if( this.prev == 0 ) {
-			this.dt = 0;
+			this.dt = this.amap[this.anima][0];
 			this.prev = new Date().getTime();
 			this.apply( 0 );
 		} else {
 			var next = -1, dif = 0, nnext = 0;
 			
-			if( this.dt+1 == this.skeleton.times.length ) {
-				this.dt = 0;
+			if( this.dt+1 == this.amap[this.anima][1] ) {
+				this.dt = this.amap[this.anima][0];
 				this.prev = new Date().getTime();
 				this.apply(0);
 				return;
 			} else next = this.dt+1;
 			
-			dif = (new Date().getTime() - this.prev) / 1000;
+			dif = (new Date().getTime() - this.prev) / 750;
 			
 			if( dif < this.skeleton.times[next] ) {
 				this.apply( (dif - this.skeleton.times[this.dt]) / this.skeleton.times[next] );
 			} else if( dif == this.skeleton.times[next] ) {
 				this.dt++;
-				if( this.dt+1 == this.skeleton.times.length ) {
-					this.dt = 0;
+				if( this.dt+1 == this.amap[this.anima][1] ) {
+					this.dt = this.amap[this.anima][0];
 					this.prev = new Date().getTime();
 					this.apply(0);
 				} else {
@@ -348,8 +354,8 @@ __$r.prototype.$DAEModel.prototype = {
 				}
 			} else {
 				this.dt++;
-				if( this.dt+1 == this.skeleton.times.length ) {
-					this.dt = 0;
+				if( this.dt+1 == this.amap[this.anima][1] ) {
+					this.dt = this.amap[this.anima][0];
 					this.prev = new Date().getTime();
 					this.apply(0);
 				} else {
@@ -359,7 +365,8 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		}
 	},
-	start: function() { this.prev = 0; var mod = this; this.interval = setInterval( function() { mod.update(); }, 25 ); },
+	animate: function( name ) { if(this.amap[name] !== undefined ) this.anima = name; else this.anima = "default"; },
+	start: function() { var mod = this; this.animate("default"); this.interval = setInterval( function() { mod.update(); }, 25 ); },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {

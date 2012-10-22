@@ -76,6 +76,10 @@ var shaders = {
 			attribute vec3 aNormal;\
 			attribute vec4 bone;\
 			attribute vec4 weight;\
+			attribute vec4 bone1;\
+			attribute vec4 bone2;\
+			attribute vec4 bone3;\
+			attribute vec4 bone4;\
 			uniform vec4 quats[100];\
 			uniform vec3 trans[100];\
    			uniform mat4 uMVMatrix;\
@@ -112,8 +116,9 @@ var shaders = {
 							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0),\
 							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0),\
 							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0),\
-							vec4(trans[int(bone.x)].x,trans[int(bone.x)].y,trans[int(bone.x)].z,1) );\
+							vec4(0,0,0,1) );\
 						pos += weight.x * mtmp * vec4( aVertex, 1.0 );\
+						pos += weight.x * vec4(trans[int(bone.x)].x, trans[int(bone.x)].y, trans[int(bone.x)].z,0);\
 						nor += weight.x * mtmp * vec4( aNormal, 1.0 );\
 					}\
 					if( bone.y != -1.0 ) {\
@@ -131,8 +136,9 @@ var shaders = {
 							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0),\
 							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0),\
 							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0),\
-							vec4(trans[int(bone.y)].x,trans[int(bone.y)].y,trans[int(bone.y)].z,1) );\
+							vec4(0,0,0,1) );\
 						pos += weight.y * mtmp * vec4( aVertex, 1.0 );\
+						pos += weight.y * vec4(trans[int(bone.y)].x, trans[int(bone.y)].y, trans[int(bone.y)].z,0);\
 						nor += weight.y * mtmp * vec4( aNormal, 1.0 );\
 					}\
 					if( bone.z != -1.0 ) {\
@@ -150,8 +156,9 @@ var shaders = {
 							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0),\
 							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0),\
 							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0),\
-							vec4(trans[int(bone.z)].x,trans[int(bone.z)].y,trans[int(bone.z)].z,1) );\
+							vec4(0,0,0,1) );\
 						pos += weight.z * mtmp * vec4( aVertex, 1.0 );\
+						pos += weight.z * vec4(trans[int(bone.z)].x, trans[int(bone.z)].y, trans[int(bone.z)].z,0);\
 						nor += weight.z * mtmp * vec4( aNormal, 1.0 );\
 					}\
 					if( bone.w != -1.0 ) {\
@@ -169,8 +176,9 @@ var shaders = {
 							vec4(1.0-2.0*yy-2.0*zz,2.0*xy+2.0*zw,2.0*xz-2.0*yw,0),\
 							vec4(2.0*xy-2.0*zw,1.0-2.0*xx-2.0*zz,2.0*yz+2.0*xw,0),\
 							vec4(2.0*xz+2.0*yw,2.0*yz-2.0*xw,1.0-2.0*xx-2.0*yy,0),\
-							vec4(trans[int(bone.w)].x,trans[int(bone.w)].y,trans[int(bone.w)].z,1) );\
+							vec4(0,0,0,1) );\
 						pos += weight.w * mtmp * vec4( aVertex, 1.0 );\
+						pos += weight.w * vec4(trans[int(bone.w)].x, trans[int(bone.w)].y, trans[int(bone.w)].z,0);\
 						nor += weight.w * mtmp * vec4( aNormal, 1.0 );\
 					}\
 					gl_Position = uPMatrix * uMVMatrix * vec4( pos.xyz, 1.0 );\

@@ -186,7 +186,15 @@ __$r.prototype.$Mesh.prototype = {
 		return this;
 	},
 	buffer: function() {
-		if( this.animated ) gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), true );
+		if( this.animated ) {
+			gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), true );
+			gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.b );
+			gl.vertexAttribPointer( rin.$program().pointers.bone, 4, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( rin.$program().pointers.bone );
+			gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.w );
+			gl.vertexAttribPointer( rin.$program().pointers.weight, 4, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( rin.$program().pointers.weight );
+		}
 		else gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), false );
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
@@ -204,12 +212,6 @@ __$r.prototype.$Mesh.prototype = {
 			gl.uniform3f( gl.getUniformLocation( rin.program(), "uColor" ), this.color[0], this.color[1], this.color[2] );
 			gl.uniform1f( gl.getUniformLocation( rin.program(), "uAlpha" ), this.alpha );
 		} else gl.uniform1i( gl.getUniformLocation( rin.program(), "uUseColor" ), false );
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.b );
-		gl.vertexAttribPointer( rin.$program().pointers.bone, 4, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.bone );
-		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.w );
-		gl.vertexAttribPointer( rin.$program().pointers.weight, 4, gl.FLOAT, false, 0, 0 );
-		gl.enableVertexAttribArray( rin.$program().pointers.weight );
 	},
 	render: function() {
 		if( this.ready ) {

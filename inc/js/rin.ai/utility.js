@@ -49,13 +49,13 @@ var quat = {
 			}
 		}
 	},
-	normalize: function( quat ) {
-		var mag2 = quat[3] * quat[3] + quat[0] * quat[0] + quat[1] * quat[1] + quat[2] * quat[2];
+	normalize: function( q ) {
+		var mag2 = q[3] * q[3] + q[0] * q[0] + q[1] * q[1] + q[2] * q[2];
 		if( Math.abs( mag2 ) > 0.00001 && Math.abs( mag2 - 1.0 ) > 0.00001 ) {
 			var mag = Math.sqrt( mag2 );
-			return quat.create( quat[0] / mag, quat[1] / mag, quat[2] / mag, quat[3] / mag );
+			return quat.create( q[0] / mag, q[1] / mag, q[2] / mag, q[3] / mag );
 		}
-		return quat;
+		return q;
 	},
 	inverse: function( q ) {
 		return new Float32Array( [ -q[0], -q[1], -q[2], q[3] ] );
@@ -505,7 +505,7 @@ var mat4 = {
 			m[12] * s, m[13] * s, m[14] * s, m[15] * s ] );
 	},
 	quat: function( m ) {
-		var w = Math.sqrt( Math.max( 0.0, (1.0 + m[0] + m[5] + m[10]) ) ) / 2;
+		/*var w = Math.sqrt( Math.max( 0.0, (1.0 + m[0] + m[5] + m[10]) ) ) / 2;
 		var x = Math.sqrt( Math.max( 0.0, (1.0 + m[0] - m[5] - m[10]) ) ) / 2;
 		var y = Math.sqrt( Math.max( 0.0, (1.0 - m[0] + m[5] - m[10]) ) ) / 2;
 		var z = Math.sqrt( Math.max( 0.0, (1.0 - m[0] - m[5] + m[10]) ) ) / 2;
@@ -520,7 +520,35 @@ var mat4 = {
 			z = z >= 0 ? z : -z;
 		else z = z < 0 ? z : -z;
 		
-		return new Float32Array( [x,y,z,w] );
+		return quat.normalize( quat.create( x,y,z,w ) );*/
+		mat = m;
+		var T = 1 + mat[0] + mat[5] + mat[10], S = 0, X = 0, Y = 0, Z = 0, W = 0;
+		if ( T > 0.00000001 ) {
+    S = Math.sqrt(T) * 2;
+    X = ( mat[9] - mat[6] ) / S;
+    Y = ( mat[2] - mat[8] ) / S;
+    Z = ( mat[4] - mat[1] ) / S;
+    W = 0.25 * S;
+} if ( mat[0] > mat[5] && mat[0] > mat[10] ) {
+    S = Math.sqrt( 1.0 + mat[0] - mat[5] - mat[10] ) * 2;
+    X = 0.25 * S;
+    Y = (mat[4] + mat[1] ) / S;
+    Z = (mat[2] + mat[8] ) / S;
+    W = (mat[9] - mat[6] ) / S;
+} else if ( mat[5] > mat[10] ) {
+    S = Math.sqrt( 1.0 + mat[5] - mat[0] - mat[10] ) * 2;
+    X = (mat[4] + mat[1] ) / S;
+    Y = 0.25 * S;
+    Z = (mat[9] + mat[6] ) / S;
+    W = (mat[2] - mat[8] ) / S;
+} else {
+    S = Math.sqrt( 1.0 + mat[10] - mat[0] - mat[5] ) * 2;
+    X = (mat[2] + mat[8] ) / S;
+    Y = (mat[9] + mat[6] ) / S;
+    Z = 0.25 * S;
+    W = (mat[4] - mat[1] ) / S;
+}
+		return quat.create( X, Y, Z, W );
 	},
 }
 
