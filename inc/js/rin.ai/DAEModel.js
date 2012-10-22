@@ -339,7 +339,7 @@ __$r.prototype.$DAEModel.prototype = {
 				return;
 			} else next = this.dt+1;
 			
-			dif = (new Date().getTime() - this.prev) / 750;
+			dif = (new Date().getTime() - this.prev) / 1000;
 			
 			if( dif < this.skeleton.times[next] ) {
 				this.apply( (dif - this.skeleton.times[this.dt]) / this.skeleton.times[next] );
