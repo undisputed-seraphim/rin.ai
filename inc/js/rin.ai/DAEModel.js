@@ -7,7 +7,7 @@ __$r.prototype.$DAEModel = function $DAEModel( id, params ) {
 	this.textures = {};
 	
 	this.animations = 0;
-	this.amap = { "default": [0, 4000] }
+	this.amap = params.amap || { "default": [0, 2] }
 	this.anima = "default";
 	
 	this.inf = [];
@@ -15,7 +15,7 @@ __$r.prototype.$DAEModel = function $DAEModel( id, params ) {
 	this.$i = [];
 	this.parents = {};
 	this.stack = [];
-	this.dt = 0;
+	this.dt = this.amap[this.anima][0];
 	this.interval = "";
 	this.prev = 0;
 	this.pack = params.pack === undefined ? "models/" : "packs/"+params.pack+"/models/";
@@ -273,9 +273,7 @@ __$r.prototype.$DAEModel.prototype = {
 	apply: function( dt ) {
 		this.stack = [];
 		this.stack.push( this.skeleton.root );
-		var next = -1;
-		if( this.dt+1 == this.amap[this.anima][1] ) next = this.amap[this.anima][0];
-		else next = this.dt+1;
+		var next = this.dt+1;
 		
 		for( var i = 0; this.stack.length != 0; i++ ) {
 			current = this.stack.pop();
@@ -285,18 +283,17 @@ __$r.prototype.$DAEModel.prototype = {
 				//qtmp = bone.sQuat[this.dt];
 				//ttmp = [ bone.sMatrix[this.dt][3], bone.sMatrix[this.dt][7], bone.sMatrix[this.dt][11] ];
 				qtmp = quat.slerp( bone.sQuat[this.dt], bone.sQuat[next], dt );
-				ttmp = [ bone.sMatrix[this.dt][3]*(1-dt) + bone.sMatrix[next][3]*dt,
-						 bone.sMatrix[this.dt][7]*(1-dt) + bone.sMatrix[next][7]*dt,
-						 bone.sMatrix[this.dt][11]*(1-dt) + bone.sMatrix[next][11]*dt ];
+				ttmp = vec3.lerp( bone.sTran[this.dt], bone.sTran[next], dt );
 			} else {
 				qtmp = bone.sQuat[this.dt];
-				ttmp = [ bone.sMatrix[this.dt][3], bone.sMatrix[this.dt][7], bone.sMatrix[this.dt][11] ];
+				ttmp = bone.sTran[this.dt];
 			}
 			
-			gl.uniform4f( gl.getUniformLocation( rin.program(), "quats["+this.skeleton.ident[current]+"]" ),
-				qtmp[0], qtmp[1], qtmp[2], qtmp[3] );
-			gl.uniform3f( gl.getUniformLocation( rin.program(), "trans["+this.skeleton.ident[current]+"]" ),
-				ttmp[0], ttmp[1], ttmp[2] );
+			this.mesh.alterBone( this.skeleton.ident[current], qtmp, ttmp );
+			//gl.uniform4f( gl.getUniformLocation( rin.program(), "quats["+this.skeleton.ident[current]+"]" ),
+			//	qtmp[0], qtmp[1], qtmp[2], qtmp[3] );
+			//gl.uniform3f( gl.getUniformLocation( rin.program(), "trans["+this.skeleton.ident[current]+"]" ),
+			//	ttmp[0], ttmp[1], ttmp[2] );
 				
 			for( var j in bone.children )
 				this.stack.push( bone.children[j] );
@@ -314,6 +311,9 @@ __$r.prototype.$DAEModel.prototype = {
 				if( bone.parent != null ) bone.matrix = mat4.multiply( this.skeleton.bones[bone.parent].matrix, bone.matrix );
 				bone.sMatrix[dt] = mat4.multiply( bone.matrix, bone.iMatrix );
 				bone.sQuat[dt] = mat4.quat( bone.sMatrix[dt] );
+				bone.sTran[dt] = vec3.create( bone.sMatrix[dt][3], bone.sMatrix[dt][7], bone.sMatrix[dt][11] );
+				
+				if( dt == 0 ) this.mesh.alterBone( i, bone.sQuat[0], bone.sTran[0] );
 			
 				for( var j in bone.children )
 					this.stack.push( bone.children[j] );
@@ -334,12 +334,12 @@ __$r.prototype.$DAEModel.prototype = {
 			
 			if( this.dt+1 == this.amap[this.anima][1] ) {
 				this.dt = this.amap[this.anima][0];
-				this.prev = new Date().getTime();
+				this.prev = (new Date().getTime());
 				this.apply(0);
 				return;
 			} else next = this.dt+1;
 			
-			dif = (new Date().getTime() - this.prev) / 1000;
+			dif = ((new Date().getTime() - this.prev + this.skeleton.times[this.amap[this.anima][0]] * 1000) / 1000);
 			
 			if( dif < this.skeleton.times[next] ) {
 				this.apply( (dif - this.skeleton.times[this.dt]) / this.skeleton.times[next] );
@@ -360,13 +360,22 @@ __$r.prototype.$DAEModel.prototype = {
 					this.apply(0);
 				} else {
 					nnext = this.dt+1;
-					this.apply( (dif - this.skeleton.times[this.dt]) / this.skeleton.times[nnext]);
+					this.apply( dif - this.skeleton.times[this.dt] );
 				}
 			}
 		}
 	},
-	animate: function( name ) { if(this.amap[name] !== undefined ) this.anima = name; else this.anima = "default"; },
-	start: function() { var mod = this; this.animate("default"); this.interval = setInterval( function() { mod.update(); }, 25 ); },
+	animate: function( name ) {
+		if(this.amap[name] !== undefined ) {
+			this.anima = name;
+			this.dt = this.amap[this.anima][0];
+			clearInterval( this.invertal );
+			this.prev = 0;
+			this.start();
+		}
+		else this.anima = "default";
+	},
+	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 25 ); },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
@@ -432,6 +441,7 @@ __$r.prototype.$DAEModel.prototype.$bone.prototype = {
 		this.iMatrix = "";
 		this.sMatrix = [];
 		this.sQuat = [];
+		this.sTran = [];
 		this.matrix = "";
 	},
 	addBone: function( bone ) { this.children.push( bone ); },

@@ -11,7 +11,7 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	params =		params || {};
 	this.type =		params.type || "object";
 	this.mode =		params.mode !== undefined ? params.mode : gl.TRIANGLES;
-	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, b: [], w: [], vba2: [] };
+	this.ba =		{ vba: {}, nba: {}, tba: {}, iba: {}, b: [], w: [], u: [], t: [] };
 	this.bo =		{ vbo: {}, nbo: {}, tbo: {}, ibo: {}, b: "", w: "" };
 	this.bbox =		params.bbox || { box: "", min: { x: "", y: "", z: "" }, max: { x: "", y: "", z: "" } };
 	this.textures =	{};
@@ -68,6 +68,9 @@ __$r.prototype.$Mesh.prototype = {
 				}
 			}
 		}
+		this.bo.u = gl.createBuffer();
+		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.u );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.ba.u ), gl.STREAM_DRAW );
 		this.bo.b = gl.createBuffer();
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.b );
 		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( this.ba.b ), gl.STATIC_DRAW );
@@ -79,6 +82,15 @@ __$r.prototype.$Mesh.prototype = {
 		this.current = this.animated ? this.amap[ this.animation ][0] : 0;
 		if( this.bbox !== true && this.physics !== true ) this.physics.init();
 		this.ready = true;
+	},
+	alterBone: function( index, q, t ) {
+		this.ba.u[index * 4] = q[0];
+		this.ba.u[index * 4+1] = q[1];
+		this.ba.u[index * 4+2] = q[2];
+		this.ba.u[index * 4+3] = q[3];
+		this.ba.t[index * 3] = t[0];
+		this.ba.t[index * 3+1] = t[1];
+		this.ba.t[index * 3+2] = t[2];
 	},
 	alterVertex: function( offset, v ) {
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[0] );
@@ -194,8 +206,11 @@ __$r.prototype.$Mesh.prototype = {
 			gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.w );
 			gl.vertexAttribPointer( rin.$program().pointers.weight, 4, gl.FLOAT, false, 0, 0 );
 			gl.enableVertexAttribArray( rin.$program().pointers.weight );
+			gl.uniform4fv( gl.getUniformLocation( rin.program(), "quats" ), new Float32Array( this.ba.u ) );
+			gl.uniform3fv( gl.getUniformLocation( rin.program(), "trans" ), new Float32Array( this.ba.t ) );
 		}
 		else gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), false );
+		
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
 		gl.enableVertexAttribArray( rin.$program().pointers.vertex );

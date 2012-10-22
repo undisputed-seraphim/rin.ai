@@ -49,7 +49,6 @@ __$r.prototype.$Scene.prototype = {
 			if( this.time > 2400 ) this.time = 0;
 			if( this.time % 50 == 0 ) document.dispatchEvent( new Event("halfhour") ); } },
 	render: function() {
-		window.requestAnimFrame( r.scene.render, rin.canvas );
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		//this.tock();
 		r.scene.camera().update();
@@ -61,5 +60,6 @@ __$r.prototype.$Scene.prototype = {
 		if( Controls.keys.b ) { console.log("here"); r.scene.models[0].apply(r.scene.models[0].dt++); }
 		for( var i in r.scene.models ) { r.scene.models[i].render(); }
 		gl.disable( gl.BLEND );
+		window.requestAnimFrame( r.scene.render, rin.canvas );
 	},
 }

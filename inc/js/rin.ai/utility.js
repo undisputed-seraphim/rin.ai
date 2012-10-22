@@ -33,6 +33,9 @@ var vec3 = {
 		return vec3.create( m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3],
 							m[4] * v[0] + m[5] * v[1] + m[6] * v[2] + m[7],
 							m[8] * v[0] + m[9] * v[1] + m[10]* v[2] + m[11] );
+	},
+	lerp: function( v, w, dt ) {
+		return new Float32Array([ v[0]*(1-dt) + w[0]*dt, v[1]*(1-dt) + w[1]*dt, v[2]*(1-dt) + w[2]*dt] );
 	}
 }
 
@@ -341,103 +344,6 @@ var mat4 = {
 		}
 		return mat4.multiply( m, r );
 	},
-	look: function( eye, center, up ) {
-    	var z = vec3.normalize( vec3.subtract( eye, center ) ),
-    		x = vec3.normalize( vec3.cross( up, z ) ),
-    		y = vec3.normalize( vec3.cross( z, x ) ),
-    		m = mat4.create(
-				x[0], x[1], x[2], 0,
-            	y[0], y[1], y[2], 0,
-            	z[0], z[1], z[2], 0,
-            	0, 0, 0, 1 ),
-   			t = mat4.create(
-				1, 0, 0, -eye[0],
-            	0, 1, 0, -eye[1],
-            	0, 0, 1, -eye[2],
-            	0, 0, 0, 1 );
-    	return mat4.multiply( m, t );
-	},
-	lookAt: function (eye, center, up) {
-        var dest = mat4.create();
-
-        var x0, x1, x2, y0, y1, y2, z0, z1, z2, len,
-            eyex = eye[0],
-            eyey = eye[1],
-            eyez = eye[2],
-            upx = up[0],
-            upy = up[1],
-            upz = up[2],
-            centerx = center[0],
-            centery = center[1],
-            centerz = center[2];
-
-        if (eyex === centerx && eyey === centery && eyez === centerz) {
-            return mat4.identity(dest);
-        }
-
-        //vec3.direction(eye, center, z);
-        z0 = eyex - centerx;
-        z1 = eyey - centery;
-        z2 = eyez - centerz;
-
-        // normalize (no check needed for 0 because of early return)
-        len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-        z0 *= len;
-        z1 *= len;
-        z2 *= len;
-
-        //vec3.normalize(vec3.cross(up, z, x));
-        x0 = upy * z2 - upz * z1;
-        x1 = upz * z0 - upx * z2;
-        x2 = upx * z1 - upy * z0;
-        len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
-        if (!len) {
-            x0 = 0;
-            x1 = 0;
-            x2 = 0;
-        } else {
-            len = 1 / len;
-            x0 *= len;
-            x1 *= len;
-            x2 *= len;
-        }
-
-        //vec3.normalize(vec3.cross(z, x, y));
-        y0 = z1 * x2 - z2 * x1;
-        y1 = z2 * x0 - z0 * x2;
-        y2 = z0 * x1 - z1 * x0;
-
-        len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
-        if (!len) {
-            y0 = 0;
-            y1 = 0;
-            y2 = 0;
-        } else {
-            len = 1 / len;
-            y0 *= len;
-            y1 *= len;
-            y2 *= len;
-        }
-
-        dest[0] = x0;
-        dest[1] = y0;
-        dest[2] = z0;
-        dest[3] = 0;
-        dest[4] = x1;
-        dest[5] = y1;
-        dest[6] = z1;
-        dest[7] = 0;
-        dest[8] = x2;
-        dest[9] = y2;
-        dest[10] = z2;
-        dest[11] = 0;
-        dest[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
-        dest[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
-        dest[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
-        dest[15] = 1;
-
-        return dest;
-    },
 	transpose: function( m ) {
 		var t = mat4.create();
 			t[0] = m[0];
@@ -504,50 +410,35 @@ var mat4 = {
 			m[8] * s, m[9] * s, m[10] * s, m[11] * s,
 			m[12] * s, m[13] * s, m[14] * s, m[15] * s ] );
 	},
-	quat: function( m ) {
-		/*var w = Math.sqrt( Math.max( 0.0, (1.0 + m[0] + m[5] + m[10]) ) ) / 2;
-		var x = Math.sqrt( Math.max( 0.0, (1.0 + m[0] - m[5] - m[10]) ) ) / 2;
-		var y = Math.sqrt( Math.max( 0.0, (1.0 - m[0] + m[5] - m[10]) ) ) / 2;
-		var z = Math.sqrt( Math.max( 0.0, (1.0 - m[0] - m[5] + m[10]) ) ) / 2;
-
-		if( m[9] - m[6] >= 0 )
-			x = x >= 0 ? x : -x;
-		else x = x < 0 ? x : -x;
-		if( m[2] - m[8] >= 0 )
-			y = y >= 0 ? y : -y;
-		else y = y < 0 ? y : -y;
-		if( m[4] - m[1] >= 0 )
-			z = z >= 0 ? z : -z;
-		else z = z < 0 ? z : -z;
-		
-		return quat.normalize( quat.create( x,y,z,w ) );*/
-		mat = m;
-		var T = 1 + mat[0] + mat[5] + mat[10], S = 0, X = 0, Y = 0, Z = 0, W = 0;
+	quat: function( mat ) {
+		var T = mat[0] + mat[5] + mat[10], S = 0, X = 0, Y = 0, Z = 0, W = 0;
 		if ( T > 0.00000001 ) {
-    S = Math.sqrt(T) * 2;
-    X = ( mat[9] - mat[6] ) / S;
-    Y = ( mat[2] - mat[8] ) / S;
-    Z = ( mat[4] - mat[1] ) / S;
-    W = 0.25 * S;
-} if ( mat[0] > mat[5] && mat[0] > mat[10] ) {
-    S = Math.sqrt( 1.0 + mat[0] - mat[5] - mat[10] ) * 2;
-    X = 0.25 * S;
-    Y = (mat[4] + mat[1] ) / S;
-    Z = (mat[2] + mat[8] ) / S;
-    W = (mat[9] - mat[6] ) / S;
-} else if ( mat[5] > mat[10] ) {
-    S = Math.sqrt( 1.0 + mat[5] - mat[0] - mat[10] ) * 2;
-    X = (mat[4] + mat[1] ) / S;
-    Y = 0.25 * S;
-    Z = (mat[9] + mat[6] ) / S;
-    W = (mat[2] - mat[8] ) / S;
-} else {
-    S = Math.sqrt( 1.0 + mat[10] - mat[0] - mat[5] ) * 2;
-    X = (mat[2] + mat[8] ) / S;
-    Y = (mat[9] + mat[6] ) / S;
-    Z = 0.25 * S;
-    W = (mat[4] - mat[1] ) / S;
-}
+	    	S = 0.5 / Math.sqrt( T + 1 );
+	    	X = ( mat[9] - mat[6] ) * S;
+		    Y = ( mat[2] - mat[8] ) * S;
+	    	Z = ( mat[4] - mat[1] ) * S;
+	    	W = 0.25 / S;
+		} else {
+			if ( mat[0] > mat[5] && mat[0] > mat[10] ) {
+	    		S = Math.sqrt( 1.0 + mat[0] - mat[5] - mat[10] ) * 2;
+			    X = 0.25 * S;
+		    	Y = ( mat[4] + mat[1] ) / S;
+		    	Z = ( mat[2] + mat[8] ) / S;
+		    	W = ( mat[9] - mat[6] ) / S;
+			} else if ( mat[5] > mat[10] ) {
+		    	S = Math.sqrt( 1.0 + mat[5] - mat[0] - mat[10] ) * 2;
+		    	X = ( mat[4] + mat[1] ) / S;
+    			Y = 0.25 * S;
+		    	Z = ( mat[9] + mat[6] ) / S;
+	    		W = ( mat[2] - mat[8] ) / S;
+			} else {
+			    S = Math.sqrt( 1.0 + mat[10] - mat[0] - mat[5] ) * 2;
+		    	X = ( mat[2] + mat[8] ) / S;
+			    Y = ( mat[9] + mat[6] ) / S;
+			    Z = 0.25 * S;
+			    W = ( mat[4] - mat[1] ) / S;
+			}
+		}
 		return quat.create( X, Y, Z, W );
 	},
 }

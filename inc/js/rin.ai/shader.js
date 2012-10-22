@@ -76,10 +76,6 @@ var shaders = {
 			attribute vec3 aNormal;\
 			attribute vec4 bone;\
 			attribute vec4 weight;\
-			attribute vec4 bone1;\
-			attribute vec4 bone2;\
-			attribute vec4 bone3;\
-			attribute vec4 bone4;\
 			uniform vec4 quats[100];\
 			uniform vec3 trans[100];\
    			uniform mat4 uMVMatrix;\
