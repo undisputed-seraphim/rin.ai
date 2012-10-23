@@ -9,8 +9,10 @@ function goAhead() {
 		amap: { "idle": [1, 33], "hit1": [34, 52], "hit2": [53, 75],
 		"attack1": [76, 128], "attack2": [129, 169], "next": [170, 250] } } );*/
 		
+	//$r.scene.add( "dae", { name: "terra", pack: "dissidia", type: "character", position: [-0.5, 0.5, 0],
+	//			amap: { "default": [0,81], "idle": [0,81], "run": [81,101] } } );
 	$r.scene.add( "dae", { name: "cloud", pack: "dissidia", type: "character", position: [-0.5, 0.5, 0],
-				amap: { "default": [0,4000], "idle": [0,81], "run": [81,101] } } );
+				amap: { "default": [0,63], "idle": [0,63], "run": [64,83] } } );
 	//$r.scene.add( "dae", { name: "blackheart_v", type: "character", position: [2, 0.5, 0] } );
 	
 	/*$r.scene.add( "dae", { name: "blackheart_mk2", type: "character", position: [0.5, 0.5, 0] } );

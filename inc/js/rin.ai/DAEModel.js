@@ -320,6 +320,7 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		}
 		this.ready = true;
+		r.scene.cameras[0].attach( r.scene.models[0] ); 
 	},
 	update: function() {
 		//this.dt = 11;
