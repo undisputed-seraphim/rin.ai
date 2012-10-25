@@ -300,6 +300,7 @@ __$r.prototype.$DAEModel.prototype = {
 		}
 	},
 	buffer: function() {
+		var str = "";
 		for( var dt = 0; dt < this.skeleton.bones[this.skeleton.root].anima.time.length; dt++ ) {
 			this.stack = [];
 			this.stack.push( this.skeleton.root );
@@ -312,7 +313,7 @@ __$r.prototype.$DAEModel.prototype = {
 				bone.sMatrix[dt] = mat4.multiply( bone.matrix, bone.iMatrix );
 				bone.sQuat[dt] = mat4.quat( bone.sMatrix[dt] );
 				bone.sTran[dt] = vec3.create( bone.sMatrix[dt][3], bone.sMatrix[dt][7], bone.sMatrix[dt][11] );
-				
+				//str += bone.sTran[dt][0]+" "+bone.sTran[dt][1]+" "+bone.sTran[dt][2]+"\n";
 				if( dt == 0 ) this.mesh.alterBone( i, bone.sQuat[0], bone.sTran[0] );
 			
 				for( var j in bone.children )
@@ -320,6 +321,8 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		}
 		this.ready = true;
+		var mod = new rin.$Mod( this.name, this );
+		//console.log( str );
 		r.scene.cameras[0].attach( r.scene.models[0] ); 
 	},
 	update: function() {
