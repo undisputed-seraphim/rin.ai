@@ -165,6 +165,9 @@ var quat = {
 		var a = Math.sin( ( 1-t) * halfTheta ) / sinHalfTheta;
 		var b = Math.sin( t * halfTheta ) / sinHalfTheta;
 		return new Float32Array([ q[0] * a + p[0] * b,q[1] * a + p[1] * b,q[2] * a + p[2] * b,q[3] * a + p[3] * b ]);
+	},
+	range: function( q, r ) {
+		return ( Math.abs(q[0]-r[0]) > 0.0001 ) && ( Math.abs(q[1]-r[1]) > 0.0001 ) && ( Math.abs(q[2]-r[2]) > 0.0001 ) && ( Math.abs(q[3]-r[3]) > 0.0001 );
 	}
 }
 

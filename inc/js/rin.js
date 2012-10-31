@@ -12,6 +12,7 @@ function $rin() {
 
 $rin.prototype = {
 	init: function( id ) {
+		console.log( "0.1 + 0.2 = ",0.1+0.2 );
 		this.gl = gl = window.gl = document.getElementById( id ).getContext( 'experimental-webgl' );
 		this.width = document.getElementById( id ).width;
 		this.height = document.getElementById( id ).height;

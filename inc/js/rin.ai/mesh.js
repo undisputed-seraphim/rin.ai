@@ -83,15 +83,16 @@ __$r.prototype.$Mesh.prototype = {
 		if( this.bbox !== true && this.physics !== true ) this.physics.init();
 		this.ready = true;
 	},
-	alterBone: function( index, n ) {
-		var m = mat4.flatten( n );
-		/*this.ba.u[index * 4] = q[0];
+	alterBone: function( index, q, t ) {
+		this.ba.u[index * 4] = q[0];
 		this.ba.u[index * 4+1] = q[1];
 		this.ba.u[index * 4+2] = q[2];
 		this.ba.u[index * 4+3] = q[3];
 		this.ba.t[index * 3] = t[0];
 		this.ba.t[index * 3+1] = t[1];
-		this.ba.t[index * 3+2] = t[2];*/
+		this.ba.t[index * 3+2] = t[2];
+	/*alterBone: function( index, n ) {
+		var m = mat4.flatten( n );
 		this.ba.u[index * 16] = m[0];
 		this.ba.u[index * 16+1] = m[1];
 		this.ba.u[index * 16+2] = m[2];
@@ -107,7 +108,7 @@ __$r.prototype.$Mesh.prototype = {
 		this.ba.u[index * 16+12] = m[12];
 		this.ba.u[index * 16+13] = m[13];
 		this.ba.u[index * 16+14] = m[14];
-		this.ba.u[index * 16+15] = m[15];
+		this.ba.u[index * 16+15] = m[15];*/
 	},
 	alterVertex: function( offset, v ) {
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[0] );
@@ -223,8 +224,9 @@ __$r.prototype.$Mesh.prototype = {
 			gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.w );
 			gl.vertexAttribPointer( rin.$program().pointers.weight, 4, gl.FLOAT, false, 0, 0 );
 			gl.enableVertexAttribArray( rin.$program().pointers.weight );
-			gl.uniformMatrix4fv( gl.getUniformLocation( rin.program(), "quats" ), false, new Float32Array( this.ba.u ) );
-			//gl.uniform3fv( gl.getUniformLocation( rin.program(), "trans" ), new Float32Array( this.ba.t ) );
+			//gl.uniformMatrix4fv( gl.getUniformLocation( rin.program(), "quats" ), false, new Float32Array( this.ba.u ) );
+			gl.uniform4fv( gl.getUniformLocation( rin.program(), "quats" ), new Float32Array( this.ba.u ) );
+			gl.uniform3fv( gl.getUniformLocation( rin.program(), "trans" ), new Float32Array( this.ba.t ) );
 		}
 		else gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), false );
 		

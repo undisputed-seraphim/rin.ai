@@ -1,3 +1,158 @@
+/*
+HEADER
+------
+
+ The first 16 bytes is the PSSG header. It has the following structure:
+ 
+ PSSG (4 bytes)
+ PSSG chunksize (4 bytes)
+ number of parameters + 1 (4 bytes)
+ number of properties (4 bytes)
+ 
+ A parameter represents a node in the PSSG scenegraph. For example, the first
+ parameter is usually a PSSGDATABASE.
+ 
+ Each parameter may have 0 to N properties. For example, the PSSGDATABASE
+ parameter typically has the following properties:
+   creator
+   creationMachine
+   creationDate
+   scale
+   up
+   
+PARAMETER LIST
+--------------
+
+ Following the header is a list of parameters and properties. The number of
+ parameters to read is specified in the header. Each parameter has the
+ following structure.
+ 
+ parameter index       (4 bytes)
+ parameter name length (4 bytes)
+ parameter name        (parameter name length bytes)
+ number of properties  (4 bytes)
+ for(i = 0; i < number of properties; i++) {
+     property index       (4 bytes)
+     property name length (4 bytes)
+     property name        (property name length bytes)
+    }
+	
+CHUNK LIST
+----------
+
+PSSGDATABASE
+------------
+
+ parameter index   (4 bytes)
+ chunksize         (4 bytes)
+ property bytes    (4 bytes)
+ property data     (property bytes)
+ list of subchunks
+
+DATABLOCK
+---------
+
+ Properties:
+  uint32 streamCount        (number of DATASTREAM nodes, usually 1)
+  uint32 size               (size of data in DATABLOCKDATA)
+  elementCount              (number of items, i.e. number of vertices)
+  uint32 allocationStrategy (not important)
+  string id                 (identifier)
+
+ Notes:
+  Even though there is a streamCount parameter, in every case I've seen so far,
+  streamCount is always 1 and a DATABLOCK always contains 1 DATABLOCKSTREAM as
+  the first child followed by 1 DATABLOCKDATA as the next child.
+  
+  In a LIBRARY node, if there are 6 data blocks,
+
+ DATABLOCK
+  * DATABLOCKSTREAM
+  * DATABLOCKDATA
+
+DATABLOCKSTREAM
+---------------
+
+ string renderType (indicates type of vertex map, UV, normal, position)
+ string dataType   (float2, float3, half2, etc.)
+ uint32 offset
+ uint32 stride
+
+RENDERDATASOURCE
+----------------
+
+ Properties:
+  uint32	streamCount;
+  string	primitive;
+  string	id;
+ 
+ Notes:
+  The first RENDERDATASOURCE has streamCount + 1 children, with the first child
+  being a RENDERINDEXSOURCE followed by streamCount RENDERSTREAM nodes. Following
+  RENDERDATASOURCE nodes have streamCount nodes, with no RENDERINDEXSOURCE node.
+	
+ RENDERDATASOURCE
+  * RENDERINDEXSOURCE
+  * RENDERSTREAM
+  * RENDERSTREAM
+  * RENDERSTREAM
+  * ...
+ RENDERDATASOURCE
+  * RENDERSTREAM
+  * RENDERSTREAM
+  * RENDERSTREAM
+  * ...
+ RENDERDATASOURCE
+  * RENDERSTREAM
+  * RENDERSTREAM
+  * RENDERSTREAM
+  * ...
+  
+RENDERINDEXSOURCE
+-----------------
+
+ Properties:
+  string	primitive;
+  string	format;
+  uint32	count;
+  uint32	maximumIndex;
+  uint32	allocationStrategy;
+  string	id;
+  uint32	size;
+  
+ RENDERINDEXSOURCE
+  * INDEXSOURCEDATA
+
+RENDERSTREAM
+------------
+
+ Description:
+  RENDERSTREAM nodes determine which vertex buffers are to be used. For example:
+
+  RENDERINDEXSOURCE
+   * INDEXSOURCEDATA
+   * RENDERSTREAM (references xyz buffer)
+   * RENDERSTREAM (references normal xyz buffer)
+   * RENDERSTREAM (references uv buffer)
+
+ Properties:
+  string    dataBlock;
+  uint32    subStream;
+  string    id;
+ 
+ Heirarchy:
+  RENDERSTREAM
+   * no children
+  
+INDEXSOURCEDATA
+---------------
+
+ Properties:
+  void*    data;
+  
+ INDEXSOURCEDATA
+  * no children
+*/
 (function() {
 
 /* data types */
@@ -75,9 +230,9 @@ __$r.prototype.$Mod = function $Mod( name, mesh ) {
 		this.pack();
 		console.log( new FLOAT( mesh.skeleton.bones["root"].jMatrix[5] ) );
 		console.log( this, name );
+		this.tempmod = new $Mod( this.name );
 	} else {
-		//rin.$Ajax( this, "PC15_MODEL.PSSG", "unpack" );
-		//this.unpack( mesh );
+		rin.$Ajax( this, "PC15_MODEL.PSSG", "unpack" );
 	}
 	//console.log( reg );
 	//console.log( unpack( "f16", bin ) );
@@ -127,9 +282,13 @@ __$r.prototype.$Mod.prototype = {
 	nothing: function( data ) {
 	},
 	unpack: function( data ) {
-		data = data.substr( 3460*4 );
-		data = data.substr( 0, 3122385*4 );
-		console.log( data );
+		console.log( unpack("cccciiii", data ) );
+		data = data.substr(16);
+		// 3 chars
+		for( var i = 0; i < 100; i++ ) {
+			console.log( String.fromCharCode(unpack("c",data)) );
+			data = data.substr(4);
+		}
 		/*var str = "", prev = "0";
 		while( data.length > 0 ) {
 			var num = unpack( "i", data )[0];
