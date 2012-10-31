@@ -441,6 +441,13 @@ var mat4 = {
 		}
 		return quat.create( X, Y, Z, W );
 	},
+	lerp: function( m, n, dt ) {
+		return new Float32Array(
+			[ m[0]*(1-dt) + n[0]*(dt),m[1]*(1-dt) + n[1]*(dt),m[2]*(1-dt) + n[2]*(dt),m[3]*(1-dt) + n[3]*(dt),
+			  m[4]*(1-dt) + n[4]*(dt),m[5]*(1-dt) + n[5]*(dt),m[6]*(1-dt) + n[6]*(dt),m[7]*(1-dt) + n[7]*(dt),
+			  m[8]*(1-dt) + n[8]*(dt),m[9]*(1-dt) + n[9]*(dt),m[10]*(1-dt) + n[10]*(dt),m[11]*(1-dt) + n[11]*(dt),
+			  m[12]*(1-dt) + n[12]*(dt),m[13]*(1-dt) + n[13]*(dt),m[14]*(1-dt) + n[14]*(dt),m[15]*(1-dt) + n[15]*(dt)] );
+	}
 }
 
 function doc( element ) {
