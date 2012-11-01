@@ -23,13 +23,38 @@ dCode.prototype = {
 	/* 'data' is file content of loaded file */
 	parse: function( data ) {
 		this.data = data;
-		var test = [];
-		test.push( this.read( "char", 4 ), this.read( "int", 1 ), this.read( "int", 1 ), this.read( "int", 1 ) );
-		console.log( test );
+		var pssg = this.read( "char", 4 ),
+			chunkSize = this.read( "int", 1 )[0],
+			params = this.read( "int", 1 )[0],
+			props = this.read( "int", 1 )[0];
+			
+		//console.log( pssg, chunkSize, props, params );
+		for( var i = 0; i < 14; i++ ) {
+			var pindex = 0, plen = 0, pname = "", pprops = 0;
+			
+			// index , name length, name, props
+			pindex = this.read( "int", 1 )[0];
+			plen = this.read( "int", 1 )[0];
+			for( var j = 0; j < plen; j++ ) {
+				pname += this.read( "char", 1 )[0];
+			}
+			pprops = this.read( "int", 1 )[0];
+			//console.log( pindex, plen, pname, pprops );
+			for( var j = 0; j < pprops; j++ ) {
+				var ppindex = 0, pplen = 0, ppname = "";
+				ppindex = this.read( "int", 1 )[0];
+				pplen = this.read( "int", 1 )[0];
+				for( var k = 0; k < pplen; k++ ) {
+					ppname += this.read( "char", 1 )[0];
+				}
+				//console.log( "    ", ppindex, pplen, ppname );
+			}
+		}
 	},
 	
 	/* read specified amount of bytes into string, possibly trimming string */
 	read: function( type, amount, offset ) {
+		amount = amount || 1;
 		var res = [],
 			dv = new DataView( this.data.slice( (offset || 0), (offset || 0) + size[type] * amount ) );
 		switch( type ) {
@@ -37,13 +62,19 @@ dCode.prototype = {
 				for( var i = 0; i < amount; i++ )
 					res.push( String.fromCharCode( dv.getUint8(i) ) );
 				break;
-			case "int":
+			case "short":
 				for( var i = 0; i < amount; i++ )
-					res.push( dv.getUint32(i) );
+					res.push( dv.getUint16(i) );
+				break;
+			case "int":
+				for( var i = 0; i < amount; i++ ) {
+					dv = new DataView( this.data.slice( 0+(i*size[type]), (i+1)*size[type] ) );
+					res.push( dv.getInt32(0) );
+				}
 				break;
 		}
 		if( typeof offset == "undefined" || offset === false || offset === true )
-		   this.data = this.data.slice( (offset || 0) + size[type] * amount );
+			this.data = this.data.slice( (offset || 0) + size[type] * amount );
 		return res;
 	}
 };
