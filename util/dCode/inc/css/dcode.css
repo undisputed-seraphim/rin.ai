@@ -1,0 +1,85 @@
+* { padding: 0px; margin: 0px; }
+html { height: 100%; width: 100%; overflow: hidden; }
+body { height: 100%; width: 100%; position: relative; }
+
+#top {
+	position: absolute;
+	height: 50px;
+	top: 0px;
+	left: 15px;
+	right: 15px;
+	border-bottom: 1px solid #aaaaaa;
+	overflow: hidden;
+}
+
+#left {
+	position: absolute;
+	left: 0px;
+	top: 50px;
+	bottom: 0px;
+	width: 50%;
+	overflow: hidden;
+}
+	/* 'word document' looking area, holds decoded data */
+	#document {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		left: 15px;
+		bottom: 15px;
+		background-color: white;
+		border: 1px solid #777777;
+		overflow: hidden;
+	}
+		#document .content {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			left: 15px;
+			bottom: 15px;
+			border: 1px solid #dddddd;
+			overflow-y: scroll;
+		}
+			.content .entry {
+				float: left;
+				margin: 1px;
+				font: 11px "Courier New", Courier, monospace;
+				line-height: 11px;
+				border-bottom: 1px solid #eeeeee;
+			}
+
+			/* decoded data at this point */
+			.content .left {
+				float: left;
+				max-width: 60%;
+			}
+		
+			/* data type and size of .left */
+			.content .right {
+				float: right;
+				max-width: 30%;
+			}
+		
+#right {
+	position: absolute;
+	right: 0px;
+	top: 50px;
+	bottom: 0px;
+	width: 50%;
+	overflow: hidden;
+}
+	/* dCode interface */
+	#dCode {
+		position: absolute;
+		top: 15px;
+		left: 0px;
+		right: 15px;
+		bottom: 15px;
+		border: 2px solid #bbbbbb;
+		background-color: #dedede;
+		border-radius: 7px;
+	}
+		#data {
+			width: 200px;
+			height: 200px;
+		}
