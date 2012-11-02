@@ -16,6 +16,7 @@ function dCode() {
 	this.dv = "";
 	this.pointer = 0;
 	this.cindex = [];
+	this.cident = {};
 }
 
 dCode.prototype = {
@@ -29,10 +30,12 @@ dCode.prototype = {
 		this.dv = new DataView( data );
 		
 		//header
-		var pssg = this.read( "char", 4 ),
+		var pssg = this.read( "char", 4 ).join(""),
 			chunkSize = this.read( "int", 1 ),
 			params = this.read( "int", 1 ),
 			props = this.read( "int", 1 );
+			
+		this.entry( pssg, "char 4" );
 			
 		console.log( pssg, chunkSize, props, params );
 		for( var i = 0; i < props; i++ ) {
@@ -45,6 +48,7 @@ dCode.prototype = {
 			pprops = this.read( "int", 1 );
 			console.log( pindex, plen, pname, pprops );
 			this.cindex[pindex] = pname;
+			this.cident[pname] = pindex;
 			
 			for( var j = 0; j < pprops; j++ ) {
 				var ppindex = this.read( "int", 1 ),
@@ -58,6 +62,8 @@ dCode.prototype = {
 		//chunks
 		for( var i = 0; i < 20; i++ )
 			this.process();
+			
+		console.log( this );
 	},
 	
 	/* process the next chunk of the file */
@@ -118,6 +124,30 @@ dCode.prototype = {
 		if( typeof arguments[2] == "undefined" || arguments[2] === false || arguments[2] === true )
 			this.pointer += size[type] * amount;
 		if( res.length == 1 ) return res[0];
+		return res;
+	},
+	
+	/* all functionality via html is done through this object */
+	entry: function( left, right ) {
+		var e = document.createElement("div"),
+			l = document.createElement("div"),
+			r = document.createElement("div");
+			
+		e.className = "entry";
+		l.className = "left";
+		l.innerHTML = left;
+		r.className = "right";
+		r.innerHTML = right;
+		
+		e.appendChild(l);
+		e.appendChild(r);
+		document.getElementById("content").appendChild(e);
+	},
+	tab: function( n ) {
+		var res = "",
+			n = n || 1;
+		for( var i = 0; i < n * 5; i++ )
+			res += " ";
 		return res;
 	}
 };

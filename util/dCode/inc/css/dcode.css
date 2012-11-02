@@ -26,12 +26,12 @@ body { height: 100%; width: 100%; position: relative; }
 		top: 15px;
 		right: 15px;
 		left: 15px;
-		bottom: 15px;
+		bottom: 135px;
 		background-color: white;
 		border: 1px solid #777777;
 		overflow: hidden;
 	}
-		#document .content {
+		#content {
 			position: absolute;
 			top: 15px;
 			right: 15px;
@@ -40,25 +40,37 @@ body { height: 100%; width: 100%; position: relative; }
 			border: 1px solid #dddddd;
 			overflow-y: scroll;
 		}
-			.content .entry {
+			#content .entry {
 				float: left;
 				margin: 1px;
+				width: 95%;
 				font: 11px "Courier New", Courier, monospace;
 				line-height: 11px;
 				border-bottom: 1px solid #eeeeee;
 			}
 
 			/* decoded data at this point */
-			.content .left {
+			#content .left {
 				float: left;
 				max-width: 60%;
 			}
 		
 			/* data type and size of .left */
-			.content .right {
+			#content .right {
 				float: right;
 				max-width: 30%;
 			}
+			
+	/* chunks are stored and added to the document here */
+	#chunks {
+		position: absolute;
+		bottom: 15px;
+		left: 15px;
+		right: 15px;
+		height: 100px;
+		border: 2px solid #bbbbbb;
+		background-color: #dedede;
+	}
 		
 #right {
 	position: absolute;
