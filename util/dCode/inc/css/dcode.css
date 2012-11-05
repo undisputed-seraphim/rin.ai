@@ -39,15 +39,32 @@ body { height: 100%; width: 100%; position: relative; }
 			bottom: 15px;
 			border: 1px solid #dddddd;
 			overflow-y: scroll;
+			overflow-x: hidden;
+			font: 11px "Courier New", Courier, monospace;
+			line-height: 11px;
 		}
+			#content fieldset { margin: 4px; padding: 3px; border: 1px solid #777777; }
+			#content fieldset legend {
+				width: 99%;
+				text-align: center;
+				color: #7777777;
+				font-style: italic;
+			}
+			#content fieldset legend .right { float: right; }
+			#content fieldset legend .left { float: left; }			
 			#content .entry {
 				float: left;
 				margin: 1px;
-				width: 95%;
-				font: 11px "Courier New", Courier, monospace;
-				line-height: 11px;
+				width: 98%;
 				border-bottom: 1px solid #eeeeee;
 			}
+				.entry .bytes {
+					padding-left: 5px;
+					color: #aeaeae;
+				}
+				
+				.entry .char { color: #03f; }
+				.entry .int { color: #d3d; }
 
 			/* decoded data at this point */
 			#content .left {
@@ -60,6 +77,7 @@ body { height: 100%; width: 100%; position: relative; }
 				float: right;
 				max-width: 30%;
 			}
+				.entry .right { font-style: italic; }
 			
 	/* chunks are stored and added to the document here */
 	#chunks {
