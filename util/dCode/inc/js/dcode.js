@@ -7,7 +7,7 @@ body.onload = function() {
 
 var size = {
 	"char":		1,
-	"short":	2,
+	"short":	1,
 	"int":		4,
 	"float":	4,
 	"double":	8
@@ -17,12 +17,16 @@ function dCode() {
 	this.data = "";
 	this.dv = "";
 	this.ui = "";
+	this.cblock = "";
+	this.prev = "char";
+	this.count = 0;
 	this.pointer = 0;
 	
 	this.chunks = [];
 	this.cindex = [];
 	this.cident = {};
 	this.pindex = [];
+	this.blocks = { t: {}, v: {}, n: {} };
 }
 
 dCode.prototype = {
@@ -36,16 +40,37 @@ dCode.prototype = {
 	parse: function( data ) {
 		this.data = data;
 		this.dv = new DataView( data );
-		/*var header = new chunk("header");
-		header.add( [ ["char", 4], ["int", 1], ["int", 1], ["int", 1] ] );
-		this.add( header );
 		
-		var list = new chunk("chunks", "list");
-		this.add( list );
-		console.log( this.chunks );
-		this.chunks[0].read();*/
-		//header		
-		this.ui.label( "header" );
+		//header
+		var pssg = new PSSG();
+		pssg.header.read();
+		
+		//chunk list
+		for( var i = 0; i < pssg.header.parts[pssg.header.pident["types"]].data; i++ ) {
+			var pindex = this.read( "int", 1 ),
+				plen = this.read( "int", 1 ),
+				pname = "",
+				pprops = 0;
+			pname = this.read( "char", plen ).join("");
+			pprops = this.read( "int", 1 );
+
+			//console.log( pindex, plen, pname, pprops );
+			pssg.ctypes[ pindex ] = new TYPE( pname );
+			
+			for( var j = 0; j < pprops; j++ ) {
+				var ppindex = this.read( "int", 1 ),
+					pplen = this.read( "int", 1 ),
+					ppname = "";
+				ppname = this.read( "char", pplen ).join("");
+				
+				//console.log( "    ", ppindex, pplen, ppname );
+				pssg.ctypes[ pindex ].parts.push( ppname );
+				pssg.ptypes[ppindex] = ppname;
+			}
+		}
+		
+		console.log( pssg );
+		/*this.ui.label( "header" );
 		var begin = this.pointer;
 		var pssg = this.read( "char", 4 ).join(""),
 			chunkSize = this.read( "int", 1 ),
@@ -100,16 +125,23 @@ dCode.prototype = {
 			this.process();
 		
 		//datablockdata
-		console.log( this.cindex[this.read("int", 1 )] );
-		console.log( this.read("int", 1 ) );
-		var tfloat = [];
-		for( var i = 0; i < 1169 / size["float"]; i++ ) {
-			tfloat.push( this.read("float",1) );
+		while( this.cindex[this.read("int", 1 )] == "DATABLOCKDATA" ) {
+			var t = this.read("int", 1 ), tmp = [];
+			console.log( this.read("int", 1 ) );
+			for( var i = 0; i < this.count; i++ ) {
+				tmp.push( this.read(this.prev, this.num) );
+			}
+			console.log( this.pointer, tmp );
+			this.blocks[this.cblock].data = tmp;
+			//console.log( this.read("int", 1 ) );
+			this.process();
+			this.process();
+			//console.log( this.cindex[this.read("int", 1 )] );
+			//console.log( this.read("float",this.read("int",1) / size["float"]) );
 		}
-		console.log( tfloat, tfloat.length+4 / 12 );
-		console.log( this.pointer, this.read("int", 1) );
 		
 		console.log( this );
+		this.printBlocks( ["blockKFB","blockJFB","blockFFB","blockEFB","blockIFB"] );*/
 	},
 	
 	/* get a chunk from the stack */
@@ -121,18 +153,16 @@ dCode.prototype = {
 		this.chunks.push( c );
 	},
 	
+	printBlocks: function( arr ) {
+		for( var i in arr ) console.log( this.blocks[arr[i]] );
+	},
+	
 	/* process the next chunk of the file */
 	process: function( c ) {
-		/*this.ui.label( c.name );
-		c.begin = this.pointer;
-		var data = "";
-		for( var i in c.props ) {
-			c.data[i] = this.read( c.props[i].t, c.props[i].a );
-			this.ui.entry( [c.props[i].t, c.props[i].a], c.data[i] );
+		for( var i in c.parts ) {
+			c.parts[i].data = this.read( c.parts[i].type, c.parts[i].amount );
 		}
-		c.end = this.pointer;
-		this.ui.bounds( c.begin, c.end );*/
-		var begin = this.pointer;
+		/*var begin = this.pointer;
 		var cindex = this.read( "int", 1 ),
 			csize = this.read( "int", 1 ),
 			pbytes = this.read( "int", 1 );
@@ -145,7 +175,8 @@ dCode.prototype = {
 		
 		while( this.pointer < end ) {
 			var pindex = this.read( "int", 1 ),
-				unknown = this.read( "int", 1 );
+				unknown = this.read( "int", 1 ),
+				current = "";
 			if( pindex == 55 || pindex == 56 ) {
 				pdata = "";
 				pdata += this.read("float",3);
@@ -160,10 +191,34 @@ dCode.prototype = {
 				pdata = this.read("char", plen).join("");
 			}
 			console.log( "    ", this.pindex[pindex], plen, unknown, pdata );
+			if( this.pindex[pindex] == "dataType" ) {
+				switch( pdata ) {
+					case "uchar4":
+						this.prev = "short";
+						this.num = 4;
+						break;
+					case "float4":
+						this.prev = "float";
+						this.num = 4;
+						break;
+					case "float3":
+						this.prev = "float";
+						this.num = 3;
+						break;
+				}
+			} else if( this.pindex[pindex] == "renderType" ) {
+				if( this.blocks[this.cblock] !== undefined ) this.blocks[this.cblock].type = pdata;
+			} else if( this.pindex[pindex] == "elementCount" ) {
+				this.count = pdata;
+			} else if( this.pindex[pindex] == "id" ) {
+				if( this.cindex[cindex] == "DATABLOCK" ) {
+					this.blocks[pdata] = new block(pdata);
+					this.cblock = pdata;
+				}
+			}
 		}
 		end = this.pointer;
-		this.ui.bounds( begin, end );
-		console.log( this.pointer );
+		this.ui.bounds( begin, end );*/
 	},
 	
 	/* reset pointer back a value amount */
@@ -177,12 +232,12 @@ dCode.prototype = {
 		switch( type ) {
 			case "char":
 				for( var i = 0; i < amount; i++ ) {
-					res.push( String.fromCharCode( this.dv.getUint8(offset + i * size[type]) ) );
+					res.push( String.fromCharCode( this.dv.getInt8(offset + i * size[type]) ) );
 				}
 				break;
 			case "short":
 				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint16(offset + i * size[type]) );
+					res.push( this.dv.getUint8(offset + i * size[type]) );
 				break;
 			case "int":
 				for( var i = 0; i < amount; i++ ) {
@@ -193,6 +248,10 @@ dCode.prototype = {
 				for( var i = 0; i < amount; i++ ) {
 					res.push( this.dv.getFloat32( (offset + i * size[type]) ) );
 				}
+				break;
+			case "double":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getFloat64( (offset + i * size[type]) ) );
 				break;
 		}
 		if( typeof arguments[2] == "undefined" || arguments[2] === false || arguments[2] === true )

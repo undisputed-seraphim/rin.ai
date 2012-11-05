@@ -1,28 +1,55 @@
-function chunk( name, type ) {
-	this.type = type || "chunk";
-	this.name = name || "no name";
+function PSSG() {
+	this.header = new HEADER();
+	this.chunks = [];
 	
-	this.props = [];
-	this.data = [];
-	
-	this.size = 0;
-	this.begin = 0;
-	this.end = 0;
+	this.ctypes = [];
+	this.ptypes = [];
 }
 
-chunk.prototype = {
+function TYPE( name ) {
+	this.name = name;
+	this.parts = [];
+}
+
+function PART( name, type, amount ) {
+	this.name = name;
+	this.type = type;
+	this.amount = amount;
+	this.data = "";
+}
+
+function CHUNK( name ) {
+	this.name = name || "no name";
+	
+	this.parts = [];
+	this.pident = {};
+}
+
+function HEADER() {
+	this.name = "header";
+	this.parts = [];
+	this.pident = {
+		"head":  0,
+		"size":  1,
+		"props": 2,
+		"types": 3 };
+	this.parts.push( new PART( "head", "char", 4 ) );
+	this.parts.push( new PART( "size", "int", 1 ) );
+	this.parts.push( new PART( "props", "int", 1 ) );
+	this.parts.push( new PART( "types", "int", 1 ) );
+}
+
+CHUNK.prototype = HEADER.prototype = {
 	add: function( type, amount ) {
-		if( typeof type === "object" )
-			for( var i in type ) {
-				this.props.push( { t: type[i][0], a: type[i][1] } );
-				this.size += size[type[i][0]] * type[i][1];
-			}
-		else {
-			this.props.push( { t: type, a: amount } );
-			this.size += size[type] * amount;
-		}
+		this.parts.push( new PART( type, amount ) );
 	},
 	read: function() {
 		dC.process( this );
 	}
+}
+
+function block( name ) {
+	this.name = name;
+	this.type = "";
+	this.data = "";
 }
