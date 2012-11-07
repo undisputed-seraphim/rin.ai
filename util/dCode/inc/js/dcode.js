@@ -15,10 +15,12 @@ var size = {
 
 function dCode() {
 	this.data = "";
+	this.pssg = "";
 	this.dv = "";
 	this.ui = "";
 	this.cblock = "";
 	this.prev = "char";
+	this.parent = "";
 	this.count = 0;
 	this.pointer = 0;
 	
@@ -42,11 +44,11 @@ dCode.prototype = {
 		this.dv = new DataView( data );
 		
 		//header
-		var pssg = new PSSG();
-		pssg.header.read();
+		this.pssg = new PSSG();
+		this.pssg.header.read();
 		
 		//chunk list
-		for( var i = 0; i < pssg.header.parts[pssg.header.pident["types"]].data; i++ ) {
+		for( var i = 0; i < this.pssg.header.parts[this.pssg.header.pident["types"]].data; i++ ) {
 			var pindex = this.read( "int", 1 ),
 				plen = this.read( "int", 1 ),
 				pname = "",
@@ -55,7 +57,7 @@ dCode.prototype = {
 			pprops = this.read( "int", 1 );
 
 			//console.log( pindex, plen, pname, pprops );
-			pssg.ctypes[ pindex ] = new TYPE( pname );
+			this.pssg.ctypes[ pindex ] = new TYPE( pname );
 			
 			for( var j = 0; j < pprops; j++ ) {
 				var ppindex = this.read( "int", 1 ),
@@ -64,12 +66,145 @@ dCode.prototype = {
 				ppname = this.read( "char", pplen ).join("");
 				
 				//console.log( "    ", ppindex, pplen, ppname );
-				pssg.ctypes[ pindex ].parts.push( ppname );
-				pssg.ptypes[ppindex] = ppname;
+				this.pssg.ctypes[ pindex ].parts.push( ppname );
+				this.pssg.ptypes[ ppindex ] = ppname;
 			}
 		}
 		
-		console.log( pssg );
+		console.log( this.pssg );
+		
+		//pssgdatabase node, top level parent
+		var offset = this.pointer;
+		
+		var ctype = this.pssg.ctypes[this.read( "int", 1 )];
+		var size = this.read( "int", 1 );
+		var pbytes = this.read( "int", 1 );
+		this.pointer += pbytes;
+		while( this.pointer < size + offset ) {
+			var start = this.pointer;
+			var cur = this.read( "int", 1 ),
+				name = this.pssg.ctypes[cur].name;
+			if( name != "DATABLOCKDATA" && name != "TEXTUREIMAGEBLOCKDATA" && name != "SHADERPROGRAMCODEBLOCK"
+			   && name != "TRANSFORM" && name != "BOUNDINGBOX" && name != "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT" 
+			   && name != "SHADERINPUT" && name != "INDEXSOURCEDATA" && name != "INVERSEBINDMATRIX" ) {
+				this.read( "int", 1 );
+				var pbytes = this.read( "int", 1 );
+				this.pointer += pbytes;
+			} else {
+				var pbytes = this.read( "int", 1 );
+				this.pointer += pbytes;
+			}
+			var end = this.pointer;
+			var chunk = new CHUNK(name);
+			chunk.start = start;
+			chunk.end = end;
+			this.pssg.chunks.push( chunk );
+			//console.log( start, name, end );
+		}
+		
+		var limit = 0;
+		for( var i in this.pssg.chunks ) {
+			var c = this.pssg.chunks[i];
+			this.pointer = c.start;
+			
+			var cindex = this.read("int",1);
+			switch( this.pssg.ctypes[cindex].name ) {
+				case "DATABLOCKDATA": case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK": case "TRANSFORM":
+					case "BOUNDINGBOX": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+					case "INVERSEBINDMATRIX":
+					break;
+				default:
+					this.skip("int",2);
+					break;
+			}
+			while( this.pointer < c.end ) {
+				switch( this.pssg.ctypes[cindex].name ) {
+					case "DATABLOCKDATA": case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK": case "TRANSFORM":
+					case "BOUNDINGBOX": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+					case "INVERSEBINDMATRIX":
+						this.read("int",1);
+						break;
+					default:
+						var cur = this.read("int",1),
+							unknown = this.read("int",1);
+						switch( dtypes[this.pssg.ptypes[cur]] ) {
+							case "string":
+								if( ( c.name == "RISTREAM" || c.name == "MODIFIERNETWORKINSTANCEDYNAMICSTREAM" )
+									 	&& this.pssg.ptypes[cur] == "id" ) {
+									c.parts.push( new PART( this.pssg.ptypes[cur], "int", 1 ) );
+									c.parts[c.parts.length - 1].data = this.read( "int", 1 );
+								}
+								else {
+									var plen = this.read( "int", 1 );
+									c.parts.push( new PART( this.pssg.ptypes[cur], "char", plen ) );
+									console.log( i, c, plen );
+									c.parts[c.parts.length - 1].data = this.read( "char", plen ).join("");
+								}
+								break;
+							case "float3":
+								c.parts.push( new PART( this.pssg.ptypes[cur], "float", 3 ) );
+								c.parts[c.parts.length - 1].data = this.read( "float", 3 );
+								break;
+							case "float":
+								c.parts.push( new PART( this.pssg.ptypes[cur], "float", 1 ) );
+								c.parts[c.parts.length - 1].data = this.read( "float", 1 );
+								break;
+							case undefined:
+								c.parts.push( new PART( this.pssg.ptypes[cur], "int", 1 ) );
+								c.parts[c.parts.length - 1].data = this.read( "int", 1 );
+								break;
+						}
+						break;
+				}
+			}
+		}
+		console.log( this.pssg.chunks[0] );
+		
+		/*var current = "", pcurrent = "", cont = 1;
+		while( cont ) {
+			current = this.read( "int", 1 );
+			if( this.pssg.ctypes[current] !== undefined ) {
+				var chunk = new CHUNK( this.pssg.ctypes[current].name ),
+					chunkSize = this.read( "int", 1 ),		//chunk size
+					propBytes = this.read( "int", 1 ),		//propbytes
+					pcont = this.pointer + propBytes;
+				
+				while( this.pointer < pcont ) {
+					pcurrent = this.read( "int", 1 );
+					this.read( "int", 1 );					//unknown
+					if( this.pssg.ptypes[pcurrent] !== undefined ) {
+						switch( dtypes[this.pssg.ptypes[pcurrent]] ) {
+							case "string":
+								var plen = this.read( "int", 1 );
+								chunk.parts.push( new PART( this.pssg.ptypes[pcurrent], "char", plen ) );
+								chunk.parts[chunk.parts.length - 1].data = this.read( "char", plen ).join("");
+								break;
+							case "float3":
+								chunk.parts.push( new PART( this.pssg.ptypes[pcurrent], "float", 3 ) );
+								chunk.parts[chunk.parts.length - 1].data = this.read( "float", 3 );
+								break;
+							case undefined:
+								chunk.parts.push( new PART( this.pssg.ptypes[pcurrent], "int", 1 ) );
+								chunk.parts[chunk.parts.length - 1].data = this.read( "int", 1 );
+								break;
+						}
+					} else { console.log("here", pcurrent); }
+				}
+				this.pssg.chunks.push( chunk );
+			} else { this.rewind( "int", 1 ); cont = 0; }
+		}
+		
+		console.log( this.read("int", 1) );*/
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		/*this.ui.label( "header" );
 		var begin = this.pointer;
 		var pssg = this.read( "char", 4 ).join(""),
@@ -223,6 +358,9 @@ dCode.prototype = {
 	
 	/* reset pointer back a value amount */
 	rewind: function( type, n ) { this.pointer -= size[type] * n; },
+	
+	/* move pointer forward a value */
+	skip: function( type, n ) { this.pointer += size[type] * n; },
 	
 	/* read specified amount of bytes into string, possibly trimming string */
 	read: function( type, amount, offset ) {

@@ -1,3 +1,19 @@
+var dtypes = {
+	"creator":			"string",
+	"creationMachine":	"string",
+	"creationDate":		"string",
+	"scale":			"float3",
+	"up":				"float3",
+	"typeName":			"string",
+	"shaderGroup":		"string",
+	"renderSortPriority":"float",
+	"renderType":		"string",
+	"dataType":			"string",
+	"id":				"string",
+	"type":				"string",
+}
+
+
 function PSSG() {
 	this.header = new HEADER();
 	this.chunks = [];
@@ -20,6 +36,8 @@ function PART( name, type, amount ) {
 
 function CHUNK( name ) {
 	this.name = name || "no name";
+	this.start = 0;
+	this.end = 0;
 	
 	this.parts = [];
 	this.pident = {};
