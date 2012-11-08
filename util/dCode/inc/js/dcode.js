@@ -105,7 +105,8 @@ dCode.prototype = {
 		}
 		
 		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", pshaderprogram = "", pshaderprogramcode = "", pshadergroup = "",
-			proot = "", pnode = {n:"", c:""}, prenderdata = "", prenderindex = "", pskeleton = "", pend = 0, snode = "", nstack = [], estack = [];
+			proot = "", pnode = "", prenderdata = "", prenderindex = "", pskeleton = "", pend = 0, snode = "", nstack = [], estack = [],
+			prendernode = "", prenderstream = "", pmodifier = "";
 		for( var i in this.pssg.chunks ) {
 			var c = this.pssg.chunks[i];
 			this.pointer = c.start;
@@ -119,10 +120,10 @@ dCode.prototype = {
 					c.parts[c.parts.length-1].data = [];
 					break;
 				case "TRANSFORM":
-					//console.log("t", this.pointer);
+					c.parent = pnode;
 					break;
 				case "BOUNDINGBOX":
-					//console.log("b", this.pointer, estack[0], c.end);
+					c.parent = pnode;
 					break;
 				case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK":
 				case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
@@ -134,10 +135,10 @@ dCode.prototype = {
 					estack.unshift(c.start+c.size);
 					nstack.unshift( i );
 					this.skip("int",2); break;
-				case "JOINTNODE": estack.unshift(c.start+c.size); this.skip("int",2); break;
-				case "RENDERNODE": estack.unshift(c.start+c.size); this.skip("int",2); break;
-				case "SKINNODE": estack.unshift(c.start+c.size); snode = i; c.parent = plibrary; this.skip("int",2); break;
-				case "SKINJOINT": c.parent = snode; this.skip("int",2); break;
+				case "JOINTNODE": pnode = i; this.skip("int",2); break;
+				case "SKINNODE": pnode = i; c.parent = plibrary; this.skip("int",2); break;
+				case "SKINJOINT": c.parent = pnode; this.skip("int",2); break;
+				case "RENDERNODE": pnode = i; c.parent = plibrary; this.skip("int",2); break;
 				default:
 					this.skip("int",2);
 					break;
@@ -231,7 +232,13 @@ dCode.prototype = {
 							case "RENDERINDEXSOURCE": prenderindex = i; c.parent = prenderdata; break;
 							case "RENDERSTREAM": c.parent = prenderdata; break;
 							case "SKELETON": pskeleton = i; c.parent = plibrary; break;
-							case "NODE": case "SKINNODE": case "JOINTNODE": case "RENDERNODE": break;
+							case "NODE": case "SKINNODE": case "SKINJOINT": case "JOINTNODE": case "RENDERNODE": break;
+							case "RENDERSTREAMINSTANCE": case "MODIFIERNETWORKINSTANCE": prenderstream = i; c.parent = pnode; break;
+							case "MODIFIERNETWORKINSTANCECOMPILE": pmodifier = i; c.parent = prenderstream; break;
+							case "MODIFIERNETWORKINSTANCEUNIQUEINPUT": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
+								case "MODIFIERNETWORKINSTANCEDYNAMICSTREAMTYPE": c.parent = pmodifier; break;
+							case "RISTREAM": case "RENDERINSTANCESOURCE": case "RENDERINSTANCESTREAM": case "MODIFIERNETWORKINSTANCEDYNAMICSTREAM":
+								case "MODIFIERNETWORKINSTANCEMODIFIERINPUT": c.parent = prenderstream; break;
 							default: c.parent = plibrary; break;
 						}
 						break;
