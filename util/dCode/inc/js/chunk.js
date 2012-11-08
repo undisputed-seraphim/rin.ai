@@ -11,6 +11,17 @@ var dtypes = {
 	"dataType":			"string",
 	"id":				"string",
 	"type":				"string",
+	"nickname":			"string",
+	"joint":			"string",
+	"primitive":		"string",
+	"format":			"string",
+	"dataBlock":		"string",
+	"codeType":			"string",
+	"cgStreamName":		"string",
+	"cgStreamDataType":	"string",
+	"cgStreamRenderType":"string",
+	"name":				"string",
+	
 }
 
 
@@ -21,6 +32,18 @@ function PSSG() {
 	this.ctypes = [];
 	this.ptypes = [];
 }
+
+PSSG.prototype = {
+	get: function( n ) {
+		if( typeof n == "string" ) {
+			var res = [];
+			for( var i in this.chunks ) {
+				if( this.chunks[i].name == n )
+					res.push( this.chunks[i] );
+			} return res;
+		} else return this.chunks[n];
+	}
+};
 
 function TYPE( name ) {
 	this.name = name;
@@ -36,6 +59,9 @@ function PART( name, type, amount ) {
 
 function CHUNK( name ) {
 	this.name = name || "no name";
+	this.parent = "";
+	this.children = [];
+	this.size = 0;
 	this.start = 0;
 	this.end = 0;
 	
@@ -63,6 +89,22 @@ CHUNK.prototype = HEADER.prototype = {
 	},
 	read: function() {
 		dC.process( this );
+	},
+	get: function( n ) {
+		if( typeof n == "string" ) {
+			var res = [];
+			for( var i in this.children ) {
+				if( this.children[i].name == n )
+					res.push( this.children[i] );
+			} return res;
+		} else return this.children[n];
+	},
+	prop: function( n ) {
+		for( var i in this.parts ) {
+			if( this.parts[i].name == n ) {
+				return this.parts[i].data;
+			}
+		}
 	}
 }
 

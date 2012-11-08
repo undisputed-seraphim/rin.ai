@@ -74,7 +74,7 @@ dCode.prototype = {
 		console.log( this.pssg );
 		
 		//pssgdatabase node, top level parent
-		var offset = this.pointer;
+		var offset = this.pointer, s = 0;
 		
 		var ctype = this.pssg.ctypes[this.read( "int", 1 )];
 		var size = this.read( "int", 1 );
@@ -87,10 +87,11 @@ dCode.prototype = {
 			if( name != "DATABLOCKDATA" && name != "TEXTUREIMAGEBLOCKDATA" && name != "SHADERPROGRAMCODEBLOCK"
 			   && name != "TRANSFORM" && name != "BOUNDINGBOX" && name != "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT" 
 			   && name != "SHADERINPUT" && name != "INDEXSOURCEDATA" && name != "INVERSEBINDMATRIX" ) {
-				this.read( "int", 1 );
+				s = this.read( "int", 1 );
 				var pbytes = this.read( "int", 1 );
 				this.pointer += pbytes;
 			} else {
+				s = 0;
 				var pbytes = this.read( "int", 1 );
 				this.pointer += pbytes;
 			}
@@ -98,30 +99,87 @@ dCode.prototype = {
 			var chunk = new CHUNK(name);
 			chunk.start = start;
 			chunk.end = end;
+			chunk.size = s;
 			this.pssg.chunks.push( chunk );
 			//console.log( start, name, end );
 		}
 		
-		var limit = 0;
+		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", pshaderprogram = "", pshaderprogramcode = "", pshadergroup = "",
+			proot = "", pnode = {n:"", c:""}, prenderdata = "", prenderindex = "", pskeleton = "", pend = 0, snode = "", nstack = [], estack = [];
 		for( var i in this.pssg.chunks ) {
 			var c = this.pssg.chunks[i];
 			this.pointer = c.start;
 			
 			var cindex = this.read("int",1);
 			switch( this.pssg.ctypes[cindex].name ) {
-				case "DATABLOCKDATA": case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK": case "TRANSFORM":
-					case "BOUNDINGBOX": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
-					case "INVERSEBINDMATRIX":
+				case "DATABLOCKDATA":
+					c.parent = pdatastream;
+					c.parts.push( new PART("data","temp",0) );
+					this.skip("int",2);
+					c.parts[c.parts.length-1].data = [];
 					break;
+				case "TRANSFORM":
+					//console.log("t", this.pointer);
+					break;
+				case "BOUNDINGBOX":
+					//console.log("b", this.pointer, estack[0], c.end);
+					break;
+				case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK":
+				case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+					break;
+				case "ROOTNODE": nstack.unshift( i ); estack.unshift(c.size); c.parent = plibrary; this.skip("int",2); break;
+				case "NODE":
+					console.log( estack[0], c.end );
+					c.parent = nstack[0];
+					estack.unshift(c.start+c.size);
+					nstack.unshift( i );
+					this.skip("int",2); break;
+				case "JOINTNODE": estack.unshift(c.start+c.size); this.skip("int",2); break;
+				case "RENDERNODE": estack.unshift(c.start+c.size); this.skip("int",2); break;
+				case "SKINNODE": estack.unshift(c.start+c.size); snode = i; c.parent = plibrary; this.skip("int",2); break;
+				case "SKINJOINT": c.parent = snode; this.skip("int",2); break;
 				default:
 					this.skip("int",2);
 					break;
 			}
 			while( this.pointer < c.end ) {
 				switch( this.pssg.ctypes[cindex].name ) {
-					case "DATABLOCKDATA": case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK": case "TRANSFORM":
-					case "BOUNDINGBOX": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+					case "DATABLOCKDATA":
+						switch( pdatablock.t ) {
+							case "float3": c.parts[c.parts.length-1].data.push( this.read("float",3) ); break;
+							case "float4": c.parts[c.parts.length-1].data.push( this.read("float",4) ); break;
+							case "uchar4": c.parts[c.parts.length-1].data.push( this.read("short",4) ); break;
+							default: console.log( pdatablock.t ); c.parts[c.parts.length-1].data.push( this.read("int",1) ); break;
+						}
+						break;
+					case "TEXTUREIMAGEBLOCKDATA":
+						c.parent = ptexture;
+						this.read("int",1);
+						break;
+					case "SHADERPROGRAMCODEBLOCK":
+						c.parent = pshaderprogramcode;
+						this.read("int",1);
+						break;
+					case "SHADERINPUT":
+						c.parent = pshadergroup;
+						this.read("int",1);
+						break;
+					case "INDEXSOURCEDATA":
+						c.parent = prenderindex;
+						this.read("int",1);
+						break;
 					case "INVERSEBINDMATRIX":
+						c.parent = pskeleton;
+						c.parts.push( new PART( "matrices", "float", 16 ) );
+						c.parts[ c.parts.length -1 ].data = [];
+						while( this.pointer < c.end ) {
+							c.parts[ c.parts.length -1 ].data.push( this.read("float",1) );
+						}
+						break;
+					case "TRANSFORM":
+						this.read("int",1);
+						break;
+					case "BOUNDINGBOX": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
 						this.read("int",1);
 						break;
 					default:
@@ -137,7 +195,7 @@ dCode.prototype = {
 								else {
 									var plen = this.read( "int", 1 );
 									c.parts.push( new PART( this.pssg.ptypes[cur], "char", plen ) );
-									console.log( i, c, plen );
+									//console.log( i, c, plen );
 									c.parts[c.parts.length - 1].data = this.read( "char", plen ).join("");
 								}
 								break;
@@ -154,12 +212,41 @@ dCode.prototype = {
 								c.parts[c.parts.length - 1].data = this.read( "int", 1 );
 								break;
 						}
+						switch( this.pssg.ctypes[cindex].name ) {
+							case "LIBRARY": plibrary = i; break;
+							case "DATABLOCK": pdatablock.n = i; c.parent = plibrary; break;
+							case "DATABLOCKSTREAM": pdatablock.t = c.prop("dataType"); pdatastream = i; c.parent = pdatablock.n; break;
+							case "TEXTURE": ptexture = i; c.parent = plibrary; break;
+							case "TEXTUREIMAGEBLOCK": c.parent = ptexture; break;
+							case "SHADERGROUP": pshadergroup = i; c.parent = plibrary; break;
+							case "SHADERPROGRAM": pshaderprogram = i; c.parent = plibrary; break;
+							case "SHADERPROGRAMCODE": pshaderprogramcode = i; c.parent = pshaderprogram; break;
+							case "CGSTREAM": c.parent = pshaderprogramcode; break;
+							case "SHADERINPUTDEFINITION":
+								if( pshadergroup == "" ) c.parent = pshaderprogramcode;
+								else c.parent = pshadergroup; break;
+							case "SHADERSTREAMDEFINITION": c.parent = pshadergroup; break;
+							case "SHADERGROUPPASS": c.parent = pshadergroup; break;
+							case "RENDERDATASOURCE": prenderdata = i; c.parent = plibrary; break;
+							case "RENDERINDEXSOURCE": prenderindex = i; c.parent = prenderdata; break;
+							case "RENDERSTREAM": c.parent = prenderdata; break;
+							case "SKELETON": pskeleton = i; c.parent = plibrary; break;
+							case "NODE": case "SKINNODE": case "JOINTNODE": case "RENDERNODE": break;
+							default: c.parent = plibrary; break;
+						}
 						break;
 				}
 			}
 		}
-		console.log( this.pssg.chunks[0] );
 		
+		//set children of library nodes
+		for( var i in this.pssg.chunks ) {
+			if( this.pssg.chunks[i].parent != "" ) {
+				this.pssg.chunks[this.pssg.chunks[i].parent].children.push( this.pssg.chunks[i] );
+			}
+		}
+		
+		console.log( this.pssg.get("LIBRARY") );
 		/*var current = "", pcurrent = "", cont = 1;
 		while( cont ) {
 			current = this.read( "int", 1 );
