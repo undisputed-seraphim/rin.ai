@@ -121,24 +121,27 @@ dCode.prototype = {
 					break;
 				case "TRANSFORM":
 					c.parent = pnode;
+					console.log( "t", estack[0], c.end );
 					break;
 				case "BOUNDINGBOX":
 					c.parent = pnode;
+					console.log( "b", estack[0], c.end );
 					break;
 				case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK":
 				case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
 					break;
-				case "ROOTNODE": nstack.unshift( i ); estack.unshift(c.size); c.parent = plibrary; this.skip("int",2); break;
+				case "ROOTNODE": nstack.unshift( i ); estack.unshift(c.size); pnode = i; c.parent = plibrary; this.skip("int",2); break;
 				case "NODE":
 					console.log( estack[0], c.end );
-					c.parent = nstack[0];
+					c.parent = pnode;
 					estack.unshift(c.start+c.size);
 					nstack.unshift( i );
+					pnode = i;
 					this.skip("int",2); break;
-				case "JOINTNODE": pnode = i; this.skip("int",2); break;
-				case "SKINNODE": pnode = i; c.parent = plibrary; this.skip("int",2); break;
+				case "JOINTNODE": c.parent = pnode; pnode = i; this.skip("int",2); break;
+				case "SKINNODE": c.parent = pnode; pnode = i; this.skip("int",2); break;
 				case "SKINJOINT": c.parent = pnode; this.skip("int",2); break;
-				case "RENDERNODE": pnode = i; c.parent = plibrary; this.skip("int",2); break;
+				case "RENDERNODE": c.parent = pnode; pnode = i; this.skip("int",2); break;
 				default:
 					this.skip("int",2);
 					break;
