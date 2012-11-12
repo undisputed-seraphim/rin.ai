@@ -21,6 +21,7 @@ var dtypes = {
 	"cgStreamDataType":	"string",
 	"cgStreamRenderType":"string",
 	"name":				"string",
+	"shader":			"string",
 	
 }
 

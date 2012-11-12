@@ -8,6 +8,7 @@ body.onload = function() {
 var size = {
 	"char":		1,
 	"short":	1,
+	"uint":		2,
 	"int":		4,
 	"float":	4,
 	"double":	8
@@ -104,9 +105,9 @@ dCode.prototype = {
 			//console.log( start, name, end );
 		}
 		
-		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", pshaderprogram = "", pshaderprogramcode = "", pshadergroup = "",
-			proot = "", pnode = "", prenderdata = "", prenderindex = "", pskeleton = "", pend = 0, snode = "", nstack = [], estack = [],
-			prendernode = "", prenderstream = "", pmodifier = "";
+		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", pshaderprogram = "",
+			pshaderprogramcode = {n:"",t:""}, pshadergroup = "", proot = "", pnode = "", prenderdata = "", prenderindex = "",
+			pskeleton = "", pend = 0, snode = "", nstack = [], estack = [], prendernode = "", prenderstream = "", pmodifier = "";
 		for( var i in this.pssg.chunks ) {
 			var c = this.pssg.chunks[i];
 			this.pointer = c.start;
@@ -121,16 +122,25 @@ dCode.prototype = {
 					break;
 				case "TRANSFORM":
 					c.parent = pnode;
-					console.log( "t", estack[0], c.end );
+					c.parts.push( new PART("data","temp",0) );
+					this.skip("int",2);
+					c.parts[c.parts.length-1].data = [];
 					break;
 				case "BOUNDINGBOX":
 					c.parent = pnode;
-					console.log( "b", estack[0], c.end );
+					c.parts.push( new PART("data","temp",0) );
+					c.parts[c.parts.length-1].data = [];
+					this.skip("int",2);
 					break;
-				case "TEXTUREIMAGEBLOCKDATA": case "SHADERPROGRAMCODEBLOCK":
-				case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+				case "SHADERPROGRAMCODEBLOCK":
+					c.parent = pshaderprogramcode.n;
+					c.parts.push( new PART("data","temp",0) );
+					this.skip("int",2);
+					c.parts[c.parts.length-1].data = [];
 					break;
-				case "ROOTNODE": nstack.unshift( i ); estack.unshift(c.size); pnode = i; c.parent = plibrary; this.skip("int",2); break;
+				case "TEXTUREIMAGEBLOCKDATA": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+					break;
+				case "ROOTNODE": pend = c.end; nstack.unshift( i ); estack.unshift(c.size); pnode = i; c.parent = plibrary; this.skip("int",2); break;
 				case "NODE":
 					console.log( estack[0], c.end );
 					c.parent = pnode;
@@ -161,8 +171,12 @@ dCode.prototype = {
 						this.read("int",1);
 						break;
 					case "SHADERPROGRAMCODEBLOCK":
-						c.parent = pshaderprogramcode;
-						this.read("int",1);
+						switch( pshaderprogramcode.t ) {
+							case "CgSource": c.parts[c.parts.length -1].data.push( this.read("char",1) ); break;
+							case "CgRsxBinary": c.parts[c.parts.length -1].data.push( this.read("char",1) ); break;
+							case "CgRsxBinaryGcm": c.parts[c.parts.length -1].data.push( this.read("char",1) ); break;
+							default: c.parts[c.parts.length -1].data.push( this.read("char",1) ); break;
+						}
 						break;
 					case "SHADERINPUT":
 						c.parent = pshadergroup;
@@ -181,9 +195,12 @@ dCode.prototype = {
 						}
 						break;
 					case "TRANSFORM":
-						this.read("int",1);
+						c.parts[c.parts.length-1].data.push( this.read("float",1) );
 						break;
-					case "BOUNDINGBOX": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
+					case "BOUNDINGBOX":
+						c.parts[c.parts.length-1].data.push( this.read("float",1) );
+						break;
+					case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
 						this.read("int",1);
 						break;
 					default:
@@ -224,10 +241,10 @@ dCode.prototype = {
 							case "TEXTUREIMAGEBLOCK": c.parent = ptexture; break;
 							case "SHADERGROUP": pshadergroup = i; c.parent = plibrary; break;
 							case "SHADERPROGRAM": pshaderprogram = i; c.parent = plibrary; break;
-							case "SHADERPROGRAMCODE": pshaderprogramcode = i; c.parent = pshaderprogram; break;
-							case "CGSTREAM": c.parent = pshaderprogramcode; break;
+							case "SHADERPROGRAMCODE": pshaderprogramcode.n = i; pshaderprogramcode.t = c.prop("codeType"); c.parent = pshaderprogram; break;
+							case "CGSTREAM": c.parent = pshaderprogramcode.n; break;
 							case "SHADERINPUTDEFINITION":
-								if( pshadergroup == "" ) c.parent = pshaderprogramcode;
+								if( pshadergroup == "" ) c.parent = pshaderprogramcode.n;
 								else c.parent = pshadergroup; break;
 							case "SHADERSTREAMDEFINITION": c.parent = pshadergroup; break;
 							case "SHADERGROUPPASS": c.parent = pshadergroup; break;
@@ -247,6 +264,7 @@ dCode.prototype = {
 						break;
 				}
 			}
+			//console.log( this.pssg.chunks[c.parent], c.prop("data") );
 		}
 		
 		//set children of library nodes
@@ -257,123 +275,6 @@ dCode.prototype = {
 		}
 		
 		console.log( this.pssg.get("LIBRARY") );
-		/*var current = "", pcurrent = "", cont = 1;
-		while( cont ) {
-			current = this.read( "int", 1 );
-			if( this.pssg.ctypes[current] !== undefined ) {
-				var chunk = new CHUNK( this.pssg.ctypes[current].name ),
-					chunkSize = this.read( "int", 1 ),		//chunk size
-					propBytes = this.read( "int", 1 ),		//propbytes
-					pcont = this.pointer + propBytes;
-				
-				while( this.pointer < pcont ) {
-					pcurrent = this.read( "int", 1 );
-					this.read( "int", 1 );					//unknown
-					if( this.pssg.ptypes[pcurrent] !== undefined ) {
-						switch( dtypes[this.pssg.ptypes[pcurrent]] ) {
-							case "string":
-								var plen = this.read( "int", 1 );
-								chunk.parts.push( new PART( this.pssg.ptypes[pcurrent], "char", plen ) );
-								chunk.parts[chunk.parts.length - 1].data = this.read( "char", plen ).join("");
-								break;
-							case "float3":
-								chunk.parts.push( new PART( this.pssg.ptypes[pcurrent], "float", 3 ) );
-								chunk.parts[chunk.parts.length - 1].data = this.read( "float", 3 );
-								break;
-							case undefined:
-								chunk.parts.push( new PART( this.pssg.ptypes[pcurrent], "int", 1 ) );
-								chunk.parts[chunk.parts.length - 1].data = this.read( "int", 1 );
-								break;
-						}
-					} else { console.log("here", pcurrent); }
-				}
-				this.pssg.chunks.push( chunk );
-			} else { this.rewind( "int", 1 ); cont = 0; }
-		}
-		
-		console.log( this.read("int", 1) );*/
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		/*this.ui.label( "header" );
-		var begin = this.pointer;
-		var pssg = this.read( "char", 4 ).join(""),
-			chunkSize = this.read( "int", 1 ),
-			params = this.read( "int", 1 ),
-			props = this.read( "int", 1 );
-		var end = this.pointer;
-		
-		this.ui.entry( ["char", 4], pssg );
-		this.ui.entry( ["int", 1], chunkSize );
-		this.ui.entry( ["int", 1], params );
-		this.ui.entry( ["int", 1], props );
-		
-		this.ui.bounds( begin, end );
-		this.ui.heading( "chunk list" );
-
-		console.log( pssg, chunkSize, props, params );
-		for( var i = 0; i < props; i++ ) {
-			var pindex = this.read( "int", 1 ),
-				plen = this.read( "int", 1 ),
-				pname = "",
-				pprops = 0;
-				
-			pname = this.read( "char", plen ).join("");
-			pprops = this.read( "int", 1 );
-			this.ui.label( pname );
-			this.ui.entry( ["int",1], pindex );
-			this.ui.entry( ["int",1], plen );
-			this.ui.entry( ["char",plen], pname );
-			this.ui.entry( ["int",1], pprops );
-
-			console.log( pindex, plen, pname, pprops );
-			this.cindex[pindex] = pname;
-			this.cident[pname] = pindex;
-			
-			for( var j = 0; j < pprops; j++ ) {
-				var ppindex = this.read( "int", 1 ),
-					pplen = this.read( "int", 1 ),
-					ppname = "";
-					
-				ppname = this.read( "char", pplen ).join("");
-				this.ui.entry( ["int",1], this.ui.tab()+ppindex );
-				this.ui.entry( ["int",1], this.ui.tab()+pplen );
-				this.ui.entry( ["char",pplen], this.ui.tab()+ppname );
-				
-				console.log( "    ", ppindex, pplen, ppname );
-				this.pindex[ppindex] = ppname;
-			}
-			this.ui.bounds( " ", " " );
-		}
-		//chunks
-		for( var i = 0; i < 21; i++ )
-			this.process();
-		
-		//datablockdata
-		while( this.cindex[this.read("int", 1 )] == "DATABLOCKDATA" ) {
-			var t = this.read("int", 1 ), tmp = [];
-			console.log( this.read("int", 1 ) );
-			for( var i = 0; i < this.count; i++ ) {
-				tmp.push( this.read(this.prev, this.num) );
-			}
-			console.log( this.pointer, tmp );
-			this.blocks[this.cblock].data = tmp;
-			//console.log( this.read("int", 1 ) );
-			this.process();
-			this.process();
-			//console.log( this.cindex[this.read("int", 1 )] );
-			//console.log( this.read("float",this.read("int",1) / size["float"]) );
-		}
-		
-		console.log( this );
-		this.printBlocks( ["blockKFB","blockJFB","blockFFB","blockEFB","blockIFB"] );*/
 	},
 	
 	/* get a chunk from the stack */
@@ -394,63 +295,6 @@ dCode.prototype = {
 		for( var i in c.parts ) {
 			c.parts[i].data = this.read( c.parts[i].type, c.parts[i].amount );
 		}
-		/*var begin = this.pointer;
-		var cindex = this.read( "int", 1 ),
-			csize = this.read( "int", 1 ),
-			pbytes = this.read( "int", 1 );
-		var end = this.pointer + pbytes;
-		this.ui.label( this.cindex[cindex] );
-		this.ui.entry( ["int", 1], cindex );
-		this.ui.entry( ["int", 1], csize );
-		this.ui.entry( ["int", 1], pbytes );
-		console.log( cindex, this.cindex[cindex], csize, pbytes, end );
-		
-		while( this.pointer < end ) {
-			var pindex = this.read( "int", 1 ),
-				unknown = this.read( "int", 1 ),
-				current = "";
-			if( pindex == 55 || pindex == 56 ) {
-				pdata = "";
-				pdata += this.read("float",3);
-			}
-			else if( unknown == 4 ) {
-				pdata = "";
-				pdata += this.read("int",1);
-			}
-			else {
-				plen = this.read( "int", 1 );
-				pdata = "";
-				pdata = this.read("char", plen).join("");
-			}
-			console.log( "    ", this.pindex[pindex], plen, unknown, pdata );
-			if( this.pindex[pindex] == "dataType" ) {
-				switch( pdata ) {
-					case "uchar4":
-						this.prev = "short";
-						this.num = 4;
-						break;
-					case "float4":
-						this.prev = "float";
-						this.num = 4;
-						break;
-					case "float3":
-						this.prev = "float";
-						this.num = 3;
-						break;
-				}
-			} else if( this.pindex[pindex] == "renderType" ) {
-				if( this.blocks[this.cblock] !== undefined ) this.blocks[this.cblock].type = pdata;
-			} else if( this.pindex[pindex] == "elementCount" ) {
-				this.count = pdata;
-			} else if( this.pindex[pindex] == "id" ) {
-				if( this.cindex[cindex] == "DATABLOCK" ) {
-					this.blocks[pdata] = new block(pdata);
-					this.cblock = pdata;
-				}
-			}
-		}
-		end = this.pointer;
-		this.ui.bounds( begin, end );*/
 	},
 	
 	/* reset pointer back a value amount */
@@ -473,6 +317,10 @@ dCode.prototype = {
 			case "short":
 				for( var i = 0; i < amount; i++ )
 					res.push( this.dv.getUint8(offset + i * size[type]) );
+				break;
+			case "uint":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getUint16(offset+i*size[type]) );
 				break;
 			case "int":
 				for( var i = 0; i < amount; i++ ) {
