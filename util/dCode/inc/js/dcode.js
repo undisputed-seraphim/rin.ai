@@ -106,7 +106,7 @@ dCode.prototype = {
 		}
 		
 		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", pshaderprogram = "",
-			pshaderprogramcode = {n:"",t:""}, pshadergroup = "", proot = "", pnode = "", prenderdata = "", prenderindex = "",
+			pshaderprogramcode = {n:"",t:""}, pshadergroup = "", proot = "", pnode = "", prenderdata = "", prenderindex = {n:"",t:""},
 			pskeleton = "", pend = 0, snode = "", nstack = [], estack = [], prendernode = "", prenderstream = "", pmodifier = "";
 		for( var i in this.pssg.chunks ) {
 			var c = this.pssg.chunks[i];
@@ -138,16 +138,26 @@ dCode.prototype = {
 					this.skip("int",2);
 					c.parts[c.parts.length-1].data = [];
 					break;
-				case "TEXTUREIMAGEBLOCKDATA": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT": case "SHADERINPUT": case "INDEXSOURCEDATA":
+				case "INDEXSOURCEDATA":
+					c.parent = prenderindex.n;
+					c.parts.push( new PART("data","temp",0) );
+					this.skip("int",2);
+					c.parts[c.parts.length-1].data = [];
 					break;
-				case "ROOTNODE": pend = c.end; nstack.unshift( i ); estack.unshift(c.size); pnode = i; c.parent = plibrary; this.skip("int",2); break;
+				case "SHADERSTREAMDEFINITION": case "SHADERINPUT":
+					this.skip("int",2);
+					break;
+				case "TEXTUREIMAGEBLOCKDATA": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
+					break;
+				case "ROOTNODE": nstack.unshift( i ); estack.unshift(c.size); pnode = i; c.parent = plibrary; console.log( this.read("int",2) ); break;
 				case "NODE":
-					console.log( estack[0], c.end );
+					console.log( c.size, c.end );
 					c.parent = pnode;
-					estack.unshift(c.start+c.size);
+					//estack.unshift(c.start+c.size);
 					nstack.unshift( i );
 					pnode = i;
-					this.skip("int",2); break;
+					this.skip("int",2);
+					break;
 				case "JOINTNODE": c.parent = pnode; pnode = i; this.skip("int",2); break;
 				case "SKINNODE": c.parent = pnode; pnode = i; this.skip("int",2); break;
 				case "SKINJOINT": c.parent = pnode; this.skip("int",2); break;
@@ -178,13 +188,12 @@ dCode.prototype = {
 							default: c.parts[c.parts.length -1].data.push( this.read("char",1) ); break;
 						}
 						break;
-					case "SHADERINPUT":
-						c.parent = pshadergroup;
-						this.read("int",1);
-						break;
 					case "INDEXSOURCEDATA":
-						c.parent = prenderindex;
-						this.read("int",1);
+						switch( prenderindex.t ) {
+							case "uchar": c.parts[c.parts.length-1].data.push( this.read("short",1) ); break;
+							case "ushort": c.parts[c.parts.length-1].data.push( this.read("uint",1) ); break;
+							default: console.log( prenderindex.t, ":type not accounted for:" ); this.read("int",1); break;
+						}
 						break;
 					case "INVERSEBINDMATRIX":
 						c.parent = pskeleton;
@@ -243,13 +252,14 @@ dCode.prototype = {
 							case "SHADERPROGRAM": pshaderprogram = i; c.parent = plibrary; break;
 							case "SHADERPROGRAMCODE": pshaderprogramcode.n = i; pshaderprogramcode.t = c.prop("codeType"); c.parent = pshaderprogram; break;
 							case "CGSTREAM": c.parent = pshaderprogramcode.n; break;
+							case "SHADERINPUT": c.parent = pshadergroup; break;
 							case "SHADERINPUTDEFINITION":
 								if( pshadergroup == "" ) c.parent = pshaderprogramcode.n;
 								else c.parent = pshadergroup; break;
 							case "SHADERSTREAMDEFINITION": c.parent = pshadergroup; break;
 							case "SHADERGROUPPASS": c.parent = pshadergroup; break;
 							case "RENDERDATASOURCE": prenderdata = i; c.parent = plibrary; break;
-							case "RENDERINDEXSOURCE": prenderindex = i; c.parent = prenderdata; break;
+							case "RENDERINDEXSOURCE": prenderindex.n = i; prenderindex.t = c.prop("format"); c.parent = prenderdata; break;
 							case "RENDERSTREAM": c.parent = prenderdata; break;
 							case "SKELETON": pskeleton = i; c.parent = plibrary; break;
 							case "NODE": case "SKINNODE": case "SKINJOINT": case "JOINTNODE": case "RENDERNODE": break;
@@ -310,9 +320,8 @@ dCode.prototype = {
 		var res = [];
 		switch( type ) {
 			case "char":
-				for( var i = 0; i < amount; i++ ) {
+				for( var i = 0; i < amount; i++ )
 					res.push( String.fromCharCode( this.dv.getInt8(offset + i * size[type]) ) );
-				}
 				break;
 			case "short":
 				for( var i = 0; i < amount; i++ )
@@ -323,14 +332,12 @@ dCode.prototype = {
 					res.push( this.dv.getUint16(offset+i*size[type]) );
 				break;
 			case "int":
-				for( var i = 0; i < amount; i++ ) {
+				for( var i = 0; i < amount; i++ )
 					res.push( this.dv.getInt32(offset + i * size[type]) );
-				}
 				break;
 			case "float":
-				for( var i = 0; i < amount; i++ ) {
+				for( var i = 0; i < amount; i++ )
 					res.push( this.dv.getFloat32( (offset + i * size[type]) ) );
-				}
 				break;
 			case "double":
 				for( var i = 0; i < amount; i++ )

@@ -22,7 +22,10 @@ var dtypes = {
 	"cgStreamRenderType":"string",
 	"name":				"string",
 	"shader":			"string",
-	
+	"renderTypeName":	"string",
+	"vertexProgram":	"string",
+	"fragmentProgram":	"string",
+	"texture":			"string",
 }
 
 
