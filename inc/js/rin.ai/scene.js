@@ -5,6 +5,7 @@ __$r.prototype.$Scene = function $Scene() {
 	this.skies = [];
 	this.terrain = "";
 	this.time = 1200;
+	this.tmp = 0;
 	this.tick = 0;
 	this.ident = {};
 	this.initialized = false;
@@ -59,6 +60,14 @@ __$r.prototype.$Scene.prototype = {
 		gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 		gl.enable( gl.BLEND );
 		for( var i in r.scene.models ) { r.scene.models[i].render(); }
+		if( $r.m !== undefined ) {
+			if( this.tmp === 0 ) {
+				this.tmp = 1;
+				$r.m.init();
+			} else if( $r.m.ready ) {
+				$r.m.render();
+			}
+		}
 		gl.disable( gl.BLEND );
 	},
 }

@@ -228,7 +228,11 @@ __$r.prototype.$Mesh.prototype = {
 			gl.uniform4fv( gl.getUniformLocation( rin.program(), "quats" ), new Float32Array( this.ba.u ) );
 			gl.uniform3fv( gl.getUniformLocation( rin.program(), "trans" ), new Float32Array( this.ba.t ) );
 		}
-		else gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), false );
+		else {
+			gl.uniform1i( gl.getUniformLocation( rin.program(), "uAnimated" ), false );
+			gl.disableVertexAttribArray( rin.$program().pointers.bone );
+			gl.disableVertexAttribArray( rin.$program().pointers.weight );
+		}
 		
 		gl.bindBuffer( gl.ARRAY_BUFFER, this.bo.vbo[this.current] );
 		gl.vertexAttribPointer( rin.$program().pointers.vertex, 3, gl.FLOAT, false, 0, 0 );
@@ -256,7 +260,7 @@ __$r.prototype.$Mesh.prototype = {
 			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
 			gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
 			var temp = mat4.clone( mvMatrix );
-			mvMatrix = mat4.multiply( mat4.multiply( mvMatrix, mat4.inverse( this.rotate ) ), this.translate );
+			mvMatrix = mat4.multiply( mat4.multiply( mat4.multiply( mvMatrix, mat4.scale( mat4.create(), 0.1 ) ), mat4.inverse( this.rotate ) ), this.translate );
 			//mvMatrix = mat4.translate( mvMatrix, [ this.position[0], this.position[1], this.position[2] ] );
 			//mvMatrix = this.matrix;
 			setMatrixUniforms();

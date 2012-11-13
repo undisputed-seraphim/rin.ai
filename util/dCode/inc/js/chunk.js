@@ -6,7 +6,8 @@ var dtypes = {
 	"up":				"float3",
 	"typeName":			"string",
 	"shaderGroup":		"string",
-	"renderSortPriority":"float",
+	"renderSortPriority":"uint",
+	"defaultRenderSortPriority":"uint",
 	"renderType":		"string",
 	"dataType":			"string",
 	"id":				"string",
@@ -26,6 +27,18 @@ var dtypes = {
 	"vertexProgram":	"string",
 	"fragmentProgram":	"string",
 	"texture":			"string",
+	"parameterID":		"int",
+	"texelFormat":		"string",
+	"filename":			"string",
+	"network":			"string",
+	"indices":			"string",
+	"shader":			"string",
+	"blendSourceColor":	"string",
+	"blendDestColor":	"string",
+	"blendSourceAlpha":	"string",
+	"blendDestAlpha":	"string",
+	"alphaTestFunc":	"string",
+	"typename":			"string",
 }
 
 

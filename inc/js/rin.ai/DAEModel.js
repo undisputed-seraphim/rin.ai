@@ -323,7 +323,7 @@ __$r.prototype.$DAEModel.prototype = {
 			}
 		}
 		this.ready = true;
-		var mod = new rin.$Mod( this.name, this );
+		//var mod = new rin.$Mod( this.name, this );
 		//console.log( str );
 		//r.scene.cameras[0].attach( r.scene.models[0] ); 
 	},

@@ -6,9 +6,11 @@ body.onload = function() {
 }
 
 var size = {
+	"uchar":	1,
 	"char":		1,
+	"ushort":	2,
 	"short":	1,
-	"uint":		2,
+	"uint":		4,
 	"int":		4,
 	"float":	4,
 	"double":	8
@@ -105,12 +107,14 @@ dCode.prototype = {
 			//console.log( start, name, end );
 		}
 		
-		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", pshaderprogram = "",
+		var limit = 0, pdatablock = {n: "", t: ""}, pdatastream = "", plibrary = "", ptexture = "", ptextureblock = "", pshaderprogram = "",
 			pshaderprogramcode = {n:"",t:""}, pshadergroup = "", proot = "", pnode = "", prenderdata = "", prenderindex = {n:"",t:""},
 			pskeleton = "", pend = 0, snode = "", nstack = [], estack = [], prendernode = "", prenderstream = "", pmodifier = "";
 		for( var i in this.pssg.chunks ) {
 			var c = this.pssg.chunks[i];
 			this.pointer = c.start;
+			
+			console.log( c.name );
 			
 			var cindex = this.read("int",1);
 			switch( this.pssg.ctypes[cindex].name ) {
@@ -147,7 +151,16 @@ dCode.prototype = {
 				case "SHADERSTREAMDEFINITION": case "SHADERINPUT":
 					this.skip("int",2);
 					break;
-				case "TEXTUREIMAGEBLOCKDATA": case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
+				case "TEXTUREIMAGEBLOCK": 
+					console.log( this.read("int",2) );
+					break;
+				case "TEXTUREIMAGEBLOCKDATA":
+					c.parent = ptextureblock;
+					c.parts.push( new PART("data","temp",0) );
+					this.skip("int",2);
+					c.parts[c.parts.length-1].data = [];
+					break;
+				case "MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT":
 					break;
 				case "ROOTNODE": nstack.unshift( i ); estack.unshift(c.size); pnode = i; c.parent = plibrary; console.log( this.read("int",2) ); break;
 				case "NODE":
@@ -177,8 +190,7 @@ dCode.prototype = {
 						}
 						break;
 					case "TEXTUREIMAGEBLOCKDATA":
-						c.parent = ptexture;
-						this.read("int",1);
+						c.parts[c.parts.length-1].data.push( this.read("short",3) );
 						break;
 					case "SHADERPROGRAMCODEBLOCK":
 						switch( pshaderprogramcode.t ) {
@@ -191,7 +203,7 @@ dCode.prototype = {
 					case "INDEXSOURCEDATA":
 						switch( prenderindex.t ) {
 							case "uchar": c.parts[c.parts.length-1].data.push( this.read("short",1) ); break;
-							case "ushort": c.parts[c.parts.length-1].data.push( this.read("uint",1) ); break;
+							case "ushort": c.parts[c.parts.length-1].data.push( this.read("ushort",1) ); break;
 							default: console.log( prenderindex.t, ":type not accounted for:" ); this.read("int",1); break;
 						}
 						break;
@@ -237,9 +249,23 @@ dCode.prototype = {
 								c.parts.push( new PART( this.pssg.ptypes[cur], "float", 1 ) );
 								c.parts[c.parts.length - 1].data = this.read( "float", 1 );
 								break;
-							case undefined:
+							case "uint":
+								c.parts.push( new PART( this.pssg.ptypes[cur], "uint", 1 ) );
+								c.parts[c.parts.length - 1].data = this.read( "uint", 1 );
+								break;
+							case "int":
 								c.parts.push( new PART( this.pssg.ptypes[cur], "int", 1 ) );
 								c.parts[c.parts.length - 1].data = this.read( "int", 1 );
+								break;
+							case undefined:
+								if( c.name == "SHADERINPUT" ) {
+									this.rewind("int",2);
+									c.parts.push( new PART( "data", "float", 3 ) );
+									c.parts[c.parts.length - 1].data = this.read( "float", 3 );
+								} else {
+									c.parts.push( new PART( this.pssg.ptypes[cur], "int", 1 ) );
+									c.parts[c.parts.length - 1].data = this.read( "int", 1 );
+								}
 								break;
 						}
 						switch( this.pssg.ctypes[cindex].name ) {
@@ -247,7 +273,7 @@ dCode.prototype = {
 							case "DATABLOCK": pdatablock.n = i; c.parent = plibrary; break;
 							case "DATABLOCKSTREAM": pdatablock.t = c.prop("dataType"); pdatastream = i; c.parent = pdatablock.n; break;
 							case "TEXTURE": ptexture = i; c.parent = plibrary; break;
-							case "TEXTUREIMAGEBLOCK": c.parent = ptexture; break;
+							case "TEXTUREIMAGEBLOCK": ptextureblock = i; c.parent = ptexture; break;
 							case "SHADERGROUP": pshadergroup = i; c.parent = plibrary; break;
 							case "SHADERPROGRAM": pshaderprogram = i; c.parent = plibrary; break;
 							case "SHADERPROGRAMCODE": pshaderprogramcode.n = i; pshaderprogramcode.t = c.prop("codeType"); c.parent = pshaderprogram; break;
@@ -285,6 +311,139 @@ dCode.prototype = {
 		}
 		
 		console.log( this.pssg.get("LIBRARY") );
+		
+		var dbs = this.pssg.get("DATABLOCK"),
+			sources = {}, blocks = {}, overall = {};
+		
+		for( var i = 0; i < dbs.length; i++ ) {
+			var res = {}, c = dbs[i];
+			res.id = c.prop("id");
+			res.type = c.children[0].prop("renderType");
+			res.data = c.children[0].children[0].prop("data");
+			blocks[ res.id ] = res;
+		}
+		console.log( blocks );
+
+		var rds = this.pssg.get("RENDERDATASOURCE");
+		for( var i = 0; i < rds.length; i++ ) {
+			var res = {}, c = rds[i];
+			res.id = c.prop("id");
+			res.streams = [];
+			for( var j = 0; j < c.children.length; j++ ) {
+				if( j == 0 ) {
+					res.iid = c.children[j].prop("id");
+					res.data = c.children[j].children[0].prop("data");
+					res.type = c.children[j].prop("primitive");
+				} else {
+					var stream = {};
+					stream.id = c.children[j].prop("id");
+					stream.block = c.children[j].prop("dataBlock");
+					res.streams.push( stream );
+				}
+			}
+			sources[ res.id ] = res;
+		}
+		console.log( sources );
+
+		for( var i in sources ) {
+			c = sources[i];
+			overall[ c.id ] = { v: [], n: [], t: [] };
+			for( var j = 0; j < c.streams.length; j++ ) {
+				switch( blocks[c.streams[j].block.substr(1)].type ) {
+					case "SkinnableVertex": case "Vertex":
+						for( var k = 0; k < c.data.length; k++ ) {
+							overall[ c.id ].v.push( blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][0],
+													blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][1],
+													blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][2] );
+						}
+						break;
+					case "SkinnableNormal": case "Normal":
+						for( var k = 0; k < c.data.length; k++ ) {
+							overall[ c.id ].n.push( blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][0],
+													blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][1],
+													blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][2] );
+						}
+						break;
+					case "ST":
+						for( var k = 0; k < c.data.length; k++ ) {
+							overall[ c.id ].t.push( blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][0],
+													blocks[c.streams[j].block.substr(1)].data[ c.data[k] ][1] );
+						}
+						break;
+				}
+			}
+		}
+		console.log( overall );
+		
+		var s = ""
+		for( var i in overall ) {
+			if( s !== "" ) s += "|";
+			c = overall[i];
+			for( var j = 0; j < c.v.length; j+=3 ) {
+				s += c.v[j] +","+ c.v[j+1] + "," + c.v[j+2];
+				if( c.v[j+3] !== undefined ) s += "=";
+			} s += "[";
+			for( var j = 0; j < c.n.length; j+=3 ) {
+				s += c.n[j] +","+ c.n[j+1] + "," + c.n[j+2];
+				if( c.n[j+3] !== undefined ) s += "=";
+			} s += "[";
+			for( var j = 0; j < c.t.length; j+=2 ) {
+				s += c.t[j] +","+ c.t[j+1];
+				if( c.t[j+2] !== undefined ) s += "=";
+			}
+		}
+		
+		document.getElementById("data").innerHTML = s;
+		
+		/*for( var i in dbs ) {
+			var res = { id:"", type:"", data:"" };
+			c = dbs[i];
+			res.id = c.prop("id");
+			c = c.children[0];
+			res.type = c.prop("renderType");
+			c = c.children[0];
+			res.data = c.prop("data");
+			if( overall[res.type] === undefined ) overall[res.type] = [];
+			overall[res.type].push( { id: res.id, data: res.data } );
+		}
+		console.log( overall );
+		var master = [];
+		for( var i in overall["SkinnableVertex"] ) {
+			c = overall["SkinnableVertex"][i];
+			var w = 0, n = { v: "", n:"", t:"" };
+			for( var j in overall["ST"] ) {
+				if( overall["ST"][j].data.length == c.data.length )
+					w = j;
+			}
+			n.v = c.data;
+			n.n = overall["SkinnableNormal"][i].data;
+			n.t = overall["ST"][w].data;
+			master.push( n );
+		}
+		console.log( master );
+		var s = "";
+		
+		for( var i in master ) {
+			c = master[i];
+			for( var j in c.v ) {
+				s += c.v[j][0] +","+ c.v[j][1] + "," + c.v[j][2];
+				if( c.v[parseInt(j)+1] !== undefined ) s += "=";
+			} s += "[";
+			for( var j in c.n ) {
+				s += c.n[j][0] +","+ c.n[j][1] + "," + c.n[j][2];
+				if( c.n[parseInt(j)+1] !== undefined ) s += "=";
+			} s += "[";
+			for( var j in c.t ) {
+				s += c.t[j][0] +","+ c.t[j][1];
+				if( c.t[parseInt(j)+1] !== undefined ) s += "=";
+			}
+			if( master[parseInt(i)+1] !== undefined ) s += "|";
+		}
+		
+		document.getElementById("data").innerHTML = s;*/
+		
+		//var str = ab2str( this.data, Uint8Array );
+		//console.log( this.dv.byteLength );
 	},
 	
 	/* get a chunk from the stack */
@@ -294,10 +453,6 @@ dCode.prototype = {
 	add: function( c ) {
 		this.cident[c.name] = this.chunks.length;
 		this.chunks.push( c );
-	},
-	
-	printBlocks: function( arr ) {
-		for( var i in arr ) console.log( this.blocks[arr[i]] );
 	},
 	
 	/* process the next chunk of the file */
@@ -321,27 +476,31 @@ dCode.prototype = {
 		switch( type ) {
 			case "char":
 				for( var i = 0; i < amount; i++ )
-					res.push( String.fromCharCode( this.dv.getInt8(offset + i * size[type]) ) );
+					res.push( String.fromCharCode( this.dv.getInt8( offset + i * size[type] ) ) );
+				break;
+			case "ushort":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getUint16( offset+i*size[type] ) );
 				break;
 			case "short":
 				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint8(offset + i * size[type]) );
+					res.push( this.dv.getUint8( offset + i * size[type] ) );
 				break;
 			case "uint":
 				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint16(offset+i*size[type]) );
+					res.push( this.dv.getUint32( offset + i * size[type] ) );
 				break;
 			case "int":
 				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getInt32(offset + i * size[type]) );
+					res.push( this.dv.getInt32( offset + i * size[type] ) );
 				break;
 			case "float":
 				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getFloat32( (offset + i * size[type]) ) );
+					res.push( this.dv.getFloat32( offset + i * size[type] ) );
 				break;
 			case "double":
 				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getFloat64( (offset + i * size[type]) ) );
+					res.push( this.dv.getFloat64( offset + i * size[type] ) );
 				break;
 		}
 		if( typeof arguments[2] == "undefined" || arguments[2] === false || arguments[2] === true )
@@ -350,5 +509,15 @@ dCode.prototype = {
 		return res;
 	},
 };
+
+function ab2str( buf, type ) {
+	type = type || Uint8Array;
+	var blob = new Blob( [ new type( buf ) ] ),
+		fr = new FileReader();
+	fr.onload = function(e) {
+		console.log( blob, e.target.result );
+	}
+	fr.readAsText(blob);
+}
 
 window.dC = new dCode();

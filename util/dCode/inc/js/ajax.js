@@ -1,7 +1,7 @@
 function ajax( object, file, callback, type, post ) {
 	var ajax = new XMLHttpRequest();
 	ajax.onreadystatechange = function() {
-		if( this.readyState == 4 ) {
+		if( this.readyState == 4 && object !== null ) {
 			var parser = new DOMParser();
 			type === "xml" ? object[callback]( parser.parseFromString( this.responseText, "text/xml" ) ) :
 				object[callback]( this.response ); } };
@@ -17,6 +17,11 @@ function ajax( object, file, callback, type, post ) {
 		ajax.setRequestHeader("Connection", "close");
 		if( type === "arraybuffer" ) ajax.responseType = "arraybuffer";
 		ajax.send( params );
+	} else if( object === null ) {
+		ajax.open( "get", file , false );
+		if( type === "arraybuffer" ) ajax.responseType = "arraybuffer";
+		ajax.send( null );
+		return ajax.response;
 	} else {
 		ajax.open( "get", file );
 		if( type === "arraybuffer" ) ajax.responseType = "arraybuffer";
