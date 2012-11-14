@@ -47,13 +47,13 @@ var Controls = {
 		switch( type ) {
 			case "arrows": return ( Controls.keys.down || Controls.keys.up ||
 								    Controls.keys.left || Controls.keys.right ); break;
-			case "numbers": return ( Controls.keys.zero || Controls.keys.one || Controls.keys.two || Controls.keys.three ||
+			case "numbers": return ( Controls.keys.zero || Controls.keys.one  || Controls.keys.two || Controls.keys.three ||
 									 Controls.keys.four || Controls.keys.five || Controls.keys.six || Controls.keys.seven ||
-									 Controls.keys.eight || Controls.keys.nine ); break;
+									 Controls.keys.nine || Controls.keys.eight ); break;
 			case "numpad": return ( Controls.keys.numpad0 || Controls.keys.numpad1 || Controls.keys.numpad2 || Controls.keys.numpad3 ||
 								    Controls.keys.numpad4 || Controls.keys.numpad5 || Controls.keys.numpad6 || Controls.keys.numpad7 ||
-									Controls.keys.numpad8 || Controls.keys.numpad9 || Controls.keys.add || Controls.keys.divide ||
-									Controls.keys.times || Controls.keys.minus || Controls.keys.decimal ); break;
+									Controls.keys.numpad8 || Controls.keys.numpad9 || Controls.keys.add		|| Controls.keys.divide	 ||
+									Controls.keys.times	  || Controls.keys.minus   || Controls.keys.decimal ); break;
 			case "wasd": return ( Controls.keys.w || Controls.keys.a ||
 								  Controls.keys.s || Controls.keys.d ); break;
 		}
@@ -70,8 +70,6 @@ var Controls = {
 		document.onkeyup = null;
 	},
 	onKeyDown: function( ev ) {
-		//ev.preventDefault();
-		//ev.stopPropagation();
 		switch( ev.keyCode ) {
 			case Controls.keys.UP:			Controls.keys.up =		true; break;
 			case Controls.keys.DOWN:		Controls.keys.down =	true; break;
@@ -198,8 +196,6 @@ var Controls = {
 		}
 	},
 	onMouseDown: function( ev ) {
-		//ev.preventDefault();
-		//ev.stopPropagation();
 		switch( ev.button ) {
 			case Controls.keys.LMOUSE:		Controls.keys.lmouse =	true; break;
 			case Controls.keys.RMOUSE:		Controls.keys.rmouse =	true; break;

@@ -260,7 +260,7 @@ __$r.prototype.$Mesh.prototype = {
 			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
 			gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
 			var temp = mat4.clone( mvMatrix );
-			mvMatrix = mat4.multiply( mat4.multiply( mat4.multiply( mvMatrix, mat4.scale( mat4.create(), 0.1 ) ), mat4.inverse( this.rotate ) ), this.translate );
+			mvMatrix = mat4.multiply( mat4.multiply( mat4.multiply( mvMatrix, mat4.scale( 0.1 ) ), mat4.inverse( this.rotate ) ), this.translate );
 			//mvMatrix = mat4.translate( mvMatrix, [ this.position[0], this.position[1], this.position[2] ] );
 			//mvMatrix = this.matrix;
 			setMatrixUniforms();

@@ -27,9 +27,6 @@ var vec3 = {
 						 -( a[0] * b[2] - a[2] * b[0] ),
 						    a[0] * b[1] - a[1] * b[0] ); },
 	transform: function( v, m ) {
-		/*return vec3.create( m[0] * v[0] + m[1] * v[0] + m[2] * v[0] + m[3] * v[0],
-							m[4] * v[1] + m[5] * v[1] + m[6] * v[1] + m[7] * v[1],
-							m[8] * v[2] + m[9] * v[2] + m[10]* v[2] + m[11]* v[2] );*/
 		return vec3.create( m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3],
 							m[4] * v[0] + m[5] * v[1] + m[6] * v[2] + m[7],
 							m[8] * v[0] + m[9] * v[1] + m[10]* v[2] + m[11] );
@@ -406,7 +403,7 @@ var mat4 = {
         	t[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
 		return t;
 	},
-	scale: function( m, s ) {
+	scale: function( s ) {
 		return new Float32Array(
 		  [	s, 0, 0, 0,
 			0, s, 0, 0,

@@ -18,7 +18,6 @@ __$r.prototype.$Camera.prototype = {
 		gl.uniformMatrix4fv( gl.getUniformLocation( rin.program(), "uPMatrix"), false, mat4.flatten( this.perspective ) );
 		this.position = p || this.position; this.pos();
 		this.rotation = r || this.rotation; this.rot();
-		//this.look( [0,0,0], [0,1,0] ); this.rot();
 		this.transform();
 		this.update();
 		return this;
@@ -72,20 +71,6 @@ __$r.prototype.$Camera.prototype = {
 	roll: function( deg ) {
 		if( deg === undefined ) return this.rotation[0] * 180 / Math.PI;
 		this.rotTo( [ this.rotation[0], this.rotation[1], deg * Math.PI / 180 ] ); },
-	look: function( center, up ) {
-		var f = vec3.normalize( vec3.subtract( center, this.position ) );
-			f[0] = -f[0], f[1] = -f[1], f[2] = -f[2];
-		var s = vec3.cross( f, up );
-		var u = vec3.cross( s, f );
-		this.rotate = mat4.create(
-			s[0], s[1], s[2], 0,
-			u[0], u[1], u[2], 0,
-			-f[0], -f[1], -f[2], 0,
-			0, 0, 0, 1 );
-		this.rotation[0] = Math.atan2( -up[1] * this.rotate[6], this.rotate[5] );
-		this.rotation[1] = Math.atan2( -this.rotate[8], this.rotate[0] );
-		this.rotation[2] = Math.asin( this.rotate[4] );
-	},
 	update: function() {
 		this.step = 0; this.side = 0; this.rise = 0;
 		if( this.mode == "free" ) {
