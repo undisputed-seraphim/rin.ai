@@ -20,6 +20,7 @@ __$r.prototype.$Mesh = function $Mesh( params ) {
 	
 	this.rotation =	params.rotation || [ 0.0, 0.0, 0.0 ];
 	this.position = params.position || [ 0.0, 0.0, 0.0 ];
+	this.scale = 	mat4.scale( params.scale || 1 );
 	this.translate =mat4.create();
 	this.rotate =	mat4.create();
 	this.matrix =	mat4.create();
@@ -260,7 +261,7 @@ __$r.prototype.$Mesh.prototype = {
 			var nUniform = gl.getUniformLocation( rin.program(), "uNMatrix" );
 			gl.uniformMatrix4fv(nUniform, false, new Float32Array( mat4.flatten( normalMatrix ) ) );
 			var temp = mat4.clone( mvMatrix );
-			mvMatrix = mat4.multiply( mat4.multiply( mat4.multiply( mvMatrix, mat4.scale( 0.1 ) ), mat4.inverse( this.rotate ) ), this.translate );
+			mvMatrix = mat4.multiply( mat4.multiply( mat4.multiply( mvMatrix, this.scale ), mat4.inverse( this.rotate ) ), this.translate );
 			//mvMatrix = mat4.translate( mvMatrix, [ this.position[0], this.position[1], this.position[2] ] );
 			//mvMatrix = this.matrix;
 			setMatrixUniforms();

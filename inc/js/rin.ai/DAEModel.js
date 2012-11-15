@@ -381,7 +381,7 @@ __$r.prototype.$DAEModel.prototype = {
 		}
 		else this.anima = "default";
 	},
-	start: function() { var mod = this; this.interval = setInterval( function() { mod.update(); }, 50 ); },
+	start: function() { /*var mod = this; this.interval = setInterval( function() { mod.update(); }, 7 );*/ },
 	render: function() {
 		if( this.ready ) {
 			if( Settings.flags.showBoundingBox && this.mesh.bbox !== true ) {
@@ -394,6 +394,7 @@ __$r.prototype.$DAEModel.prototype = {
 				this.skeleton.mesh.render();
 			} else {
 				if( this.animations > 0 ) this.mesh.animated = true;
+				this.update();
 				this.mesh.render();
 			}
 		}
