@@ -1,9 +1,39 @@
 function ui() {
 	this.current = {};
+	this.init();
 }
 
 /* all functionality via html is done through this ui class */
 ui.prototype = {
+	init: function() {
+		var opts = [];
+		for( var i in bIO.types ) {
+			opts.push( document.createElement("option") );
+			opts[ opts.length -1 ].innerHTML = bIO.types[i].name;
+			opts[ opts.length -1 ].value = bIO.types[i].name;
+		}
+		var s = this.element("select", "select", opts );
+		s.id = "type";
+		this.$("initial").appendChild( s );
+		opts = [];
+		for( var i = 0; i < 10; i++ ) {
+			opts.push( document.createElement("option") );
+			opts[opts.length-1].innerHTML = i+1;
+			opts[opts.length-1].value = i+1;
+		}
+		s = this.element("select", "select", opts );
+		s.id = "num";
+		this.$("initial").appendChild( s );
+		
+		var b = this.element("input");
+		b.type = "submit";
+		b.value = "Add";
+		this.$("initial").appendChild( b );
+		
+		this.$("ntemplates").onclick = function(e) {
+			dC.addTemplate();
+		}
+	},
 	$: function( id ) { return document.getElementById( id ); },
 	element: function( type, c, data ) {
 		var ret = document.createElement( type );

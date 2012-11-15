@@ -31,6 +31,9 @@ var vec3 = {
 							m[4] * v[0] + m[5] * v[1] + m[6] * v[2] + m[7],
 							m[8] * v[0] + m[9] * v[1] + m[10]* v[2] + m[11] );
 	},
+	distance: function( v, w ) {
+		return Math.abs( Math.sqrt( Math.pow( v[0] - w[0], 2 ) + Math.pow( v[1] - w[1], 2 ) + Math.pow( v[2] - w[2], 2 ) ) );
+	},
 	lerp: function( v, w, dt ) {
 		return new Float32Array([ v[0]*(1-dt) + w[0]*dt, v[1]*(1-dt) + w[1]*dt, v[2]*(1-dt) + w[2]*dt] );
 	}

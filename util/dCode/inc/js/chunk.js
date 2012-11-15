@@ -39,6 +39,9 @@ var dtypes = {
 	"blendDestAlpha":	"string",
 	"alphaTestFunc":	"string",
 	"typename":			"string",
+	"source":			"string",
+	"sourceID":			"uint",
+	"streamID":			"uint",
 }
 
 

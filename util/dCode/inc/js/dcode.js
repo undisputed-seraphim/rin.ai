@@ -2,7 +2,7 @@ body.onload = function() {
 	console.log( "here" );
 	
 	dC.init();
-	dC.load("test.pssg");
+	dC.load("test.gmo");
 }
 
 var size = {
@@ -48,10 +48,10 @@ dCode.prototype = {
 		
 		//header
 		this.pssg = new PSSG();
-		this.pssg.header.read();
+		//this.pssg.header.read();
 		
 		//chunk list
-		for( var i = 0; i < this.pssg.header.parts[this.pssg.header.pident["types"]].data; i++ ) {
+		/*for( var i = 0; i < this.pssg.header.parts[this.pssg.header.pident["types"]].data; i++ ) {
 			var pindex = this.read( "int", 1 ),
 				plen = this.read( "int", 1 ),
 				pname = "",
@@ -72,12 +72,19 @@ dCode.prototype = {
 				this.pssg.ctypes[ pindex ].parts.push( ppname );
 				this.pssg.ptypes[ ppindex ] = ppname;
 			}
-		}
+		}*/
 		
-		console.log( this.pssg );
+		console.log( this.read("char",16) );
+		for( var i = 0; i < 10; i++ ) {
+			var cindex = this.read("ushort", 1 );
+				hsize = this.read("ushort", 1 ),
+				csize = this.read( "ushort", 4 );
+			console.log( cindex, hsize );
+		}
+		console.log( this.pssg, data.byteLength );
 		
 		//pssgdatabase node, top level parent
-		var offset = this.pointer, s = 0;
+		/*var offset = this.pointer, s = 0;
 		
 		var ctype = this.pssg.ctypes[this.read( "int", 1 )];
 		var size = this.read( "int", 1 );
@@ -229,10 +236,11 @@ dCode.prototype = {
 							unknown = this.read("int",1);
 						switch( dtypes[this.pssg.ptypes[cur]] ) {
 							case "string":
-								if( ( c.name == "RISTREAM" || c.name == "MODIFIERNETWORKINSTANCEDYNAMICSTREAM" )
-									 	&& this.pssg.ptypes[cur] == "id" ) {
-									c.parts.push( new PART( this.pssg.ptypes[cur], "int", 1 ) );
-									c.parts[c.parts.length - 1].data = this.read( "int", 1 );
+								if( (( c.name == "RISTREAM" || c.name == "MODIFIERNETWORKINSTANCEDYNAMICSTREAM" )
+									 	&& this.pssg.ptypes[cur] == "id") || (c.name == "MODIFIERNETWORKINSTANCEMODIFIERINPUT"
+										&& this.pssg.ptypes[cur] == "source" ) ) {
+									c.parts.push( new PART( this.pssg.ptypes[cur], "uint", 1 ) );
+									c.parts[c.parts.length - 1].data = this.read( "uint", 1 );
 								}
 								else {
 									var plen = this.read( "int", 1 );
@@ -310,6 +318,7 @@ dCode.prototype = {
 			}
 		}
 		
+		console.log( this.pssg.get("RENDERSTREAMINSTANCE") );
 		console.log( this.pssg.get("LIBRARY") );
 		
 		var dbs = this.pssg.get("DATABLOCK"),
@@ -393,7 +402,7 @@ dCode.prototype = {
 			}
 		}
 		
-		document.getElementById("data").innerHTML = s;
+		document.getElementById("data").innerHTML = s;*/
 		
 		/*for( var i in dbs ) {
 			var res = { id:"", type:"", data:"" };
@@ -442,7 +451,8 @@ dCode.prototype = {
 		
 		document.getElementById("data").innerHTML = s;*/
 		
-		//var str = ab2str( this.data, Uint8Array );
+		var tmp = new bIO.file("test.pssg");
+		console.log( tmp );
 		//console.log( this.dv.byteLength );
 	},
 	
@@ -508,14 +518,17 @@ dCode.prototype = {
 		if( res.length == 1 ) return res[0];
 		return res;
 	},
+	addTemplate: function() {
+		this.ui.addTemplate();
+	}
 };
 
-function ab2str( buf, type ) {
+function ab2str( buf, callback, type ) {
 	type = type || Uint8Array;
 	var blob = new Blob( [ new type( buf ) ] ),
 		fr = new FileReader();
-	fr.onload = function(e) {
-		console.log( blob, e.target.result );
+	fr.onload = function( e ) {
+		callback.call( e.target.result );
 	}
 	fr.readAsText(blob);
 }
