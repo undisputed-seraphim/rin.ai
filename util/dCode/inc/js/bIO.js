@@ -77,6 +77,17 @@ var bIO = {
 		this.end = "";
 		this.data = [];
 	},
+	
+	/* static helper functions for binary manipulation */
+	ab2str: function( obj, buf, callback, type ) {
+		type = type || Uint8Array;
+		var blob = new Blob( [ new type( buf ) ] ),
+			fr = new FileReader();
+		fr.onload = function( e ) {
+			obj[callback]( e.target.result );
+		}
+		fr.readAsText(blob);
+	},
 }
 
 /* helper shortcuts */

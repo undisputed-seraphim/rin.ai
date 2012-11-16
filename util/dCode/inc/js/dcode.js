@@ -35,17 +35,49 @@ function dCode() {
 }
 
 dCode.prototype = {
-	/* initialize dCode app */
-	init: function() { this.ui = new ui(); },
+	/* initialize dCode app's ui */
+	init: function() {
+		var ui = this.ui = new $ui();
+		var dc_area = ui.$("#dCode"),
+			actual = ui.create( "div", { id: "data" } ),
+			preview = ui.create( "div", { id: "preview" } );
+		dc_area.append( preview );
+		/*heading.append(  ui.create("a", { href:"javascript:", id: "link_newtemplate" }, "new" ).click(
+			function( e ) {
+				console.log( e );
+			} ) );*/
+		dc_area.append( actual );
+	},
 	
 	/* load a file from string path as arraybuffer */
 	load: function( file ) { ajax( this, file, "parse", "arraybuffer" ); },
+	
+	lift: function( beg, end ) {
+		data = this.ui.$("#data");
+		for( var i = beg; i <= end; i++ ) {
+			data.children( i ).prop( "class", "spacer lift" );
+		}
+	},
+	
+	buffer: function( n, offset ) {
+		offset = offset || this.pointer;
+		bIO.ab2str( this, this.data.slice( offset, offset + n ), "preview" );
+	},
+	
+	preview: function( data ) {
+		data = data || "";
+		var res = "";
+		for( var i = 0; i < data.length; i++ )
+			res += '<span class="spacer">'+data[i]+'</span>';
+		this.ui.$("#data").html( res + "..." );
+		this.lift( 3, 4 );
+	},
 	
 	/* 'data' is file content of loaded file */
 	parse: function( data ) {
 		this.data = data;
 		this.dv = new DataView( data );
-		
+		this.buffer( 50 );
 		//header
 		this.pssg = new PSSG();
 		//this.pssg.header.read();
@@ -83,6 +115,7 @@ dCode.prototype = {
 		}
 		console.log( this.pssg, data.byteLength );
 		
+		//this.buffer( 50 );
 		//pssgdatabase node, top level parent
 		/*var offset = this.pointer, s = 0;
 		
@@ -522,15 +555,5 @@ dCode.prototype = {
 		this.ui.addTemplate();
 	}
 };
-
-function ab2str( buf, callback, type ) {
-	type = type || Uint8Array;
-	var blob = new Blob( [ new type( buf ) ] ),
-		fr = new FileReader();
-	fr.onload = function( e ) {
-		callback.call( e.target.result );
-	}
-	fr.readAsText(blob);
-}
 
 window.dC = new dCode();

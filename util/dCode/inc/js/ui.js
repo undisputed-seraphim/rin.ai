@@ -1,93 +1,153 @@
-function ui() {
-	this.current = {};
+function $ui() {
 	this.init();
+	window.$$ui = this;
 }
 
 /* all functionality via html is done through this ui class */
-ui.prototype = {
+$ui.prototype = {
 	init: function() {
-		var opts = [];
-		for( var i in bIO.types ) {
-			opts.push( document.createElement("option") );
-			opts[ opts.length -1 ].innerHTML = bIO.types[i].name;
-			opts[ opts.length -1 ].value = bIO.types[i].name;
+	},
+	
+	create: function( tag, props, html ) {
+		props = props || {};
+		html = html || "";
+		var el = new this.element( tag );
+		el.prop( props );
+		el.html( html );
+		return el;
+	},
+	
+	$: function( id, depth ) {
+		var res = new this.elements(), id = id || "";
+		if( id.substr(0,1) == "." ) {
+			var els = document.getElementsByTagName("*");
+			for( var i = 0; i < els.length; i++ )
+				if( els[i].className == id.substr(1) )
+					res.push( new this.element( els[i] ) );
+		} else if( id.substr(0,1) == "#" ) {
+			res.push( new this.element( document.getElementById( id.substr(1) ) ) );
+		} else if( id !== "" ) {
+			var els = document.getElementsByTagName( id );
+			for( var i = 0; i < els.length; i++ )
+				res.push( new this.element( els[i] ) );
+		} else {
+			var els = document.getElementsByTagName("*");
+			for( var i = 0; i < els.length; i++ )
+				res.push( new this.element( els[i] ) );
 		}
-		var s = this.element("select", "select", opts );
-		s.id = "type";
-		this.$("initial").appendChild( s );
-		opts = [];
-		for( var i = 0; i < 10; i++ ) {
-			opts.push( document.createElement("option") );
-			opts[opts.length-1].innerHTML = i+1;
-			opts[opts.length-1].value = i+1;
-		}
-		s = this.element("select", "select", opts );
-		s.id = "num";
-		this.$("initial").appendChild( s );
-		
-		var b = this.element("input");
-		b.type = "submit";
-		b.value = "Add";
-		this.$("initial").appendChild( b );
-		
-		this.$("ntemplates").onclick = function(e) {
-			dC.addTemplate();
-		}
+		return res.list.length == 1 ? res.list[0] : res;
 	},
-	$: function( id ) { return document.getElementById( id ); },
-	element: function( type, c, data ) {
-		var ret = document.createElement( type );
-		ret.className = c || "";
-		if( typeof data==="object" ) {
-			if( data.nodeType===1 && typeof data.tagName==="string" )
-				ret.appendChild( data );
-			else if( data[0].nodeType === 1 && typeof data[0].tagName === "string" )
-				for( var i in data )
-					ret.appendChild( data[i] );
-			else
-				for( var i in data )
-					ret.innerHTML += " "+data[i];
-		} else
-			ret.innerHTML = data === 0 ? 0 : data || "";
-		return ret;
+	
+	elements: function() { this.list = []; },
+	
+	element: function( type ) {
+		this.target = "";
+		if( typeof type == "object" )
+			this.target = type;
+		else
+			this.target = document.createElement( type );
 	},
-	spans: function( type ) {
-		var s = this.element( "span", type[0], type[0] ),
-			t = this.element( "span", "bytes", type[1] + "&times;"+size[type[0]]+" bytes" );
-		return [s, t];
-	},
-	heading: function( n ) {
-		l = this.element("label", "heading", n );
-		this.$("content").appendChild( l );
-	},
-	label: function( n ) {
-		var f = document.createElement("fieldset"),
-			l = document.createElement("legend"),
-			s = this.element( "span", "left", 0 ),
-			t = this.element( "span", "right", 0 );
-		l.innerHTML = n;
-		l.appendChild(s);
-		l.appendChild(t);
-		f.appendChild(l);
-		this.$("content").appendChild(f);
-		this.current = { e:f, begin: s, end: t };
-	},
-	bounds: function( b, e ) {
-		this.current.begin.innerHTML = b;
-		this.current.end.innerHTML = e;
-	},
-	entry: function( type, data ) {
-		var l = this.element( "div", "left", this.element( "span", type[0], data ) ),
-			r = this.element( "div", "right", this.spans( type ) );
-			
-		var e = this.element( "div", "entry", [l, r] );
-		
-		this.current.e.appendChild(e);
-	},
-	tab: function( n ) {
-		var res = "";
-		for( var i = 0; i < (n || 1) * 5; i++ )
-			res += "&nbsp;";
-		return res;
+};
+/* element collection item, supplies helpers to individual element functions */
+$ui.prototype.elements.prototype = {
+	push: function( el ) { this.list.push( el ); },
+	get: function( n ) { return this.list[n]; },
+	
+	append: function( el, clone ) { this.each( function() { this.append( el, clone ); } ); return this; },
+	appendTo: function( el, clone ) { this.each( function() { this.appendTo( el, clone ); } ); return this; },
+	html: function( data ) { this.each( function() { this.html( data ); } ); return this; },
+	prop: function( property, value ) { this.each( function() { this.prop( property, value ); } ); return this; },
+	style: function( el, prop, val ) { this.each( function() { this.style( el, prop, val ); } ); return this; },
+	
+	each: function( func ) {
+		for( var i in this.list )
+			func.call( this.list[i] );
+		return this;
 	}
-}
+};
+
+/* functions on element objects */
+$ui.prototype.element.prototype = {
+	before: function( el ) {
+		el = el.target || el;
+		console.log( this.target.parentNode, el );
+		this.target.parentNode.insertBefore( el, this.target );
+	},
+	
+	append: function( el, clone ) {
+		el = el.target || el;
+		clone = clone || false;
+		if( this.target == el && clone !== true )
+			return this;
+		if( typeof el == "object" )
+			this.target.appendChild( clone ? el.clondeNode(true) : el );
+		else
+			this.target.appendChild( el );
+		return this;
+	},
+	
+	appendTo: function( el, clone ) {
+		el = el.target || el;
+		clone = clone || false;
+		if( el == this.target && clone !== true )
+			return this;
+		el.appendChild( clone ? this.target.clondeNode(true) : this.target );
+		return this;
+	},
+	
+	html: function( data ) {
+		if( typeof data == "undefined" )
+			return this.target.innerHTML;
+		this.target.innerHTML = typeof data == "string" ? data : "";
+		return this;
+	},
+	
+	prop: function( property, value ) {
+		if( typeof value == "undefined" && typeof property == "string" )
+			return this.target.getAttribute( property ) || "";
+		else if( typeof property == "object" )
+			for( var i in property )
+				this.target.setAttribute( i, property[ i ] );
+		else
+			this.target.setAttribute( property, value );
+		return this;
+	},
+	
+	style: function( prop, val ) {
+		var style = this.target.getAttribute( "style" ) || "";
+		if( typeof prop == "string" && typeof val == "undefined" )
+			return style.indexOf( prop ) != -1 ?
+				new RegExp( prop+":(.*?);", "ig" ).exec(style)[1].replace(/^\s\s*/, '').replace(/\s\s*$/, '') : "";
+		if( typeof prop == "object" )
+			for( var i in prop ) {
+				style = style.replace( new RegExp( i + ":.*?;", "ig" ), "" );
+				prop[i] != "" ? style += i + ": " + prop[i] + ";" : style = style;
+			}
+		else if( typeof prop == "string" && typeof val == "string" )
+			style = style.replace( new RegExp( prop+":.*?;", "ig"), "" ); style += prop+": "+val+";";
+		this.prop( "style", style );
+		return this;
+	},
+	
+	click: function( callback ) { this.target.onclick = callback; return this; },
+	children: function( id ) {
+		var res = new $$ui.elements(),
+			id = id || "",
+			childs = this.target.children;
+		if( typeof id == "number" )
+			return new $$ui.element( childs[ id ] );
+		else if( id.substr(0,1) == "." )
+			for( var i in childs )
+				if( childs[i].className == id.substr(1) )
+					res.push( new $$ui.element( childs[i] ) );
+		else if( id.substr(0,1) == "#" )
+			for( var i in childs )
+				if( childs[i].id == id.substr(1) )
+					res.push( new $$ui.element( childs[i] ) );
+		else
+			for( var i in childs )
+				res.push( new this.element( childs[i] ) );
+		return res.list.length == 1 ? res.list[0] : res;
+	},
+	each: function( func ) { func.call( this ); return this; }
+};
