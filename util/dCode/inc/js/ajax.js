@@ -19,6 +19,7 @@ function ajax( object, file, callback, type, post ) {
 		ajax.send( params );
 	} else if( object === null ) {
 		ajax.open( "get", file , false );
+		ajax.setRequestHeader("Content-type", "application/octect-stream");
 		if( type === "arraybuffer" ) ajax.responseType = "arraybuffer";
 		ajax.send( null );
 		return ajax.response;
