@@ -2,7 +2,7 @@ body.onload = function() {
 	console.log( "here" );
 	
 	dC.init();
-	dC.load( "test.gmo" );
+	dC.load( "../../test.gmo" );
 }
 
 var size = {
