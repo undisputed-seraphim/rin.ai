@@ -3,7 +3,7 @@ body.onload = function() {
 	
 	dC.init();
 	dC.load( "test.gmo" );
-};
+}
 
 var size = {
 	"uchar":	1,
