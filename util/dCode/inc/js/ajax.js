@@ -25,6 +25,7 @@ function ajax( object, file, callback, type, post ) {
 		return ajax.response;
 	} else {
 		ajax.open( "get", file );
+		ajax.setRequestHeader("Content-type", "application/octect-stream");
 		if( type === "arraybuffer" ) ajax.responseType = "arraybuffer";
 		ajax.send( null );
 	}
