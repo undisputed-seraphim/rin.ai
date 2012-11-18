@@ -14,7 +14,7 @@ var bIO = {
 	sizeof: function( type ) { return type.size || bIO.types[ type ].size; },
 	
 	/* object used to represent data from a binary file */
-	file: function file( filename ) {
+	file: function file( filename, caller, callback ) {
 		this.name = "";
 		this.dv = "";
 		this.size = "";
@@ -25,8 +25,9 @@ var bIO = {
 		this.links = {};
 		this.chunks = [];
 		
-		if( filename !== undefined )
-			this.load( filename );
+		if( filename !== undefined ) {
+			this.load( filename, caller, callback );
+		}
 	},
 	
 	/* object used to tell how data is stored within a chunk */
@@ -105,16 +106,26 @@ bIO.file.prototype = {
 		else res.push( this.chunks[n] );
 		return res;
 	},
-	load: function( filename ) { this.name = filename; ajax( this, filename, "loaded", "arraybuffer" ); },
+	load: function( filename, caller, callback ) {
+		this.name = filename;
+		if( caller !== undefined && callback !== undefined ) {
+			this.caller = caller;
+			this.callback = callback;
+		}
+		ajax( this, filename, "loaded", "arraybuffer" );
+	},
 	add: function( template ) { return this.chunks[ this.chunks.push( new bIO.chunk( template ) ) - 1 ]; },
 	template: function( name ) { this.templates[name] = new bIO.template( name ); return this.templates[ name ]; },
 	ident: function( name, data ) { this.idents[name] = data; return this.idents[name]; },
 	loaded: function( data ) {
+		this.data = data;
 		this.dv = new DataView( data );
 		this.size = data.byteLength;
 		this.pointer = 0;
+		if( this.caller !== undefined )
+			this.caller[ this.callback ]();
 		
-		var t = this.template("header");
+		/*var t = this.template("header");
 		t.add( "pssg", "char", 4 );
 		t.add( "size", "int", 1 );
 		t.link( "props", "int", 1 );
@@ -123,7 +134,7 @@ bIO.file.prototype = {
 		this.process( 0 );
 		
 		t = this.template("chunklist");
-		t.link( "param", "int", 1 );
+		t.link( "param", "int", 1 );*/
 		//t.ident( "param", "string", 1 );
 	},
 	process: function( c ) {
@@ -144,13 +155,25 @@ bIO.file.prototype = {
 		}
 		c.end = this.pointer;
 	},
+	preread: function( type, amount, offset, caller, callback ) {
+		var tmp = this.pointer;
+		this.pointer = offset;
+		var res = this.read( type, amount );
+		if( typeof res != "object" ) {
+			var tmp = [];
+			tmp.push( res );
+			res = tmp;
+		}
+		this.pointer = tmp;
+		caller[callback]( res );
+	},
 	read: function( type, amount ) {
 		amount = amount || 1;
 		var res = [];
 		for( var i = 0; i < amount; i++ )
 			res.push( this.dv[ bIO.types[ type ].func ]( this.pointer + i * sizeof(type) ) );
 		this.pointer += sizeof(type) * amount;
-		return res.length == 1 ? res[0] : type == "char" ? res.map(String.fromCharCode).join("") : res;
+		return res.length == 1 ? res[0] : res;
 	}
 };
 

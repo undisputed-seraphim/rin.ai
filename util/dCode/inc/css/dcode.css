@@ -1,6 +1,6 @@
 * { padding: 0px; margin: 0px; }
 html { height: 100%; width: 100%; overflow: hidden; }
-body { height: 100%; width: 100%; position: relative; }
+body { height: 100%; width: 100%; position: relative; font: 12px Tahoma; }
 
 #top {
 	position: absolute;
@@ -109,55 +109,102 @@ body { height: 100%; width: 100%; position: relative; }
 		border: 2px solid #bbbbbb;
 		border-radius: 7px;
 	}
-		#preview {
+		#bufferdiv {
 			position: absolute;
-			top: 10px;
-			left: 10px;
-			right: 10px;
-			height: 35px;
-			border: 1px solid black;
+			z-index: 5;
+			background-color: #f0f0f0;
+			border: 2px solid #999;
+			padding: 2px;
+			padding-left: 7px;
+			padding-right: 7px;
+		}
+		
+		#dC_buffered {
+			max-width: 30px;
+		}
+		
+		#buffer {
 		}
 		
 		#data {
 			position: absolute;
-			top: 50px;
+			top: 15px;
+			left: 10px;
+			right: 10px;
+			height: 100px;
+			margin-left: 30px;
+			margin-right: 30px;
+			line-height: 22px;
+			padding: 10px;
+			font-family: Tahoma;
+			color: #888;
+			display: inline-block;
+			border: 1px solid #b0b0b0;
+			background-color: #f0f0f0;
+			overflow-y: scroll;
+			overflow-x: hidden;
+		}
+			.spacer {
+				display: inline-block;
+				position: relative;
+				min-width: 15px;
+				min-height: 20px;
+				max-height: 20px;
+				font-size: 16px;
+				letter-spacing: 1px;
+				text-align: center;
+				border: 1px solid #d0d0d0;
+				background-color: white;
+				line-height: 20px;
+				padding-left: 2px;
+				padding-right: 2px;
+				margin: 5px;
+				vertical-align: middle;
+			}
+			#data .spacer { max-width: 15px; }
+			
+			.inner {
+				position: absolute;
+				top: -2px;
+				left: -2px;
+				right: -2px;
+				bottom: -2px;
+			}
+			.inner.single { border: 2px solid #999; }
+			.inner.lend { border-left: 2px solid #999; border-top: 2px solid #999; border-bottom: 2px solid #999; right: -6px; }
+			.inner.rend { border-right: 2px solid #999; border-top: 2px solid #999; border-bottom: 2px solid #999; left: -6px; }
+			.inner.mid { border-top: 2px solid #999; border-bottom: 2px solid #999; left: -6px; right: -6px; }
+			
+		#choice {
+			position: absolute;
+			top: 180px;
 			left: 10px;
 			right: 10px;
 			height: 35px;
 			margin-left: 30px;
 			margin-right: 30px;
-			padding: 10px;
-			font-family: Courier;
-			text-align: center;
-			color: #4f4f4f;
-			display: inline-block;
-			border: 1px solid #777777;
-			background-color: #fafafa;
-			overflow-x: scroll;
-			overflow-y: hidden;
-			white-space: nowrap;
 		}
-		
-		.lift {
-			margin-top: -8px;
-			background-color: #ffffcc;
-		}
-		
-		.spacer {
-			display: inline-block;
-			position: relative;
-			max-width: 11px;
-			min-width: 11px;
-			min-height: 15px;
-			max-height: 15px;
-			font-size: 12px;
-			letter-spacing: 1px;
-			border: 1px solid #afafaf;
-			line-height: 15px;
-			margin-left: 2px;
-			margin-right: 2px;
-			vertical-align: middle;
-		}
+			#options {
+				display: inline-block;
+				width: 49%;
+				vertical-align: middle;
+				height: 35px;
+				border: 1px solid black;
+			}
+			
+			#preview {
+				display: inline-block;
+				width: 49%;
+				vertical-align: middle;
+				height: 35px;
+				border: 1px solid black;
+				font-family: Tahoma;
+				text-align: center;
+				color: #4f4f4f;
+				font-size: 12px;
+				letter-spacing: 1px;
+				line-height: 35px;
+			}
 		
 		#dtemplates {
 			width: 100%;

@@ -1,16 +1,14 @@
-function $ui() {
-	this.init();
-	window.$$ui = this;
-}
+(function() {
+
+function $ui() { this.init(); }
 
 /* all functionality via html is done through this ui class */
 $ui.prototype = {
-	init: function() {
-	},
+	init: function() { },
 	
 	create: function( tag, props, html ) {
 		props = props || {};
-		html = html || "";
+		html = typeof html == "undefined" ? "" : html.toString();
 		var el = new this.element( tag );
 		el.prop( props );
 		el.html( html );
@@ -113,6 +111,12 @@ $ui.prototype.element.prototype = {
 		return this;
 	},
 	
+	value: function( val ) {
+		if( val === undefined )
+			return this.target.value
+		this.target.value = val;
+	},
+	
 	style: function( prop, val ) {
 		var style = this.target.getAttribute( "style" ) || "";
 		if( typeof prop == "string" && typeof val == "undefined" )
@@ -129,25 +133,30 @@ $ui.prototype.element.prototype = {
 		return this;
 	},
 	
-	click: function( callback ) { this.target.onclick = callback; return this; },
+	bind: function( ev, callback ) { this.target[ev] = callback; return this; },
 	children: function( id ) {
-		var res = new $$ui.elements(),
-			id = id || "",
+		var res = new ui.elements(),
+			id = typeof id == "undefined" ? "" : id,
 			childs = this.target.children;
 		if( typeof id == "number" )
-			return new $$ui.element( childs[ id ] );
+			return new ui.element( childs[ id ] );
 		else if( id.substr(0,1) == "." )
 			for( var i in childs )
 				if( childs[i].className == id.substr(1) )
-					res.push( new $$ui.element( childs[i] ) );
+					res.push( new ui.element( childs[i] ) );
 		else if( id.substr(0,1) == "#" )
 			for( var i in childs )
 				if( childs[i].id == id.substr(1) )
-					res.push( new $$ui.element( childs[i] ) );
+					res.push( new ui.element( childs[i] ) );
 		else
 			for( var i in childs )
-				res.push( new this.element( childs[i] ) );
+				res.push( new ui.element( childs[i] ) );
 		return res.list.length == 1 ? res.list[0] : res;
 	},
 	each: function( func ) { func.call( this ); return this; }
 };
+
+window.ui = new $ui();
+window.$ = (function() { return ui.$( arguments[0], arguments[1] ); } );
+
+})();

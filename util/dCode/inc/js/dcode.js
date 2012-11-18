@@ -2,7 +2,7 @@ body.onload = function() {
 	console.log( "here" );
 	
 	dC.init();
-	dC.load("test.gmo");
+	dC.load( "test.gmo" );
 }
 
 var size = {
@@ -17,14 +17,14 @@ var size = {
 }
 
 function dCode() {
-	this.data = "";
-	this.pssg = "";
-	this.dv = "";
-	this.ui = "";
-	this.cblock = "";
-	this.prev = "char";
-	this.parent = "";
-	this.count = 0;
+	//this.data = "";
+	this.file = "";
+	//this.dv = "";
+	//this.cblock = "";
+	//this.prev = "char";
+	//this.parent = "";
+	//this.count = 0;
+	this.templates = [];
 	this.pointer = 0;
 	
 	this.chunks = [];
@@ -35,51 +35,110 @@ function dCode() {
 }
 
 dCode.prototype = {
-	/* initialize dCode app's ui */
+	/* initialize dCode app's ui functionality */
 	init: function() {
-		var ui = this.ui = new $ui();
-		var dc_area = ui.$("#dCode"),
-			actual = ui.create( "div", { id: "data" } ),
-			preview = ui.create( "div", { id: "preview" } );
-		dc_area.append( preview );
-		/*heading.append(  ui.create("a", { href:"javascript:", id: "link_newtemplate" }, "new" ).click(
-			function( e ) {
-				console.log( e );
-			} ) );*/
-		dc_area.append( actual );
+		for( var i = 0; i < 20; i++ )
+			$("#dC_amount").append( ui.create("option", { value: i+1 }, i+1 ) );
+		for( var i in bIO.types )
+			$("#dC_type").append( ui.create("option", { value: bIO.types[i].name },
+				bIO.types[i].name + " ["+bIO.types[i].size+"]" ) );
+			
+		$("#preview").html("testing");
+		
+		/* when amount or type is changed */
+		$("#dC_amount").bind("onchange", function(e) { settings.update(); dC.select(); });
+		$("#dC_type").bind("onchange", function(e) { settings.update(); dC.select(); });
+		$("#dC_buffered").bind("onkeyup", function(e) { settings.update(); dC.buffer(); });
+		$("#dC_charAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
+		$("#dC_ucharAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
+		$("#buffer").bind("onclick", function(e) { settings.update(); dC.buffer(); });
+		
+		/* if no presets detected, load defaults */
+		this.addTemplate( "placeholder" );
 	},
 	
 	/* load a file from string path as arraybuffer */
-	load: function( file ) { ajax( this, file, "parse", "arraybuffer" ); },
+	load: function( file ) { this.file = new bIO.file( file, this, "loaded" ); },
 	
-	lift: function( beg, end ) {
-		data = this.ui.$("#data");
-		for( var i = beg; i <= end; i++ ) {
-			data.children( i ).prop( "class", "spacer lift" );
+	template: function template( name ) {
+		this.name = name;
+	},
+	addTemplate: function( name ) {
+		this.templates.push( new this.template( name ) );
+	},
+	
+	select: function() {
+		var data = $("#data"),
+			type = $("#dC_type").value(),
+			num = $("#dC_amount").value(),
+			k = 0;
+
+		$(".inner single").each( function() { this.prop("class", "inner"); } );
+		$(".inner lend").each( function() { this.prop("class", "inner"); } );
+		$(".inner rend").each( function() { this.prop("class", "inner"); } );
+		$(".inner mid").each( function() { this.prop("class", "inner"); } );
+		
+		for( var j = 0; j < parseInt( num ); j++ ) {
+			for( var i = 0; i < bIO.types[ type ].size; i++ ) {
+				if( i == 0 && bIO.types[ type ].size == 1 )
+					data.children( k++ ).children(0).prop( "class", "inner single" );
+				else if( i == 0 )
+					data.children( k++ ).children(0).prop( "class", "inner lend" );
+				else if( i+1 == bIO.types[ type ].size )
+					data.children( k++ ).children(0).prop( "class", "inner rend" );
+				else
+					data.children( k++ ).children(0).prop( "class", "inner mid" );
+			}
 		}
+		
+		this.file.preread( type, num, this.pointer, this, "preview" );
 	},
 	
-	buffer: function( n, offset ) {
-		offset = offset || this.pointer;
-		bIO.ab2str( this, this.data.slice( offset, offset + n ), "preview" );
-	},
-	
+	/* data from bIO.preread, an array with each element being an entry */
 	preview: function( data ) {
-		data = data || "";
+		var res = "";
+		for( var i = 0; i < data.length; i++ ) {
+			var tmp = data[i];
+			if( $("#dC_type").value() == "char" && settings.opts["dC_charAsLetter"].v === true )
+				tmp = String.fromCharCode( tmp );
+			else if( $("#dC_type").value() == "uchar" && settings.opts["dC_ucharAsLetter"].v === true )
+				tmp = String.fromCharCode( tmp );
+			res += '<span class="spacer">'+tmp+'</span>';
+		}
+		$("#preview").html( res + "..." );
+	},
+	
+	buffer: function( offset ) {
+		var num = $("#dC_buffered").value();
+		num = parseInt( num ) || 10;
+		$("#dC_buffered").value( num );
+		
+		offset = offset || this.pointer;
+		bIO.ab2str( this, this.file.data.slice( offset, offset + num ), "buffered" );
+	},
+	
+	buffered: function( data ) {
+		data = typeof data == "undefined" ? "" : data;
 		var res = "";
 		for( var i = 0; i < data.length; i++ )
-			res += '<span class="spacer">'+data[i]+'</span>';
-		this.ui.$("#data").html( res + "..." );
-		this.lift( 3, 4 );
+			res += '<span class="spacer"><span class="inner"></span>'+data[i]+'</span>';
+		$("#data").html( res + "..." );
+		this.select();
 	},
 	
-	/* 'data' is file content of loaded file */
-	parse: function( data ) {
-		this.data = data;
-		this.dv = new DataView( data );
-		this.buffer( 50 );
+	/* binary file object created as this.file */
+	loaded: function() {
+		console.log( this.file );
+		settings.load();
+		settings.update();
+		console.log( settings );
+		this.buffer();
+		
+		//this.data = data;
+		//this.dv = new DataView( data );
+
 		//header
-		this.pssg = new PSSG();
+		//this.pssg = new PSSG();
 		//this.pssg.header.read();
 		
 		//chunk list
@@ -105,15 +164,6 @@ dCode.prototype = {
 				this.pssg.ptypes[ ppindex ] = ppname;
 			}
 		}*/
-		
-		console.log( this.read("char",16) );
-		for( var i = 0; i < 10; i++ ) {
-			var cindex = this.read("ushort", 1 );
-				hsize = this.read("ushort", 1 ),
-				csize = this.read( "ushort", 4 );
-			console.log( cindex, hsize );
-		}
-		console.log( this.pssg, data.byteLength );
 		
 		//this.buffer( 50 );
 		//pssgdatabase node, top level parent
@@ -484,8 +534,8 @@ dCode.prototype = {
 		
 		document.getElementById("data").innerHTML = s;*/
 		
-		var tmp = new bIO.file("test.pssg");
-		console.log( tmp );
+		//var tmp = new bIO.file("test.pssg");
+		//console.log( tmp );
 		//console.log( this.dv.byteLength );
 	},
 	
@@ -551,9 +601,9 @@ dCode.prototype = {
 		if( res.length == 1 ) return res[0];
 		return res;
 	},
-	addTemplate: function() {
+	/*addTemplate: function() {
 		this.ui.addTemplate();
-	}
+	}*/
 };
 
 window.dC = new dCode();
