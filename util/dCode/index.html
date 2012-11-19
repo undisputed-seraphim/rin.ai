@@ -9,20 +9,19 @@
 	<div id="top"></div>
     <div id="left">
     	<div id="document"><div id="content"></div></div>
-        <div id="chunks">
-        	<input type="checkbox" id="dC_charAsLetter" value="1" />
-        	<input type="checkbox" id="dC_ucharAsLetter" value="1" />
-        </div>
+        <div id="chunks"></div>
     </div>
     <div id="right">
     	<div id="dCode">
-    		<div id="bufferdiv">
-    			buffering <input type="text" id="dC_buffered" value="50" /> bytes <input type="submit" id="buffer" value="go" />
-    		</div>
+    		<div id="bufferdiv">buffering <input type="text" maxlength="3" id="dC_buffered" value="50" /> bytes</div>
     		<div id="data"></div>
     		<div id="choice">
     			<div id="options">
     				<label>Read the next <select id="dC_amount"></select> values as <select id="dC_type"></select>:</label>
+    				<div class="option"><label for="dC_charAsLetter">'char' as letters </label>
+    					<input type="checkbox" id="dC_charAsLetter" value="1" /></div>
+        			<div class="option"><label for="dC_ucharAsLetter">'uchar' as letters </label>
+        				<input type="checkbox" id="dC_ucharAsLetter" value="1" /></div>
     			</div>
     			<div id="preview"></div>
     		</div>

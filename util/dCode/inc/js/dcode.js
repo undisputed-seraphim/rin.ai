@@ -41,17 +41,17 @@ dCode.prototype = {
 			$("#dC_amount").append( ui.create("option", { value: i+1 }, i+1 ) );
 		for( var i in bIO.types )
 			$("#dC_type").append( ui.create("option", { value: bIO.types[i].name },
-				bIO.types[i].name + " ["+bIO.types[i].size+"]" ) );
+				bIO.types[i].name + " ["+bIO.types[i].size*8+" bits]" ) );
 			
 		$("#preview").html("testing");
 		
 		/* when amount or type is changed */
 		$("#dC_amount").bind("onchange", function(e) { settings.update(); dC.select(); });
 		$("#dC_type").bind("onchange", function(e) { settings.update(); dC.select(); });
-		$("#dC_buffered").bind("onkeyup", function(e) { settings.update(); dC.buffer(); });
+		$("#dC_buffered").bind("onchange", function(e) { settings.update(); dC.buffer(); });
+		$("#dC_buffered").bind("onkeydown", function(e) { if(e.keyCode == 13) { this.blur(); settings.update(); dC.buffer(); } });
 		$("#dC_charAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
 		$("#dC_ucharAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
-		$("#buffer").bind("onclick", function(e) { settings.update(); dC.buffer(); });
 		
 		/* if no presets detected, load defaults */
 		this.addTemplate( "placeholder" );
@@ -110,7 +110,7 @@ dCode.prototype = {
 	
 	buffer: function( offset ) {
 		var num = $("#dC_buffered").value();
-		num = parseInt( num ) || 10;
+		num = parseInt( num ) || 1;
 		$("#dC_buffered").value( num );
 		
 		offset = offset || this.pointer;

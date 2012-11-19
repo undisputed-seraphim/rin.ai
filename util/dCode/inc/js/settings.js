@@ -44,7 +44,6 @@ var settings = {
 			return;
 		}
 		for( var i in settings.opts ) {
-			console.log( i, settings.get(i) );
 			settings.opts[i].v = settings.get(i);
 			if( settings.opts[i].v === "" )
 				i = i;

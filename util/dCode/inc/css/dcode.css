@@ -186,24 +186,31 @@ body { height: 100%; width: 100%; position: relative; font: 12px Tahoma; }
 		}
 			#options {
 				display: inline-block;
-				width: 49%;
+				width: 320px;
 				vertical-align: middle;
-				height: 35px;
-				border: 1px solid black;
+				height: 90px;
+				padding: 10px;
+				overflow-y: scroll;
 			}
+
+			.option { position: relative; height: 20px; margin-top: 5px; }
+			.option>label { position: absolute; left: 0px; }
+			.option>input { position: absolute; right: 0px; }
 			
 			#preview {
-				display: inline-block;
-				width: 49%;
+				top: 180px;
+				left: 290px;
+				right: 10px;
+				bottom: 0px;
 				vertical-align: middle;
-				height: 35px;
-				border: 1px solid black;
+				height: 90px;
 				font-family: Tahoma;
-				text-align: center;
 				color: #4f4f4f;
+				padding: 10px;
 				font-size: 12px;
 				letter-spacing: 1px;
 				line-height: 35px;
+				overflow-y: scroll;
 			}
 		
 		#dtemplates {
