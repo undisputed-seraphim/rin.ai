@@ -5,25 +5,8 @@ body.onload = function() {
 	dC.load( "test.gmo" );
 }
 
-var size = {
-	"uchar":	1,
-	"char":		1,
-	"ushort":	2,
-	"short":	1,
-	"uint":		4,
-	"int":		4,
-	"float":	4,
-	"double":	8
-}
-
 function dCode() {
-	//this.data = "";
 	this.file = "";
-	//this.dv = "";
-	//this.cblock = "";
-	//this.prev = "char";
-	//this.parent = "";
-	//this.count = 0;
 	this.templates = [];
 	this.pointer = 0;
 	
@@ -45,7 +28,7 @@ dCode.prototype = {
 			
 		$("#preview").html("testing");
 		
-		/* when amount or type is changed */
+		/* when any setting element is changed */
 		$("#dC_amount").bind("onchange", function(e) { settings.update(); dC.select(); });
 		$("#dC_type").bind("onchange", function(e) { settings.update(); dC.select(); });
 		$("#dC_buffered").bind("onchange", function(e) { settings.update(); dC.buffer(); });
@@ -133,6 +116,74 @@ dCode.prototype = {
 		settings.update();
 		console.log( settings );
 		this.buffer();
+	},
+	
+	/* get a chunk from the stack */
+	get: function( n ) { return this.chunks[ this.cident[n] ]; },
+	
+	/* add a chunk to the stack */
+	add: function( c ) {
+		this.cident[c.name] = this.chunks.length;
+		this.chunks.push( c );
+	},
+	
+	/* process the next chunk of the file */
+	process: function( c ) {
+		for( var i in c.parts ) {
+			c.parts[i].data = this.read( c.parts[i].type, c.parts[i].amount );
+		}
+	},
+	
+	/* reset pointer back a value amount */
+	rewind: function( type, n ) { this.pointer -= size[type] * n; },
+	
+	/* move pointer forward a value */
+	skip: function( type, n ) { this.pointer += size[type] * n; },
+	
+	/* read specified amount of bytes into string, possibly trimming string */
+	read: function( type, amount, offset ) {
+		if( offset === undefined ) offset = this.pointer;
+		amount = amount || 1;
+		var res = [];
+		switch( type ) {
+			case "char":
+				for( var i = 0; i < amount; i++ )
+					res.push( String.fromCharCode( this.dv.getInt8( offset + i * size[type] ) ) );
+				break;
+			case "ushort":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getUint16( offset+i*size[type] ) );
+				break;
+			case "short":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getUint8( offset + i * size[type] ) );
+				break;
+			case "uint":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getUint32( offset + i * size[type] ) );
+				break;
+			case "int":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getInt32( offset + i * size[type] ) );
+				break;
+			case "float":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getFloat32( offset + i * size[type] ) );
+				break;
+			case "double":
+				for( var i = 0; i < amount; i++ )
+					res.push( this.dv.getFloat64( offset + i * size[type] ) );
+				break;
+		}
+		if( typeof arguments[2] == "undefined" || arguments[2] === false || arguments[2] === true )
+			this.pointer += size[type] * amount;
+		if( res.length == 1 ) return res[0];
+		return res;
+	},
+};
+
+window.dC = new dCode();
+
 		
 		//this.data = data;
 		//this.dv = new DataView( data );
@@ -537,73 +588,3 @@ dCode.prototype = {
 		//var tmp = new bIO.file("test.pssg");
 		//console.log( tmp );
 		//console.log( this.dv.byteLength );
-	},
-	
-	/* get a chunk from the stack */
-	get: function( n ) { return this.chunks[ this.cident[n] ]; },
-	
-	/* add a chunk to the stack */
-	add: function( c ) {
-		this.cident[c.name] = this.chunks.length;
-		this.chunks.push( c );
-	},
-	
-	/* process the next chunk of the file */
-	process: function( c ) {
-		for( var i in c.parts ) {
-			c.parts[i].data = this.read( c.parts[i].type, c.parts[i].amount );
-		}
-	},
-	
-	/* reset pointer back a value amount */
-	rewind: function( type, n ) { this.pointer -= size[type] * n; },
-	
-	/* move pointer forward a value */
-	skip: function( type, n ) { this.pointer += size[type] * n; },
-	
-	/* read specified amount of bytes into string, possibly trimming string */
-	read: function( type, amount, offset ) {
-		if( offset === undefined ) offset = this.pointer;
-		amount = amount || 1;
-		var res = [];
-		switch( type ) {
-			case "char":
-				for( var i = 0; i < amount; i++ )
-					res.push( String.fromCharCode( this.dv.getInt8( offset + i * size[type] ) ) );
-				break;
-			case "ushort":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint16( offset+i*size[type] ) );
-				break;
-			case "short":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint8( offset + i * size[type] ) );
-				break;
-			case "uint":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint32( offset + i * size[type] ) );
-				break;
-			case "int":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getInt32( offset + i * size[type] ) );
-				break;
-			case "float":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getFloat32( offset + i * size[type] ) );
-				break;
-			case "double":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getFloat64( offset + i * size[type] ) );
-				break;
-		}
-		if( typeof arguments[2] == "undefined" || arguments[2] === false || arguments[2] === true )
-			this.pointer += size[type] * amount;
-		if( res.length == 1 ) return res[0];
-		return res;
-	},
-	/*addTemplate: function() {
-		this.ui.addTemplate();
-	}*/
-};
-
-window.dC = new dCode();
