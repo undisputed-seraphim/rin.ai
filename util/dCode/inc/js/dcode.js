@@ -24,7 +24,7 @@ dCode.prototype = {
 			$("#dC_amount").append( ui.create("option", { value: i+1 }, i+1 ) );
 		for( var i in bIO.types )
 			$("#dC_type").append( ui.create("option", { value: bIO.types[i].name },
-				bIO.types[i].name + " ["+bIO.types[i].size*8+" bits]" ) );
+				bIO.types[i].name + " ["+bIO.types[i].size+" bytes]" ) );
 			
 		$("#preview").html("testing");
 		
@@ -34,7 +34,6 @@ dCode.prototype = {
 		$("#dC_buffered").bind("onchange", function(e) { settings.update(); dC.buffer(); });
 		$("#dC_buffered").bind("onkeydown", function(e) { if(e.keyCode == 13) { this.blur(); settings.update(); dC.buffer(); } });
 		$("#dC_charAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
-		$("#dC_ucharAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
 		
 		/* if no presets detected, load defaults */
 		this.addTemplate( "placeholder" );
@@ -42,6 +41,15 @@ dCode.prototype = {
 	
 	/* load a file from string path as arraybuffer */
 	load: function( file ) { this.file = new bIO.file( file, this, "loaded" ); },
+	
+	/* binary file object created as this.file */
+	loaded: function() {
+		console.log( this.file );
+		settings.load();
+		settings.update();
+		console.log( settings );
+		this.buffer();
+	},
 	
 	template: function template( name ) {
 		this.name = name;
@@ -79,12 +87,11 @@ dCode.prototype = {
 	
 	/* data from bIO.preread, an array with each element being an entry */
 	preview: function( data ) {
-		var res = "";
+		var res = "",
+			val = $("#dC_type").value();
 		for( var i = 0; i < data.length; i++ ) {
 			var tmp = data[i];
-			if( $("#dC_type").value() == "char" && settings.opts["dC_charAsLetter"].v === true )
-				tmp = String.fromCharCode( tmp );
-			else if( $("#dC_type").value() == "uchar" && settings.opts["dC_ucharAsLetter"].v === true )
+			if( ( val == "char" || val == "uchar" ) && settings.opts["dC_charAsLetter"].v === true )
 				tmp = String.fromCharCode( tmp );
 			res += '<span class="spacer">'+tmp+'</span>';
 		}
@@ -109,15 +116,6 @@ dCode.prototype = {
 		this.select();
 	},
 	
-	/* binary file object created as this.file */
-	loaded: function() {
-		console.log( this.file );
-		settings.load();
-		settings.update();
-		console.log( settings );
-		this.buffer();
-	},
-	
 	/* get a chunk from the stack */
 	get: function( n ) { return this.chunks[ this.cident[n] ]; },
 	
@@ -139,47 +137,6 @@ dCode.prototype = {
 	
 	/* move pointer forward a value */
 	skip: function( type, n ) { this.pointer += size[type] * n; },
-	
-	/* read specified amount of bytes into string, possibly trimming string */
-	read: function( type, amount, offset ) {
-		if( offset === undefined ) offset = this.pointer;
-		amount = amount || 1;
-		var res = [];
-		switch( type ) {
-			case "char":
-				for( var i = 0; i < amount; i++ )
-					res.push( String.fromCharCode( this.dv.getInt8( offset + i * size[type] ) ) );
-				break;
-			case "ushort":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint16( offset+i*size[type] ) );
-				break;
-			case "short":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint8( offset + i * size[type] ) );
-				break;
-			case "uint":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getUint32( offset + i * size[type] ) );
-				break;
-			case "int":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getInt32( offset + i * size[type] ) );
-				break;
-			case "float":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getFloat32( offset + i * size[type] ) );
-				break;
-			case "double":
-				for( var i = 0; i < amount; i++ )
-					res.push( this.dv.getFloat64( offset + i * size[type] ) );
-				break;
-		}
-		if( typeof arguments[2] == "undefined" || arguments[2] === false || arguments[2] === true )
-			this.pointer += size[type] * amount;
-		if( res.length == 1 ) return res[0];
-		return res;
-	},
 };
 
 window.dC = new dCode();

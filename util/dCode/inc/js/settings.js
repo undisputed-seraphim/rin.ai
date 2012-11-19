@@ -4,7 +4,6 @@ var settings = {
 		"dC_type":				{ v: "", t: "select" },
 		"dC_buffered":			{ v: "", t: "input" },
 		"dC_charAsLetter":		{ v: "", t: "checkbox" },
-		"dC_ucharAsLetter":		{ v: "", t: "checkbox" },
 		"dC_extra":				{ v: "", t: "" },
 	},
 	
