@@ -12,11 +12,9 @@ body { height: 100%; width: 100%; position: relative; font: 12px Tahoma; }
 	overflow: hidden;
 }
 
-select {
-	height: 20px;
-	line-height: 10px;
-	font-size: 11px;
-}
+select { height: 20px; line-height: 10px; font-size: 11px; }
+.selected { background-color: #ffeeff; }
+.hiddeninput { border: 0; background-color: transparent; }
 
 #left {
 	position: absolute;
@@ -197,7 +195,8 @@ select {
 			#tleft { position: absolute; left: 0px; width: 50%; height: 100%; }
 			#tright { position: absolute; right: 0px; width: 50%; height: 100%; }
 			.inside { top: 10px; bottom: 10px; position: absolute; left: 10px; right: 10px; }
-				#parts { border: 1px solid #999; position: absolute; top: 30px; left: 0px; right: 0px; bottom: 0px; }
+				#part_list { border: 1px solid #999; position: absolute; top: 30px; left: 0px; right: 0px; bottom: 0px; overflow-y: scroll; }
+				#template_list { border: 1px solid #999; position: absolute; top: 30px; left: 0px; right: 0px; bottom: 0px; overflow-y: scroll; }
 		
 		#options {
 			position: absolute;

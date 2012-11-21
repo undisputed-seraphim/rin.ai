@@ -45,6 +45,11 @@ $ui.prototype = {
 		else
 			this.target = document.createElement( type );
 	},
+	
+	/* utility functions */
+	trim: function ( str ) {
+		return str.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1");
+	},
 };
 /* element collection item, supplies helpers to individual element functions */
 $ui.prototype.elements.prototype = {

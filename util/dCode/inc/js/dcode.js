@@ -8,13 +8,10 @@ body.onload = function() {
 function dCode() {
 	this.file = "";
 	this.templates = [];
-	this.pointer = 0;
-	
 	this.chunks = [];
-	this.cindex = [];
-	this.cident = {};
-	this.pindex = [];
-	this.blocks = { t: {}, v: {}, n: {} };
+	this.count = 0;
+	this.current = { t: "", p: "" }
+	this.pointer = 0;
 }
 
 dCode.prototype = {
@@ -25,15 +22,19 @@ dCode.prototype = {
 		for( var i in bIO.types )
 			$("#dC_type").append( ui.create("option", { value: bIO.types[i].name },
 				bIO.types[i].name + " ["+bIO.types[i].size+" bytes]" ) );
-			
-		$("#preview").html("testing");
-		
+
 		/* when any setting element is changed */
 		$("#dC_amount").bind("onchange", function(e) { settings.update(); dC.select(); });
 		$("#dC_type").bind("onchange", function(e) { settings.update(); dC.select(); });
 		$("#dC_buffered").bind("onchange", function(e) { settings.update(); dC.buffer(); });
 		$("#dC_buffered").bind("onkeydown", function(e) { if(e.keyCode == 13) { this.blur(); settings.update(); dC.buffer(); } });
 		$("#dC_charAsLetter").bind("onclick", function(e) { settings.update(); dC.select(); });
+		
+		$("#newtemplate").bind("onclick", function(e) { dC.addTemplate( ui.trim( $("#dC_ctemplate").value() ).toString() || "NO NAME" ); });
+		$("#addpart").bind("onclick", function(e) {
+			dC.templates[dC.current.t].addPart( ui.trim( $("#dC_cpart").value() ).toString() || "NO NAME" );
+			dC.skip( $("#dC_type").value(), $("#dC_amount").value() );
+		});
 		
 		/* if no presets detected, load defaults */
 		this.addTemplate( "placeholder" );
@@ -49,13 +50,25 @@ dCode.prototype = {
 		settings.update();
 		console.log( settings );
 		this.buffer();
+		
+		console.log( this.file.read( "uchar", 160 ) );
 	},
 	
-	template: function template( name ) {
+	addTemplate: function( name ) { this.templates.push( new this.template( name, this.count++ ) ); },
+	template: function template( name, n ) {
 		this.name = name;
-	},
-	addTemplate: function( name ) {
-		this.templates.push( new this.template( name ) );
+		this.id = n;
+		this.parts = [];
+		
+		var input = ui.create( "input", { id: "template_"+n+"_name", class: "hiddeninput", value: name } );
+		this.element = ui.create( "div", { id: "template_"+n, class: "template" } );
+		this.element.append( input );
+		
+		var el = this;
+		this.element.bind("onclick", function(e) { if( dC.current.t !== el.id ) el.select(); });
+		
+		$("#template_list").append( this.element );
+		this.select();
 	},
 	
 	select: function() {
@@ -112,17 +125,8 @@ dCode.prototype = {
 		var res = "";
 		for( var i = 0; i < data.length; i++ )
 			res += '<span class="spacer"><span class="inner"></span>'+data[i]+'</span>';
-		$("#data").html( res + "..." );
+		$("#data").html( res + '...' );
 		this.select();
-	},
-	
-	/* get a chunk from the stack */
-	get: function( n ) { return this.chunks[ this.cident[n] ]; },
-	
-	/* add a chunk to the stack */
-	add: function( c ) {
-		this.cident[c.name] = this.chunks.length;
-		this.chunks.push( c );
 	},
 	
 	/* process the next chunk of the file */
@@ -133,10 +137,49 @@ dCode.prototype = {
 	},
 	
 	/* reset pointer back a value amount */
-	rewind: function( type, n ) { this.pointer -= size[type] * n; },
+	rewind: function( type, n ) { this.pointer -= bIO.types[type].size * n; this.buffer(); },
 	
 	/* move pointer forward a value */
-	skip: function( type, n ) { this.pointer += size[type] * n; },
+	skip: function( type, n ) { this.pointer += bIO.types[type].size * n; this.buffer(); },
+};
+
+dCode.prototype.template.prototype = {
+	select: function() {
+		console.log( this );
+		dC.current.t = this.id;
+		
+		$(".template selected").prop("class", "template");
+		this.element.prop("class", "template selected");
+	},
+	
+	addPart: function( name ) { this.parts.push( new this.part( name, this.count++, $("#dC_amount").value(), $("#dC_type").value() ) ); },
+	part: function( name, n, amount, type ) {
+		this.name = name;
+		this.id = n;
+		this.amount = amount;
+		this.type = type;
+		
+		var input = ui.create( "input", { id: "part_"+n+"_name", class: "hiddeninput", style: "width: 75px;", value: name } ),
+			label = ui.create( "label", { }, "["+amount+" &times; "+type+"]" );
+		this.element = ui.create( "div", { id: "part_"+n, class: "part" } );
+		this.element.append( input ).append( label );
+		
+		var el = this;
+		this.element.bind("onclick", function(e) { if( dC.current.p !== el.id ) el.select(); });
+		
+		$("#part_list").append( this.element );
+		this.select();
+	},
+};
+
+dCode.prototype.template.prototype.part.prototype = {
+	select: function() {
+		console.log( this );
+		dC.current.p = this.id;
+		
+		$(".part selected").prop("class", "template");
+		this.element.prop("class", "part selected");
+	},
 };
 
 window.dC = new dCode();

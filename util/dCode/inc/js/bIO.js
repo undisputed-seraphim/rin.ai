@@ -174,7 +174,12 @@ bIO.file.prototype = {
 			res.push( this.dv[ bIO.types[ type ].func ]( this.pointer + i * sizeof(type) ) );
 		this.pointer += sizeof(type) * amount;
 		return res.length == 1 ? res[0] : res;
-	}
+	},
+	/* reset pointer back a value amount */
+	rewind: function( type, n ) { this.pointer -= bIO.types[type].size * n; },
+	
+	/* move pointer forward a value */
+	skip: function( type, n ) { this.pointer += bIO.types[type].size * n; },
 };
 
 bIO.template.prototype = {
