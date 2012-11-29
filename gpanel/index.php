@@ -1,15 +1,25 @@
 <?php
 session_start();
 
+/* if already logged in, redirect */
+
 include_once( 'config.php' );
 include_once( 'inc/php/g.php' );
 include_once( 'inc/php/db.php' );
 
+if( isset( $_POST[ 'submit' ] ) ) {
+	include_once( 'inc/php/middleman.php' );
+	echo $_SESSION['ecpiuser'];
+	exit();
+}
+
 $db = new db( $cfg_dbhost, $cfg_dbuser, $cfg_dbpass, $cfg_dbname );
+/* premade queries for security */
+$courses = $db->prepare( "select * from course", array(), true );
+print_r( $courses );
 
-$result = $db->get( "course", "locked", "0", 1 );
-
-
+//$str = "asdklfjdsf8-s-8=sdf]a\s\fas-\as]";
+//echo $str . " = " . $db->clean_string( $str );
 //print_r( $db );
 
 ?>
@@ -49,6 +59,12 @@ $result = $db->get( "course", "locked", "0", 1 );
     	<div id="content">
     		<p>Put a bunch of bogus content in here and see what happens</p>
 	        <br/><br/><br/><br/><br/><br />
+            <form action="index.php" method="post">
+            	<input name="e" type="hidden" value="1b6453892473a467d07372d45eb05abc2031647a" />
+                <input name="c" type="text" />
+                <input name="p" type="password" />
+                <input name="submit" type="submit" value="login" />
+            </form>
     	</div>
 	    <div id="footer">
         	<label><a href="http://ecpionline.com" target="_blank">Moodle</a> |
