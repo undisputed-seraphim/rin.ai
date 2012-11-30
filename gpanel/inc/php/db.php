@@ -9,7 +9,7 @@ class db {
 			$dbname = "";
 	
 	/* object state flags */
-	private $connected = false,
+	public  $connected = false,
 			$ready = false;
 	
 	/* constructor, allows for initializing mysql connection upon creation of object */
@@ -58,33 +58,14 @@ class db {
 		return true;
 	}
 	
-	/* query function, returns associative array with results */
-	public function query( $query, $new = false ) {
-		if( !$this->ready )
-			return "Not ready to run a query.";
+	/* create a prepared query */
+	public function prepare( $query, $params = array(), $now = false ) {
+		if( !$this->connected || !$this->ready )
+			return false;
+			
+		if( $query === null )
+			return false;
 		
-		/* execute the query */
-		$result = @mysqli_query( $this->conn, $query );
-		if( !$result )
-			return @mysqli_error();
-		
-		/* build associative array of results */
-		$return = array();
-		$i = 0;
-		while( $row = $result->fetch_assoc() ) {
-			$return[ $i ] = array();
-			foreach( $row as $col => $val )
-				$return[ $i ][ $col ] = $val;
-			$i++;
-		}
-		//if( $new )
-		//	return new query_result( $return );
-		return $return;
-	}
-	
-	/* create a premade query */
-	public function prepare( $query, $params, $now ) {
-		//$stmt = mysqli_stmt_init( $this->conn );
 		$stmt = @mysqli_prepare( $this->conn, $query );
 		if( !$stmt )
 			return false;
@@ -94,10 +75,17 @@ class db {
 	
 	/* shortcut to grab a specific entry based on column value */
 	public function get( $table, $column = "", $value = "", $limit = 0 ) {
+		if( !$this->connected || !$this->ready )
+			return false;
+			
 		$limit = $limit === 0 ? '' : ' limit '.$limit;
-		$where = $column === "" ? '' : ' where '.$column.' = "'.$value.'"';
+		$where = $column === "" ? '' : ' where '.$column.' = ?';
 		$query = 'select * from '.$table.$where.$limit.';';
-		return $this->query( $query );
+		
+		$res = $this->prepare( $query, array( "s" => $value ), true );
+		if( $res !== false )
+			return $res->get();
+		return $res;
 	}
 	
 	/* make string valid sql string */
@@ -116,6 +104,8 @@ class db {
 	/* ensure that the given value is of type $type, where $type is a word defining the type */
 	public static function ensure( $val, $type = "string" ) {
 		switch( strtolower( $type ) ) {
+			case "array": return is_array( $val );
+			case "object": return is_object( $val );
 			case "number": return is_numeric( $val );
 			case "string": return is_string( $val );
 			default: return false;
@@ -129,7 +119,8 @@ class premade_query {
 			$meta = "",
 			$fields = array();
 
-	public $results = array();
+	/* array of query results */
+	public  $results = array();
 	
 	/* create a query object using a mysqli_stmt object */
 	public function __construct( $stmt, $params = array(), $now = false ) {
@@ -141,29 +132,35 @@ class premade_query {
 			foreach( $this->meta->fetch_fields() as $field )
 				$this->fields[] = $field->name;
 
-		if( $now === true )
+		/* if query is desired to run immediately, return the result */
+		if( $now === true || $params === true )
 			return $this->execute( $params );
 	}
 	
-	private function __destruct() { $this->stmt->close(); }
+	public function __destruct() { $this->stmt->close(); }
 	
 	/* execute a premade query and return results */
 	public function execute( $params = array() ) {
-		/* reset results and bind any passed parameters to the query, then execute */
+		/* reset results and bind any passed parameters to the query */
 		$this->results = array();
 		$vals = array();
 		$i = 0;
-		foreach( $params as $type => $val ) {
-			$this->stmt->bind_param( $type, $vals[ $i ] );
-			$vals[ $i++ ] = $val;
-		}
+		if( is_array( $params ) )
+			foreach( $params as $type => $val ) {
+				$this->stmt->bind_param( $type, $vals[ $i ] );
+				$vals[ $i++ ] = $val;
+			}
+		
+		/* execute query and obtain execution time in milliseconds */
+		$msc = microtime( true );
 		$exec = $this->stmt->execute();
+		$msc = ( microtime( true ) - $msc ) * 1000;
 		if( !$exec )
 			return false;
 		
-		/* if query does not have results, return success */
+		/* if query does not have results, return empty result object */
 		if( $this->meta === false )
-			return true;
+			return new query_result( $this->results, $msc );
 		
 		/* obtain resultset into an associative array as $this->results */
 		$data = array();
@@ -174,21 +171,28 @@ class premade_query {
 		$acopy = create_function( '$a', 'return $a;' );
 		while( $this->stmt->fetch() )
 			$this->results[] = array_map( $acopy, $res );
-		//print_r( $this );
-		return $this->results;
+
+		return new query_result( $this->results, $msc );
 	}
+	
+	public function get() { return $this->results; }
 }
 
 /* wrapper for query results to perform operations on obtained results */
 class query_result {
-	public $data = "";
+	public  $data = "",
+			$exec_time = "";
 	
-	/* index result data */
+	/* index result data for quicker searching */
 	private $cols = array(),
 			$vals = array();
 	
-	function __construct( $data = array() ) {
+	/* create a query result from an array of data and an execution time */
+	function __construct( $data = array(), $time = 0 ) {
 		$this->data = $data;
+		$this->exec_time = $time;
+		
+		/* index result data for use with ->get() */
 		foreach( $this->data as $i ) {
 			foreach( $i as $col => $val ) {
 				if( array_search( $col, $this->cols ) === false ) {
@@ -201,7 +205,23 @@ class query_result {
 	}
 	
 	/* get specific results from result set */
-	public function get( $prop, $val ) {}
+	public function get( $col = null, $val = null ) {
+		/* if called with no arguments, return all result data */
+		if( $col === null )
+			return $this->data;
+		
+		/* if a column only is specified, return array of values of that column */
+		if( $val === null )
+			return $this->vals[ array_search( $col, $this->cols ) ];
+			
+		/* if a column/value pair is specified, return results that include that pair */
+		$res = array();
+		$index = array_search( $col, $this->cols );
+		foreach( $this->vals[ $index ] as $i => $value )
+			if( $value === $val )
+				$res[] = $this->data[ $i ];
+		return $res;
+	}
 }
 
 ?>
