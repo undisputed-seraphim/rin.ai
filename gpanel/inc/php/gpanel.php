@@ -1,10 +1,12 @@
 <?php
 include_once( ROOT.'inc/php/db.php' );
+include_once( ROOT.'inc/php/role.php' );
 
 /* 'global' class with static functions that manage every aspect of the gpanel */
 class g {
 	public static $db = "";
 	
+	/* initialize the app / db connection */
 	public static function init() {
 		g::$db = new db( DB_HOST, DB_USER, DB_PASS, DB_NAME );
 		return g::$db->connected;
@@ -22,6 +24,7 @@ class g {
 			if( is_array( g::session( "gpanel_login" ) ) )
 				if( array_key_exists( "success", g::session( "gpanel_login" ) ) )
 					return true;
+			return false;
 		}
 		
 		if( isset( $_POST[ 'e' ] ) ) {
@@ -40,10 +43,26 @@ class g {
 		return false;
 	}
 	
+	/* return the string under the title of the page in upper right */
 	public static function login_string() {
 		if( g::login() )
 			return 'Welcome #name ( <a href="'.WEB_ROOT.'inc/php/logout.php">logout</a> )';
 		return 'You are not logged in.';
+	}
+	
+	/* check if user has access to a permission type */
+	public static function access( $role ) {
+		if( !g::login() )
+			return false;
+		//TODO: add role checking here, rest of app will use this function to check if user can get here
+		return role::check( $role );
+	}
+	
+	/* 'secure print' - print string based on access */
+	public static function sprint( $role, $str = "" ) {
+		if( g::access( $role ) )
+			return $str;
+		return "";
 	}
 	
 	public static function session( $var = null, $val = null ) {
@@ -67,7 +86,7 @@ class g {
 '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<link href="inc/css/gpanel.css" title="gpanel_css" rel="stylesheet" />
+<link href="'.WEB_ROOT.'inc/css/gpanel.css" title="gpanel_css" rel="stylesheet" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>'.$title.'</title>
 </head>
@@ -91,16 +110,27 @@ class g {
     <div id="page">';
 	}
 	
-	public static function print_nav() {
+	/* print header with a parameter for current app */
+	public static function print_nav( $app = "root" ) {
+		$orientation = $app == "orientation" ? '' : ' class="hidden"';
+		$risk = $app == "risk" ? '' : ' class="hidden"';
 		echo
 		'<div id="nav">
-    		<ul type="disc">
-        	<li>Testing a list</li>
-        		<ul type="disc">
-	            <li>And nested items for</li>
-    	        <li>The nav</li>
-        	    </ul>
-	        </ul>
+    		<div><label class="heading"><a href="'.WEB_ROOT.'">Home</a></label><blockquote>'.
+	g::sprint( r_ORIENTATION_VIEW, '<div><label class="heading">'.
+		'<a href="'.WEB_ROOT.'orientation/">Orientation</a></label><blockquote'.$orientation.'>' ).
+	g::sprint( r_ORIENTATION_VIEW, '<div><label><a href="">View Attempts</a></label></div>' ).
+	g::sprint( r_ORIENTATION_TRACK, '<div><label><a href="">Track Attempts</a></label></div>' ).
+	g::sprint( r_ORIENTATION_RESET, '<div><label><a href="">Reset Attempts</a></label></div>' ).
+	g::sprint( r_ORIENTATION_VIEW, '</blockquote></div>' ).
+
+	g::sprint( r_RISK_VIEW, '<div><label class="heading">'.
+		'<a href="'.WEB_ROOT.'risk/">Risk</a></label><blockquote'.$risk.'>' ).
+	g::sprint( r_RISK_VIEW, '<div><label><a href="">View Attempts</a></label></div>' ).
+	g::sprint( r_RISK_TRACK, '<div><label><a href="">Track Attempts</a></label></div>' ).
+	g::sprint( r_RISK_RESET, '<div><label><a href="">Reset Attempts</a></label></div>' ).
+	g::sprint( r_RISK_VIEW, '</blockquote></div>' ).'
+	        </blockquote></div>
     	</div>
     	<div id="content">';
 	}
@@ -113,10 +143,11 @@ class g {
             	<a href="http://ecpicollege.com" target="_blank">Student Portal</a> |
 				<a href="http://olexams.ecpi.net" target="_blank">Online Entrance Exams</a> |
 				<a href="http://olorientation.ecpi.net" target="_blank">Online Orientation</a><br/>
-            (C) 2012 ECPI University</label>
+            (C) '.COPYRIGHT.' ECPI University</label>
         </div>
     </div>
 </div>
+<script type="text/javascript" src="'.WEB_ROOT.'inc/js/gpanel.js"></script>
 </body>
 </html>';
 	}

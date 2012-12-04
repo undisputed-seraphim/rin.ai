@@ -5,7 +5,7 @@ include_once( 'config.php' );
 g::init() or die( "Database connection unsucessful." );
 
 if( g::login() )
-	$msg = 'Chose an area to the left or below.'.g::session( "ecpiuser" );
+	$msg = 'Chose an area to the left or below.';
 else if( isset( $_POST[ 'submit' ] ) ) {
 	$loggedin = g::login( true );
 	if( !$loggedin )
@@ -18,7 +18,6 @@ else if( isset( $_POST[ 'submit' ] ) ) {
 /* premade queries for security */
 $courses = g::prepare( "select * from mdl1_8block where name = ?" );
 $result = $courses->execute( array( "s" => "course_list" ) )->get();
-//$result_courses = $courses->execute()->get();
 
 /* print document head, with field for page title */
 g::print_head( "Global Admin Panel" );
@@ -26,7 +25,7 @@ g::print_head( "Global Admin Panel" );
 /* print page header with field for page description */
 g::print_header( "gPanel - Login" );
 
-/* print nav for current page */
+/* print nav for current page with field for which app */
 g::print_nav();
 
 /* content div is now open, everything here goes into <div id="content"> */
@@ -43,7 +42,7 @@ if( g::login() ) {
     	        	<input name="e" type="hidden" value="1b6453892473a467d07372d45eb05abc2031647a" />
         	        <div class="form_line">
                     	<div class="form_left"><label>Username</label></div>
-                        <div class="form_right"><input name="c" type="text" /></div>
+                        <div class="form_right"><input id="focus" name="c" type="text" /></div>
                     </div>
                     <div class="form_line">
                         <div class="form_left"><label>Password</label></div>
