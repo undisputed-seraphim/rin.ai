@@ -6,7 +6,8 @@ class db {
 			$user = "",
 			$pass = "",
 			$conn = "",
-			$dbname = "";
+			$dbname = "",
+			$log_query = "";
 	
 	/* object state flags */
 	public  $connected = false,
@@ -58,11 +59,16 @@ class db {
 		return true;
 	}
 	
+	/* set name of the log table */
+	public function set_log_info( $query = "", $params = array() ) {
+		
+	}
+	
 	/* create a prepared query */
-	public function prepare( $query, $params = array(), $now = false ) {
+	public function prepare( $query, $params = array(), $now = false, $log = false ) {
 		if( !$this->connected || !$this->ready )
 			return false;
-			
+		
 		if( $query === null )
 			return false;
 		
@@ -70,11 +76,11 @@ class db {
 		if( !$stmt )
 			return false;
 
-		return new premade_query( $stmt, $params, $now );
+		return new premade_query( $stmt, $params, $now, $log );
 	}
 	
 	/* shortcut to grab a specific entry based on column value */
-	public function get( $table, $column = "", $value = "", $limit = 0 ) {
+	public function get( $table, $column = "", $value = "", $limit = 0, $log = false ) {
 		if( !$this->connected || !$this->ready )
 			return false;
 			
@@ -82,7 +88,7 @@ class db {
 		$where = $column === "" ? '' : ' where '.$column.' = ?';
 		$query = 'select * from '.$table.$where.$limit.';';
 		
-		$res = $this->prepare( $query, array( "s" => $value ), true );
+		$res = $this->prepare( $query, array( "s" => $value ), true, $log );
 		if( $res !== false )
 			return $res->get();
 		return $res;
@@ -123,7 +129,7 @@ class premade_query {
 	public  $results = array();
 	
 	/* create a query object using a mysqli_stmt object */
-	public function __construct( $stmt, $params = array(), $now = false ) {
+	public function __construct( $stmt, $params = array(), $now = false, $log = false ) {
 		$this->stmt = $stmt;
 		$this->meta = $stmt->result_metadata();
 		
@@ -133,14 +139,17 @@ class premade_query {
 				$this->fields[] = $field->name;
 
 		/* if query is desired to run immediately, return the result */
-		if( $now === true || $params === true )
-			return $this->execute( $params );
+		if( $params === true )
+			return $this->execute( $params, $now );
+			
+		if( $now === true )
+			return $this->execute( $params, $log );
 	}
 	
 	public function __destruct() { $this->stmt->close(); }
 	
 	/* execute a premade query and return results */
-	public function execute( $params = array() ) {
+	public function execute( $params = array(), $log = false ) {
 		/* reset results and bind any passed parameters to the query */
 		$this->results = array();
 		$vals = array();
@@ -154,13 +163,14 @@ class premade_query {
 		/* execute query and obtain execution time in milliseconds */
 		$msc = microtime( true );
 		$exec = $this->stmt->execute();
-		$msc = ( microtime( true ) - $msc ) * 1000;
 		if( !$exec )
 			return false;
 		
 		/* if query does not have results, return empty result object */
-		if( $this->meta === false )
+		if( $this->meta === false ) {
+			$msc = ( microtime( true ) - $msc ) * 1000;
 			return new query_result( $this->results, $msc );
+		}
 		
 		/* obtain resultset into an associative array as $this->results */
 		$data = array();
@@ -171,7 +181,8 @@ class premade_query {
 		$acopy = create_function( '$a', 'return $a;' );
 		while( $this->stmt->fetch() )
 			$this->results[] = array_map( $acopy, $res );
-
+		
+		$msc = ( microtime( true ) - $msc ) * 1000;
 		return new query_result( $this->results, $msc );
 	}
 	
@@ -181,19 +192,23 @@ class premade_query {
 /* wrapper for query results to perform operations on obtained results */
 class query_result {
 	public  $data = "",
+			$fields = array(),
 			$exec_time = "";
 	
 	/* index result data for quicker searching */
-	private $cols = array(),
-			$vals = array();
+	//private $cols = array(),
+	//		$vals = array();
 	
 	/* create a query result from an array of data and an execution time */
 	function __construct( $data = array(), $time = 0 ) {
 		$this->data = $data;
 		$this->exec_time = $time;
 		
+		if( count( $data ) > 0 )
+			foreach( $data[0] as $k => $v )
+				$this->fields[] = $k;
 		/* index result data for use with ->get() */
-		foreach( $this->data as $i ) {
+		/*foreach( $this->data as $i ) {
 			foreach( $i as $col => $val ) {
 				if( array_search( $col, $this->cols ) === false ) {
 					$this->cols[] = $col;
@@ -201,26 +216,26 @@ class query_result {
 				}
 				$this->vals[ array_search( $col, $this->cols ) ][] = $val;
 			}
-		}
+		}*/
 	}
 	
 	/* get specific results from result set */
 	public function get( $col = null, $val = null ) {
 		/* if called with no arguments, return all result data */
-		if( $col === null )
+		//if( $col === null )
 			return $this->data;
 		
 		/* if a column only is specified, return array of values of that column */
-		if( $val === null )
-			return $this->vals[ array_search( $col, $this->cols ) ];
+		/*if( $val === null )
+			return $this->vals[ array_search( $col, $this->cols ) ];*/
 			
 		/* if a column/value pair is specified, return results that include that pair */
-		$res = array();
+		/*$res = array();
 		$index = array_search( $col, $this->cols );
 		foreach( $this->vals[ $index ] as $i => $value )
 			if( $value === $val )
 				$res[] = $this->data[ $i ];
-		return $res;
+		return $res;*/
 	}
 }
 

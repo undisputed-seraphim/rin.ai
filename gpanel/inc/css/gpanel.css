@@ -5,19 +5,26 @@ body { overflow-y: scroll; height: 100%; }
 ul, blockquote { margin-left: 20px; display: block; }
 input[type="submit"] { padding-left: 3px; padding-right: 3px; }
 
-a { text-decoration: none; }
+table { border-collapse: collapse; border: 1px solid #bfbfff; font-size: 12px; }
+thead { border-left: 1px solid #afafff; border-right: 1px solid #afafff; text-align: left; }
+th { color: white; background-color: #0054A6; letter-spacing: 1px; }
+td, th { vertical-align: middle; padding: 3px; }
+
+a { text-decoration: none; display: inline; }
 a:link { color: #2fa2fa; }
 a:visited { color: #2fa2fa; }
 a:hover { color: #4f74f7; }
 
 .title { color: #0054A6; font-size: 16px; font-weight: bold; font-family: Arial; }
 .line { padding: 20px; position: relative; }
-.form_line { white-space: nowrap; height: 30px; }
-.form_line * { display: inline-block; height: 20px; line-height: 24px; vertical-align: middle; }
-.form_item { display: inline-block; min-width: 100px; max-width: 100px; }
+.form_line { white-space: nowrap; min-height: 30px; clear: right; padding: 2px; margin: 2px; }
+.form_line .item { float: left; min-width: 100px; height: 30px; line-height: 30px; margin-left: 10px; margin-right: 10px; }
+.form_line .item * { vertical-align: middle; }
+.form_line .item input { margin: 5px; }
+.form_line .item input[type="text"],
+.form_line .item input[type="password"] { width: 90px; }
+.form_line .item input[type="radio"] { margin: 10px; }
 
-.form_left { min-width: 100px; max-width: 100px; text-align: right; }
-.form_right { margin-left: 5px; text-align: left; }
 .left { float: left; }
 .left_a { text-align: left; }
 .left_af { float: left; text-align: left; }
@@ -27,18 +34,21 @@ a:hover { color: #4f74f7; }
 .right_af { float: right; text-align: right; }
 
 #nav label { display: block; position: relative; }
-.heading { padding: 2px; border: 1px solid black; margin: 3px; }
+.heading { padding: 2px; border: 1px solid black; margin-top: 3px; margin-bottom: 3px; }
+.current { color: black; font-weight: bold; }
 .hidden { display: none; }
 
-.half { max-width: 50%; }
-.max * { width: 100%; }
+.content { margin-top: 10px; margin-bottom: 10px; clear: none; padding: 5px; border: 1px solid #efefff; }
+.content .title { color: black; font: 22px Arial, Helvetica, sans-serif; letter-spacing: 1px; font-weight: bold; }
+.results { width: 100%; }
+td.even { background-color: #efefff; }
 
 #main {
 	position: relative;
 	margin: 0px auto;
 	min-height: 100%;
 	min-width: 600px;
-	max-width: 1000px;
+	max-width: 95%;
 	background-color: white;
 }
 

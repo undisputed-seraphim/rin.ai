@@ -5,16 +5,46 @@ include_once( ROOT.'inc/php/role.php' );
 /* 'global' class with static functions that manage every aspect of the gpanel */
 class g {
 	public static $db = "";
+	public static $app = "";
+	public static $roles = "";
+	public static $nav = "";
 	
 	/* initialize the app / db connection */
-	public static function init() {
+	public static function init( $app = "home" ) {
+		g::$app = strtolower( $app );
+		g::$nav = array(
+		array( "text" => "Home", "url" => WEB_ROOT."index.php", "access" => "", "nodes" => array(
+			array( "text" => "Manage Users", "url" => WEB_ROOT."index.php", "access" => r_MANAGE ),
+			array( "text" => "Orientation", "url" => WEB_ROOT."orientation/", "access" => r_ORIENTATION_VIEW, "nodes" => array(
+				array( "text" => "View Attempts", "url" => WEB_ROOT."orientation/view.php", "access" => r_ORIENTATION_VIEW ),
+				array( "text" => "Track Attempts", "url" => WEB_ROOT."orientation/track.php", "access" => r_ORIENTATION_TRACK ),
+				array( "text" => "Reset Attempts", "url" => WEB_ROOT."orientation/reset.php", "access" => r_ORIENTATION_RESET )
+			) ),
+			array( "text" => "Risk", "url" => WEB_ROOT."risk/", "access" => r_RISK_VIEW, "nodes" => array(
+				array( "text" => "View Attempts", "url" => WEB_ROOT."risk/view.php", "access" => r_RISK_VIEW ),
+				array( "text" => "Track Attempts", "url" => WEB_ROOT."risk/track.php", "access" => r_RISK_TRACK ),
+				array( "text" => "Reset Attempts", "url" => WEB_ROOT."risk/reset.php", "access" => r_RISK_RESET )
+			) )
+		) ) );
 		g::$db = new db( DB_HOST, DB_USER, DB_PASS, DB_NAME );
+		//g::$db->set_log_info( "insert into logs values ( )", array( "s" => " );
 		return g::$db->connected;
 	}
 	
+	/* redirect user to login page and hold in session page they tried to go to */
+	public static function redirect( $loc = "" ) {
+		if( $loc === "" )
+			$loc = "Location: ".WEB_ROOT;
+			
+		if( !g::login() )
+			g::session( "gpanel_redirect", 'Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'] );
+			
+		header( $loc );
+	}
+	
 	/* interface functions for db */
-	public static function prepare( $query = "", $params = array(), $now = false ) {
-		return g::$db->prepare( $query, $params, $now );
+	public static function prepare( $query = "", $params = array(), $now = false, $log = false ) {
+		return g::$db->prepare( $query, $params, $now, $log );
 	}
 	
 	/* if $first is true, attempting to login, else check if logged in */
@@ -22,8 +52,10 @@ class g {
 		/* if no value passed, perform login check of session */
 		if( $first === "" ) {
 			if( is_array( g::session( "gpanel_login" ) ) )
-				if( array_key_exists( "success", g::session( "gpanel_login" ) ) )
+				if( array_key_exists( "success", g::session( "gpanel_login" ) ) ) {
+					g::$roles = role::get();
 					return true;
+				}
 			return false;
 		}
 		
@@ -36,7 +68,15 @@ class g {
 		
 			/* check if they have any roles, else deny */
 			if( array_key_exists( "success", $res ) ) {
+				g::$roles = role::get();
+				if( !role::check( r_LOGIN ) )
+					return false;
 				g::session( "gpanel_login", $res );
+				if( isset( $_SESSION['gpanel_redirect'] ) ) {
+					$loc = g::session( "gpanel_redirect" );
+					g::session( "gpanel_redirect", "" );
+					g::redirect( $loc );
+				}
 				return true;
 			}
 		}
@@ -45,8 +85,11 @@ class g {
 	
 	/* return the string under the title of the page in upper right */
 	public static function login_string() {
-		if( g::login() )
-			return 'Welcome #name ( <a href="'.WEB_ROOT.'inc/php/logout.php">logout</a> )';
+		if( g::login() ) {
+			$name = g::session( "gpanel_login" );
+			$name = $name["success"]["surname"].", ".$name["success"]["fname"];
+			return 'Welcome '.$name.' ( <a href="'.WEB_ROOT.'inc/php/logout.php">logout</a> )';
+		}
 		return 'You are not logged in.';
 	}
 	
@@ -58,11 +101,43 @@ class g {
 		return role::check( $role );
 	}
 	
-	/* 'secure print' - print string based on access */
-	public static function sprint( $role, $str = "" ) {
-		if( g::access( $role ) )
-			return $str;
-		return "";
+	/* echo string if access level is met */
+	public static function secure_print( $role, $str = "" ) {
+		if( g::access( $role ) || $role === "" )
+			echo $str;
+		echo "";
+	}
+	
+	/* print results to a table from a query_result object, specifying which columns to show */
+	public static function print_results( $result = null, $cols = array() ) {
+		if( !$result )
+			return false;
+			
+		if( count( $cols ) === 0 )
+			$cols = $result->fields;
+			
+		$html = '<table class="results">';
+		if( count( $result->data ) > 0 ) {
+			for( $i = 0; $i < count( $result->data ); $i++ ) {
+				$cur = $result->data[$i];
+				if( $i === 0 ) {
+					$html .= '<thead><tr>';
+					foreach( $cur as $k => $v )
+						if( in_array( $k, $cols ) )
+							$html .= '<th><label>'.$k.'</label></th>';
+					$html .= '</tr></thead>';
+				}
+				$html .= '<tr>';
+				foreach( $cur as $k => $v )
+					if( in_array( $k, $cols ) )
+						$html .= '<td class="'.(($i+1) % 2 == 0 ? "even" : "odd").'">'.$v.'</td>';
+				$html .= '</tr>';
+			}
+		} else {
+			$html .= '<tr><th>No Results</th></tr>';
+		}
+		$html .= '</table>';
+		echo $html;
 	}
 	
 	public static function session( $var = null, $val = null ) {
@@ -80,6 +155,16 @@ class g {
 		$_SESSION[ $var ] = $val;
 	}
 	
+	/* print head, header, nav */
+	public static function start_content( $title = "Global Admin Panel", $page = "gPanel" ) {
+		g::print_head( $title );
+		g::print_header( $page );
+		g::print_nav();
+	}
+	
+	/* print footer and closing content */
+	public static function end_content() { g::print_footer(); }
+		
 	/* helper html functions */
 	public static function print_head( $title = "Global Admin Panel" ) {
 		echo
@@ -110,29 +195,25 @@ class g {
     <div id="page">';
 	}
 	
+	/* loop through nav elements recursively to print navigation */
+	public static function nav_loop( $nav ) {
+		if( array_key_exists( "nodes", $nav ) ) {
+			g::secure_print( $nav["access"], '<div><label class="heading"><a href="'.$nav["url"].'">'.$nav["text"].'</a></label>' );
+			g::secure_print( $nav["access"], '<blockquote'.(g::$app == strtolower( $nav["text"] ) || $nav["text"] == "Home" ? '' : ' class="hidden"').'>' );
+			foreach( $nav["nodes"] as $cur )
+				g::nav_loop( $cur );
+			g::secure_print( $nav["access"], '</blockquote></div>' );
+		} else {
+			$cur = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'] == $nav["url"] ? ' class="current"' : '';
+			g::secure_print( $nav["access"], '<div><label><a href="'.$nav["url"].'"'.$cur.'>'.$nav["text"].'</a></label></div>' );
+		}
+	}
+	
 	/* print header with a parameter for current app */
-	public static function print_nav( $app = "root" ) {
-		$orientation = $app == "orientation" ? '' : ' class="hidden"';
-		$risk = $app == "risk" ? '' : ' class="hidden"';
-		echo
-		'<div id="nav">
-    		<div><label class="heading"><a href="'.WEB_ROOT.'">Home</a></label><blockquote>'.
-	g::sprint( r_ORIENTATION_VIEW, '<div><label class="heading">'.
-		'<a href="'.WEB_ROOT.'orientation/">Orientation</a></label><blockquote'.$orientation.'>' ).
-	g::sprint( r_ORIENTATION_VIEW, '<div><label><a href="">View Attempts</a></label></div>' ).
-	g::sprint( r_ORIENTATION_TRACK, '<div><label><a href="">Track Attempts</a></label></div>' ).
-	g::sprint( r_ORIENTATION_RESET, '<div><label><a href="">Reset Attempts</a></label></div>' ).
-	g::sprint( r_ORIENTATION_VIEW, '</blockquote></div>' ).
-
-	g::sprint( r_RISK_VIEW, '<div><label class="heading">'.
-		'<a href="'.WEB_ROOT.'risk/">Risk</a></label><blockquote'.$risk.'>' ).
-	g::sprint( r_RISK_VIEW, '<div><label><a href="">View Attempts</a></label></div>' ).
-	g::sprint( r_RISK_TRACK, '<div><label><a href="">Track Attempts</a></label></div>' ).
-	g::sprint( r_RISK_RESET, '<div><label><a href="">Reset Attempts</a></label></div>' ).
-	g::sprint( r_RISK_VIEW, '</blockquote></div>' ).'
-	        </blockquote></div>
-    	</div>
-    	<div id="content">';
+	public static function print_nav() {
+		echo '<div id="nav">';
+		g::nav_loop( g::$nav[0] );
+		echo '</div><div id="content">';
 	}
 	
 	public static function print_footer() {
