@@ -6,8 +6,8 @@ ul, blockquote { margin-left: 20px; display: block; }
 input[type="submit"] { padding-left: 3px; padding-right: 3px; }
 
 table { border-collapse: collapse; border: 1px solid #bfbfff; font-size: 12px; }
-thead { border-left: 1px solid #afafff; border-right: 1px solid #afafff; text-align: left; }
-th { color: white; background-color: #0054A6; letter-spacing: 1px; }
+thead { border-left: 1px solid #bfbfff; border-right: 1px solid #bfbfff; text-align: left; }
+th { color: white; background-color: #0054A6; letter-spacing: 1px; text-align: left; }
 td, th { vertical-align: middle; padding: 3px; }
 
 a { text-decoration: none; display: inline; }
@@ -22,8 +22,11 @@ a:hover { color: #4f74f7; }
 .form_line .item * { vertical-align: middle; }
 .form_line .item input { margin: 5px; }
 .form_line .item input[type="text"],
-.form_line .item input[type="password"] { width: 90px; }
+.form_line .item input[type="password"] { padding: 2px; width: 90px; }
 .form_line .item input[type="radio"] { margin: 10px; }
+
+.section { border: 1px solid #ccc; padding: 10px; }
+.section_title { padding: 5px; background-color: #ccc; color: #444; margin-top: 2px; }
 
 .left { float: left; }
 .left_a { text-align: left; }
@@ -38,10 +41,12 @@ a:hover { color: #4f74f7; }
 .current { color: black; font-weight: bold; }
 .hidden { display: none; }
 
-.content { margin-top: 10px; margin-bottom: 10px; clear: none; padding: 5px; border: 1px solid #efefff; }
-.content .title { color: black; font: 22px Arial, Helvetica, sans-serif; letter-spacing: 1px; font-weight: bold; }
-.results { width: 100%; }
-td.even { background-color: #efefff; }
+.content { margin-bottom: 20px; clear: none; padding: 10px; border: 1px solid #999; }
+.content .title { color: #666; font: 22px Arial; letter-spacing: 1px; font-weight: bold; margin: 5px 0px; }
+.content .subtitle { color: #ccc; }
+.results { width: 100%; margin: 10px 0px; }
+.time { text-align: left; font-size: 10px; font-style: italic; padding-bottom: 2px; }
+tr.even td { background-color: #efefff; }
 
 #main {
 	position: relative;

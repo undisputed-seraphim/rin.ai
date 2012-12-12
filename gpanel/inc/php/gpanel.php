@@ -1,5 +1,6 @@
 <?php
 include_once( ROOT.'inc/php/db.php' );
+include_once( ROOT.'inc/php/html.php' );
 include_once( ROOT.'inc/php/role.php' );
 
 /* 'global' class with static functions that manage every aspect of the gpanel */
@@ -26,8 +27,18 @@ class g {
 				array( "text" => "Reset Attempts", "url" => WEB_ROOT."risk/reset.php", "access" => r_RISK_RESET )
 			) )
 		) ) );
+		
+		/* if inside an application, initialize that application */
+		$appinit = true;
+		if( strtolower( $app ) == "orientation" ) {
+			include_once( ROOT.'inc/php/orientation.php' );
+			$appinit = ori::init();
+		} else if( strtolower( $app ) == "risk" ) {
+			//include_once( ROOT.'inc/php/risk.php' );
+			//$appinit = risk::init();
+		}
+		
 		g::$db = new db( DB_HOST, DB_USER, DB_PASS, DB_NAME );
-		//g::$db->set_log_info( "insert into logs values ( )", array( "s" => " );
 		return g::$db->connected;
 	}
 	
@@ -65,7 +76,7 @@ class g {
 			$res = json_decode( g::session( "ecpiuser" ), true );
 			if( array_key_exists( "error", $res ) )
 				return false;
-		
+
 			/* check if they have any roles, else deny */
 			if( array_key_exists( "success", $res ) ) {
 				g::$roles = role::get();
@@ -108,36 +119,18 @@ class g {
 		echo "";
 	}
 	
-	/* print results to a table from a query_result object, specifying which columns to show */
-	public static function print_results( $result = null, $cols = array() ) {
-		if( !$result )
-			return false;
-			
-		if( count( $cols ) === 0 )
-			$cols = $result->fields;
-			
-		$html = '<table class="results">';
-		if( count( $result->data ) > 0 ) {
-			for( $i = 0; $i < count( $result->data ); $i++ ) {
-				$cur = $result->data[$i];
-				if( $i === 0 ) {
-					$html .= '<thead><tr>';
-					foreach( $cur as $k => $v )
-						if( in_array( $k, $cols ) )
-							$html .= '<th><label>'.$k.'</label></th>';
-					$html .= '</tr></thead>';
-				}
-				$html .= '<tr>';
-				foreach( $cur as $k => $v )
-					if( in_array( $k, $cols ) )
-						$html .= '<td class="'.(($i+1) % 2 == 0 ? "even" : "odd").'">'.$v.'</td>';
-				$html .= '</tr>';
-			}
-		} else {
-			$html .= '<tr><th>No Results</th></tr>';
-		}
-		$html .= '</table>';
-		echo $html;
+	/* return 1 or 0 if post var is set or not */
+	public static function post_b( $name ) {
+		if( isset( $_POST[$name] ) )
+			return 1;
+		return 0;
+	}
+	
+	/* return 1 or 0 if session var is set or not */
+	public static function session_b( $name ) {
+		if( isset( $_POST[$name] ) )
+			return 1;
+		return 0;
 	}
 	
 	public static function session( $var = null, $val = null ) {
@@ -154,6 +147,9 @@ class g {
 			
 		$_SESSION[ $var ] = $val;
 	}
+	
+	/* use this function for ANY AND ALL data printed from user input */
+	public static function clean_data( $str = "" ) { return g::$db->clean_string( $str ); }
 	
 	/* print head, header, nav */
 	public static function start_content( $title = "Global Admin Panel", $page = "gPanel" ) {

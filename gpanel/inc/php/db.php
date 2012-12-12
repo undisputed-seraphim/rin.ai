@@ -107,6 +107,11 @@ class db {
 	
 	/* static functions useful for database operations */
 	
+	/* merge two query_result objects */
+	public static function result_merge( $res1, $res2 ) {
+		
+	}
+	
 	/* ensure that the given value is of type $type, where $type is a word defining the type */
 	public static function ensure( $val, $type = "string" ) {
 		switch( strtolower( $type ) ) {
@@ -153,12 +158,22 @@ class premade_query {
 		/* reset results and bind any passed parameters to the query */
 		$this->results = array();
 		$vals = array();
+		$tmp = array();
+		$types = "";
 		$i = 0;
-		if( is_array( $params ) )
-			foreach( $params as $type => $val ) {
-				$this->stmt->bind_param( $type, $vals[ $i ] );
-				$vals[ $i++ ] = $val;
-			}
+		if( is_array( $params ) ) {
+			foreach( $params as $param )
+				foreach( $param as $type => $val )
+					$types .= $type;
+			$tmp[] = $types;
+			foreach( $params as $param )
+				foreach( $param as $type => $val ) {
+					$bind_name = 'vals['.$i++.']';
+                	$$bind_name = $val;
+               		$tmp[] = &$$bind_name;
+				}
+			call_user_func_array( array( $this->stmt, "bind_param"), $tmp );
+		}
 		
 		/* execute query and obtain execution time in milliseconds */
 		$msc = microtime( true );
@@ -195,10 +210,6 @@ class query_result {
 			$fields = array(),
 			$exec_time = "";
 	
-	/* index result data for quicker searching */
-	//private $cols = array(),
-	//		$vals = array();
-	
 	/* create a query result from an array of data and an execution time */
 	function __construct( $data = array(), $time = 0 ) {
 		$this->data = $data;
@@ -207,35 +218,53 @@ class query_result {
 		if( count( $data ) > 0 )
 			foreach( $data[0] as $k => $v )
 				$this->fields[] = $k;
-		/* index result data for use with ->get() */
-		/*foreach( $this->data as $i ) {
-			foreach( $i as $col => $val ) {
-				if( array_search( $col, $this->cols ) === false ) {
-					$this->cols[] = $col;
-					$this->vals[] = array();
-				}
-				$this->vals[ array_search( $col, $this->cols ) ][] = $val;
-			}
-		}*/
+			return;
 	}
 	
 	/* get specific results from result set */
-	public function get( $col = null, $val = null ) {
-		/* if called with no arguments, return all result data */
-		//if( $col === null )
-			return $this->data;
-		
-		/* if a column only is specified, return array of values of that column */
-		/*if( $val === null )
-			return $this->vals[ array_search( $col, $this->cols ) ];*/
+	public function get( $col = null, $val = null, $res = null ) {
+		if( $res === null )
+			$res = $this->data;
 			
-		/* if a column/value pair is specified, return results that include that pair */
-		/*$res = array();
-		$index = array_search( $col, $this->cols );
-		foreach( $this->vals[ $index ] as $i => $value )
-			if( $value === $val )
-				$res[] = $this->data[ $i ];
-		return $res;*/
+		if( $col === null )
+			return $this->data;
+
+		$return = array();
+		foreach( $res as $i => $result )
+			foreach( $result as $k => $v )
+				if( strtolower( $col ) == strtolower( $k ) )
+					if( strtolower( $v ) == strtolower( $val ) )
+						$return[] = $res[ $i ];
+		if( count( $return ) === 0 )
+			return false;
+		return $return;
+	}
+	
+	/* group results into associative array by column value */
+	public function group_by( $format = "null", $params = array() ) {
+		if( count( $params ) === 0 || strpos( $format, "?" ) === false )
+			return false;
+		
+		if( count( $params ) !== substr_count( $format, "?" ) )
+			return false;
+			
+		foreach( $params as $param )
+			if( !in_array( strtolower( $param ), $this->fields ) )
+				return false;
+		
+		$res = array();
+		foreach( $this->data as $i => $result ) {
+			/* replace "?"s with paramaters at same index */
+			$cur = $format;
+			foreach( $params as $param )
+				$cur = substr_replace( $cur, $result[ $param ], strpos( $cur, "?" ), 1 );
+			
+			if( !isset( $res[ $cur ] ) )
+				$res[ $cur ] = array();
+			$res[ $cur ][] = $result;
+		}
+		
+		return $res;
 	}
 }
 

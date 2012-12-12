@@ -312,3 +312,8 @@ $(".heading").bind( "onclick", function( e ) {
 	if( e.target.tagName !== "A" )
 		this.next().toggleClass( "hidden" );
 });
+
+$(".section_title").bind( "onclick", function( e ) {
+	if( e.target.tagName === "DIV" )
+		this.next().toggleClass( "hidden" );
+});
