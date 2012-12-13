@@ -58,7 +58,6 @@ class ori {
 	
 	/* get entries based on what fields the user asked for */
 	public static function get_moodle_attempt( $fields, $params ) {
-		print_r( $params );
 		$q = 'SELECT g.userid, u.username, concat(u.firstname, " ", u.lastname) AS "fullname", '.
 				'u.email, i.itemname AS item, i.itemtype AS itemtype, '.
 				'g.finalgrade AS grades, g.timecreated, '.

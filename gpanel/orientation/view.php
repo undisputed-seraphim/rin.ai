@@ -40,28 +40,23 @@ $c_firstname = $b_firstname ? ' checked="checked"' : '';
 ?>
 	<div class="content">
     	<p class="title">Search by:</p>
-    	<form action="view.php" method="post">
-	    	<div class="form_line">
-    	    	<div class="item">
-                	<input type="checkbox" name="c_username" id="c_username" value="u" <?php echo $c_username; ?>/>
-                    <label for="c_username">Username</label>
-                </div>
-                <div class="item">
-                	<input type="text" name="username" value="<?php echo $username;?>" />
-                </div>
-            </div>
-            <div class="form_line">
-                <div class="item">
-                	<input type="checkbox" name="c_firstname" id="c_firstname" value="u" <?php echo $c_firstname; ?>/>
-                    <label for="c_firstname">First name</label>
-                </div>
-	            <div class="item">
+    	<form action="view.php" method="post" class="gform">
+        	<fieldset><legend>Student Information</legend>
+		    	<div class="row">
+    	            <!--<input type="checkbox" name="c_username" id="c_username" value="u" <?php echo $c_username; ?>/>-->
+        	        <label class="ralign" for="c_username">Username</label>
+            	    <input type="text" name="username" id="focus" value="<?php echo $username;?>" />
+	            </div>
+    	        <div class="row">
+        	        <!--<input type="checkbox" name="c_firstname" id="c_firstname" value="u" <?php echo $c_firstname; ?>/>-->
+            	    <label class="ralign" for="c_firstname">First name</label>
                 	<input type="text" name="firstname" value="<?php echo $firstname;?>" />
-                </div>
-        	</div>
-    	    <div class="form_line">
-            	<div class="form_item"><input type="submit" name="search" value="Search" /></div>
-        	</div>
+	        	</div>
+    	        <div class="row">
+        	    	<label>&nbsp;</label>
+            		<input type="submit" name="search" value="Search" />
+	            </div>
+            </fieldset>
     	</form>
     </div>
     <div class="content">

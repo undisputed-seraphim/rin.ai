@@ -162,17 +162,19 @@ class premade_query {
 		$types = "";
 		$i = 0;
 		if( is_array( $params ) ) {
-			foreach( $params as $param )
-				foreach( $param as $type => $val )
-					$types .= $type;
-			$tmp[] = $types;
-			foreach( $params as $param )
-				foreach( $param as $type => $val ) {
-					$bind_name = 'vals['.$i++.']';
-                	$$bind_name = $val;
-               		$tmp[] = &$$bind_name;
-				}
-			call_user_func_array( array( $this->stmt, "bind_param"), $tmp );
+			if( count( $params ) > 0 ) {
+				foreach( $params as $param )
+					foreach( $param as $type => $val )
+						$types .= $type;
+				$tmp[] = $types;
+				foreach( $params as $param )
+					foreach( $param as $type => $val ) {
+						$bind_name = 'vals['.$i++.']';
+            	    	$$bind_name = $val;
+               			$tmp[] = &$$bind_name;
+					}
+				call_user_func_array( array( $this->stmt, "bind_param"), $tmp );
+			}
 		}
 		
 		/* execute query and obtain execution time in milliseconds */

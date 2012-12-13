@@ -9,10 +9,6 @@ if( isset( $_POST[ 'submit' ] ) )
 	if( !g::login( true ) )
 		$msg = '<span style="color: red;">Invalid Login</span>.';
 
-/* premade queries for security */
-$courses = g::prepare( "select * from mdl1_8block where name = ?" );
-$result = $courses->execute( array( "s" => "course_list" ) )->get();
-
 /* print document head, with field for page title */
 g::start_content( "Global Admin Panel", "gPanel - Login" );
 
@@ -27,17 +23,17 @@ if( g::login() ) {
             <div class="content">
 	            <form action="index.php" method="post">
     	        	<input name="e" type="hidden" value="1b6453892473a467d07372d45eb05abc2031647a" />
-        	        <div class="form_line">
-                    	<div class="item"><label>Username</label></div>
-                        <div class="item"><input id="focus" name="c" type="text" /></div>
+        	        <div class="row">
+                    	<label class="ralign">Username</label>
+                        <input id="focus" name="c" type="text" />
                     </div>
-                    <div class="form_line">
-                        <div class="item"><label>Password</label></div>
-                        <div class="item"><input name="p" type="password" /></div>
+                    <div class="row">
+                        <label class="ralign">Password</label>
+                        <input name="p" type="password" />
                     </div>
-                	<div class="form_line">
-                    	<div class="item"></div>
-                        <div class="item"><input name="submit" type="submit" value="login" /></div>
+                	<div class="row">
+                    	<label>&nbsp;</label>
+                        <input name="submit" type="submit" value="login" />
                     </div>
 	            </form>
             </div><?php
