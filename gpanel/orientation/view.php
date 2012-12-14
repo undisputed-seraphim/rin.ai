@@ -12,57 +12,53 @@ $b_firstname = 0;
 if( isset( $_POST['search'] ) ) {
 	$chosen = array();
 	$params = array();
+	$data = array( "username", "firstname", "lastname" );
 	
-	$b_username = g::post_b( "c_username" );
-	$b_firstname = g::post_b( "c_firstname" );
-	
-	if( $b_username ) {
-		$chosen[] = "username";
-		$params[] = array( "s" => g::clean_data( $_POST['username'] ) );
-	}
-	if( $b_firstname ) {
-		$chosen[] = "firstname";
-		$params[] = array( "s" => g::clean_data( $_POST['firstname'] ) );
-	}
+	g::add_post_data( $chosen, $params, $data );
 	//jacobyork7889
-	$res = ori::get_moodle_attempt( $chosen, $params );	
-	if( $res )
-		$results = ori::table_from_results( $res );
+	$res = ori::get_moodle_attempt( $chosen, $params );
+	$results = '<div class="content">';
+	$results .= ori::table_from_results( $res );
+	$results .= '</div>';
 }
 
 g::start_content( "Orientation - View Attempts", "gPanel - Orientation" );
 /* content goes here, html is already inside the <div id="content"> */
-$username = isset( $_POST['username'] ) ? g::clean_data( $_POST['username'] ) : "";
-$firstname = isset( $_POST['firstname'] ) ? g::clean_data( $_POST['firstname'] ) : "";
-$c_username = $b_username ? ' checked="checked"' : '';
-$c_firstname = $b_firstname ? ' checked="checked"' : '';
+$username = g::post_string( "username" );
+$firstname = g::post_string( "firstname" );
+$lastname = g::post_string( "lastname" );
 
 ?>
 	<div class="content">
-    	<p class="title">Search by:</p>
+    	<p class="title">Search<span class="br_abs note">inline block</span></p>
     	<form action="view.php" method="post" class="gform">
-        	<fieldset><legend>Student Information</legend>
+        	<fieldset><legend>Student Information</legend><div class="inner">
 		    	<div class="row">
-    	            <!--<input type="checkbox" name="c_username" id="c_username" value="u" <?php echo $c_username; ?>/>-->
-        	        <label class="ralign" for="c_username">Username</label>
+        	        <label class="ralign">Username</label>
             	    <input type="text" name="username" id="focus" value="<?php echo $username;?>" />
 	            </div>
     	        <div class="row">
-        	        <!--<input type="checkbox" name="c_firstname" id="c_firstname" value="u" <?php echo $c_firstname; ?>/>-->
-            	    <label class="ralign" for="c_firstname">First name</label>
+            	    <label class="ralign">First Name</label>
                 	<input type="text" name="firstname" value="<?php echo $firstname;?>" />
+                    <label class="ralign">Last Name</label>
+                    <input type="text" name="lastname" value="<?php echo $lastname;?>" />
 	        	</div>
+                <div class="row">
+                	<input type="checkbox" name="zelda" value="1" />
+                    <label>Zelda</label>
+                </div>
+                <div class="row">
+                    <input type="checkbox" name="mario" value="1" />
+                   	<label>Mario</label>
+                </div>
     	        <div class="row">
         	    	<label>&nbsp;</label>
             		<input type="submit" name="search" value="Search" />
 	            </div>
-            </fieldset>
+            </div></fieldset>
     	</form>
     </div>
-    <div class="content">
-	    <p class="title">Results</p>
-    	<div><?php echo $results; ?></div>
-    </div>
+    <?php echo $results; ?>
 <?php
 g::end_content();
 ?>

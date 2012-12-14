@@ -119,11 +119,52 @@ class g {
 		echo "";
 	}
 	
+	/* get the value of a post string or return empty string */
+	public static function post_string( $name = "" ) {
+		if( $name === "" )
+			return "";
+		if( !g::post_not_empty( $name ) )
+			return "";
+		return trim( $_POST[$name] );
+	}
+	
+	/* function for adding posted search fields and data to arrays */
+	public static function add_post_data( &$fields = null, &$params = null, $data = null ) {
+		if( $fields === null || $params === null || $data === null )
+			return false;
+		if( is_array( $data ) ) {
+			foreach( $data as $d ) {
+				if( g::post_not_empty( $d ) ) {
+					$fields[] = $d;
+					$params[] = array( "s" => trim( g::clean_data( $_POST[$d] ) ) );
+				}
+			}
+			return true;
+		}
+		if( gettype( $data ) === "string" )
+			if( g::post_not_empty( $data ) ) {
+				$fields[] = $data;
+				$params[] = array( "s" => trim( g::clean_data( $_POST[$data] ) ) );
+			}
+		return true;
+	}
+	
 	/* return 1 or 0 if post var is set or not */
-	public static function post_b( $name ) {
+	public static function post_b( $name = "" ) {
 		if( isset( $_POST[$name] ) )
 			return 1;
 		return 0;
+	}
+	
+	/* ensure post is not empty */
+	public static function post_not_empty( $name = "" ) {
+		if( !isset( $_POST[$name] ) )
+			return false;
+		if( gettype( $_POST[$name] ) !== "string" )
+			return false;
+		if( trim( $_POST[$name] ) === "" )
+			return false;
+		return true;
 	}
 	
 	/* return 1 or 0 if session var is set or not */
@@ -179,10 +220,10 @@ class g {
 		echo
 	'<div id="header">
     	<div class="line">
-        	<div class="left_af">
+        	<div class="lalign lfloat">
 	        	<img src="http://ecpicollege.com/logos/ECPI_Logo_200px.png" alt="ECPI University" />
             </div>
-            <div class="right_af">
+            <div class="ralign rfloat">
 	            <label class="title">'.$page.'</label><br />
             	<label>'.g::login_string().'</label>
             </div>

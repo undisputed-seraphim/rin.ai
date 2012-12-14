@@ -22,6 +22,9 @@ class ori {
 	
 	/* build table from query_result object */
 	public static function table_from_results( $results ) {
+		if( !$results )
+			return '<table class="results"><tr><td>No Results</td></tr></table>';
+
 		if( count( $results->data ) === 0 )
 			return '<table class="results"><tr><td>No Results</td></tr></table>';
 		
@@ -29,11 +32,11 @@ class ori {
 		$res = $results->group_by( "? [ ? ]", array( "fullname", "username" ) );
 		if( !$res )
 			return '<table class="results"><tr><td>No Results</td></tr></table>';
-		$html = '<p class="time">obtained in '.$results->exec_time.' ms</p>';
+		$html = '<p class="title">Results<span class="note tr_abs">obtained in '.$results->exec_time.' ms</span></p>';
 		$init = true;
 		/* build the html sections per student */
 		foreach( $res as $student => $data ) {
-			$html .= '<div class="section_title">'.$student.'</div><div class="section';
+			$html .= '<div class="section_title"><label>'.$student.'</label></div><div class="section';
 			$html .= $init ? '">' : ' hidden">';
 			$init = false;
 			$html .= '<table class="results">';
@@ -50,6 +53,7 @@ class ori {
 					$html .= '<td colspan="2">No Entry</td>';
 				}
 				$html .= '</tr>';
+				/* grab student's archived entries if any */
 			}
 			$html .= '</table></div>';
 		}
@@ -69,11 +73,11 @@ class ori {
 			'WHERE c.fullname = "ECPI Online Student Orientation" AND i.itemtype != "category" ';
 	
 		/* modify query based on which values where chosen */
-
 		foreach( $fields as $field )
 			switch( $field ) {
 				case "username": $q .= 'AND u.username = ? '; break;
-				case "firstname": $q .= 'AND u.firstname = ? '; break;
+				case "firstname": $q .= 'AND u.firstname LIKE CONCAT(\'%\', ?, \'%\')'; break;
+				case "lastname": $q .= 'AND u.lastname LIKE CONCAT(\'%\', ?, \'%\')'; break;
 			}
 	
 		$q .= 'ORDER BY u.lastname, item DESC LIMIT 100';
