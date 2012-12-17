@@ -32,11 +32,11 @@ class ori {
 		$res = $results->group_by( "? [ ? ]", array( "fullname", "username" ) );
 		if( !$res )
 			return '<table class="results"><tr><td>No Results</td></tr></table>';
-		$html = '<p class="title">Results<span class="note tr_abs">obtained in '.$results->exec_time.' ms</span></p>';
+		$html = '<p class="title">Results<span class="note">obtained in '.$results->exec_time.' ms</span></p>';
 		$init = true;
 		/* build the html sections per student */
 		foreach( $res as $student => $data ) {
-			$html .= '<div class="section_title"><label>'.$student.'</label></div><div class="section';
+			$html .= '<div class="section"><div class="section_title"><label>'.$student.'</label></div><div class="section_body';
 			$html .= $init ? '">' : ' hidden">';
 			$init = false;
 			$html .= '<table class="results">';
@@ -55,7 +55,7 @@ class ori {
 				$html .= '</tr>';
 				/* grab student's archived entries if any */
 			}
-			$html .= '</table></div>';
+			$html .= '</table></div></div>';
 		}
 		return $html;
 	}

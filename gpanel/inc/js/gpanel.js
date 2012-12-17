@@ -105,6 +105,12 @@ set.prototype = {
 		return this.merge( this.each( function() { return this.next(); } ) );
 	},
 	
+	/* get the parent of the FIRST node in the set */
+	parent: function() {
+		if( this.length > 1 )
+			return this.elements[0].parent();
+	},
+	
 	/* set the direct properties of items within a set */
 	prop: function( prop, value ) {
 		if( this.length === 1 )
@@ -169,6 +175,13 @@ element.prototype = {
 		return res ? new set( [ res ] ) : new set ();
 	},
 	
+	/* get parentNode of the element */
+	parent: function() {
+		if( this.target.parentNode )
+			return new set( [ this.target.parentNode ] );
+		return new set();
+	},
+	
 	/* get or set a direct property of the dom target */
 	prop: function( prop, value ) {
 		if( typeof value == "undefined" && typeof prop == "string" )
@@ -217,7 +230,7 @@ element.prototype = {
 	/* add class to element */
 	addClass: function( cls ) {
 		if( !this.hasClass( cls ) )
-			this.target.className = this.target.className + " " + cls;
+			this.target.className = trim( this.target.className + " " + cls );
 		return this;
 	},
 	
@@ -263,7 +276,7 @@ element.prototype = {
 						break;
 					case ".":
 						/* children by class name */
-						if( inArray( ( childs[i].getAttribute( "class" ) || "" ).split(" "), targets[j].substr(1) ) )
+						if( inArray( ( childs[i].className || "" ).split(" "), targets[j].substr(1) ) )
 							if( !inArray( results, childs[i] ) )
 								results.push( childs[i] );
 						break;
@@ -314,6 +327,5 @@ $(".heading").bind( "onclick", function( e ) {
 });
 
 $(".section_title").bind( "onclick", function( e ) {
-	if( e.target.tagName === "DIV" )
-		this.next().toggleClass( "hidden" );
+	this.parent().children(".section_body").toggleClass( "hidden" );
 });

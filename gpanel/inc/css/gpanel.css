@@ -1,9 +1,10 @@
 * { margin: 0px; padding: 0px; }
 
-html { overflow-y: scroll; overflow-x: hidden; height: 100%; font-family: Tahoma; font-size: 12px; color: #5f5f5f; }
-body { height: 100%; overflow-x: hidden; }
+html { height: 100%; font-family: Tahoma; font-size: 12px; color: #5f5f5f; }
+body { height: 100%; }
 ul, blockquote { margin-left: 20px; display: block; }
-input[type="submit"] { overflow: visible; padding: 2px 3px; font-size: 12px; }
+fieldset { margin-bottom: 15px; }
+input[type="submit"], input[type="button"] { overflow: visible; padding: 2px 3px; font-size: 12px; }
 
 table { border-collapse: collapse; border: 1px solid #bfbfff; font-size: 12px; }
 thead { border-left: 1px solid #bfbfff; border-right: 1px solid #bfbfff; text-align: left; }
@@ -19,37 +20,37 @@ a:hover { color: #4f74f7; }
 .line { padding: 20px; position: relative; }
 
 .gform { font-family: Lucida Sans Unicode; }
+.gform hr { border: 0px; border-top: 1px solid #ccc; margin: 10px; }
 .gform blockquote { display: inline-block; padding: 15px; }
 .gform fieldset { border: 1px solid #ccc; }
 .gform legend { font-family: Tahoma; color: #4B77A4; padding: 2px 4px; font-size: 14px; letter-spacing: 1px; }
 .gform label { font-size: 11px; width: 100px; letter-spacing: 1px; }
-.gform input[type="checkbox"] { width: 50px; }
+.gform input[type="checkbox"] { }
 .gform input[type="text"] { color: #666; letter-spacing: 1px; font-size: 12px; width: 150px; }
 .gform .row>* { display: inline-block; vertical-align: middle; margin: 4px; }
 
-.section { border-left: 1px solid #666; border-bottom: 1px solid #666; border-right: 1px solid #666; padding: 10px; }
-.section_title { padding: 5px; border: 1px solid #666; color: #333; margin-top: 2px; }
-
-.br_abs { position: absolute; right: 0px; bottom: 0px; }
-.tr_abs { position: absolute; right: 0px; top: 0px; }
+.section { border: 1px solid #666; margin-top: 2px; }
+.section_title { display: block; padding: 5px; color: #333; }
+.section_body { padding: 10px; }
 
 .lalign { text-align: left; }
 .ralign { text-align: right; }
 .lfloat { float: left; }
-.rfloat { float: right; }
+.rfloat { float: right; position: relative; z-index: 100; }
 
 #nav label { display: block; position: relative; }
 .heading { padding: 2px; border: 1px solid black; margin-top: 3px; margin-bottom: 3px; }
 .current { color: black; font-weight: bold; }
 .inner { margin: 15px; }
+.inner_lr { margin-left: 15px; margin-right: 15px; }
 .row { white-space: nowrap; }
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 .content { margin-bottom: 20px; clear: none; padding: 20px; border: 1px solid #999; }
 .content .title { color: #666; font-size: 22px; font-family: Arial; letter-spacing: 1px; font-weight: bold; margin: 5px 0px; }
 .content .subtitle { color: #ccc; }
 .results { width: 100%; }
-.note { letter-spacing: normal; font-size: 10px; font-family: Lucida Sans Unicode; font-weight: normal; color: #999; font-style: italic; }
+.note { letter-spacing: normal; font-size: 10px; font-family: Lucida Sans Unicode; font-weight: normal; color: #999; font-style: italic; margin-left: 20px; }
 tr.even td { background-color: #efefff; }
 
 #main {
@@ -66,6 +67,7 @@ tr.even td { background-color: #efefff; }
 
 #page { padding-top: 10px; padding-bottom: 100px; margin-left: 20px; margin-right: 20px; }
 #nav { float: left; min-width: 200px; max-width: 200px; padding: 15px; }
+#nav a { display: inline; position: relative; }
 #content { margin-left: 240px; padding: 15px; }
 
 #footer {

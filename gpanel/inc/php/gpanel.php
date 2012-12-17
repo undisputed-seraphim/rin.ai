@@ -9,6 +9,7 @@ class g {
 	public static $app = "";
 	public static $roles = "";
 	public static $nav = "";
+	public static $javascript = "";
 	
 	/* initialize the app / db connection */
 	public static function init( $app = "home" ) {
@@ -266,6 +267,7 @@ class g {
     </div>
 </div>
 <script type="text/javascript" src="'.WEB_ROOT.'inc/js/gpanel.js"></script>
+'.g::$javascript.'
 </body>
 </html>';
 	}

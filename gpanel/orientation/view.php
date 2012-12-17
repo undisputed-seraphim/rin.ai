@@ -29,8 +29,8 @@ $firstname = g::post_string( "firstname" );
 $lastname = g::post_string( "lastname" );
 
 ?>
-	<div class="content">
-    	<p class="title">Search<span class="br_abs note">inline block</span></p>
+	<div class="content"><input class="rfloat" type="button" id="advanced" name="advanced" value="Show Advanced..." />
+    	<p class="title">Search</p>
     	<form action="view.php" method="post" class="gform">
         	<fieldset><legend>Student Information</legend><div class="inner">
 		    	<div class="row">
@@ -40,25 +40,40 @@ $lastname = g::post_string( "lastname" );
     	        <div class="row">
             	    <label class="ralign">First Name</label>
                 	<input type="text" name="firstname" value="<?php echo $firstname;?>" />
-                    <label class="ralign">Last Name</label>
-                    <input type="text" name="lastname" value="<?php echo $lastname;?>" />
 	        	</div>
                 <div class="row">
-                	<input type="checkbox" name="zelda" value="1" />
-                    <label>Zelda</label>
+	                <label class="ralign">Last Name</label>
+                    <input type="text" name="lastname" value="<?php echo $lastname;?>" />
                 </div>
+            </div></fieldset>
+            <fieldset id="advanced_fieldset" class="hidden"><legend>Advanced</legend><div class="inner">
                 <div class="row">
+	                <label class="ralign">Zelda</label>
+   	            	<input type="checkbox" name="zelda" value="1" />
+           	    </div>
+               	<div class="row">
+                    <label class="ralign">Mario</label>
                     <input type="checkbox" name="mario" value="1" />
-                   	<label>Mario</label>
-                </div>
+      	        </div>
+            </div></fieldset>
+            <div class="inner_lr">
     	        <div class="row">
         	    	<label>&nbsp;</label>
             		<input type="submit" name="search" value="Search" />
 	            </div>
-            </div></fieldset>
+            </div>
     	</form>
     </div>
     <?php echo $results; ?>
 <?php
+g::$javascript .= '<script type="text/javascript">
+$("#advanced").bind("onclick", function( e ) {
+	$("#advanced_fieldset").toggleClass( "hidden" );
+	if( $("#advanced_fieldset").hasClass( "hidden" ) )
+		this.prop( "value", "Show Advanced..." );
+	else
+		this.prop( "value", "Hide Advanced..." );
+});
+</script>';
 g::end_content();
 ?>
