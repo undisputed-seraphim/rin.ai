@@ -107,8 +107,9 @@ set.prototype = {
 	
 	/* get the parent of the FIRST node in the set */
 	parent: function() {
-		if( this.length > 1 )
+		if( this.length > 0 )
 			return this.elements[0].parent();
+		return new set();
 	},
 	
 	/* set the direct properties of items within a set */
@@ -152,7 +153,10 @@ set.prototype = {
 	children: function( ids ) { return this.merge( this.each( function() { return this.children( ids ); } ) ); },
 	
 	/* bind a function to an event handler on the element */
-	bind: function( ev, callback ) { return this.each( function() { return this.bind( ev, callback ); } ); }
+	bind: function( ev, callback ) { return this.each( function() { return this.bind( ev, callback ); } ); },
+	
+	/* focus the first element in a set */
+	focus: function() { if( this.length > 0 ) return this.elements[0].focus(); return this; }
 };
 
 /* element object, represents a dom element */
@@ -299,7 +303,10 @@ element.prototype = {
 	},
 	
 	/* bind a function as an event callback */
-	bind: function( ev, callback ) { var el = this; this.target[ev] = function( e ) { return callback.call( el, e ); }; }
+	bind: function( ev, callback ) { var el = this; this.target[ev] = function( e ) { return callback.call( el, e ); }; },
+	
+	/* focus on an element */
+	focus: function() { this.target.focus(); return this; }
 };
 
 /* alias functions */
@@ -319,7 +326,7 @@ function trueArray( arr ) { for( var i = 0; i < arr.length; i++ ) if( arr[i] !==
 })();
 
 if( $("#focus").length )
-	$("#focus").elements[0].target.focus();
+	$("#focus").focus();
 
 $(".heading").bind( "onclick", function( e ) {
 	if( e.target.tagName !== "A" )

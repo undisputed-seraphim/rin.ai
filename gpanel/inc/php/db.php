@@ -2,7 +2,7 @@
 /* db class to manage database operations */
 class db {
 	/* vars for the database connection */
-	private $host = "",
+	public  $host = "",
 			$user = "",
 			$pass = "",
 			$conn = "",

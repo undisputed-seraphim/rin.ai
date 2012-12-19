@@ -31,12 +31,13 @@ a:hover { color: #4f74f7; }
 
 .section { border: 1px solid #666; margin-top: 2px; }
 .section_title { display: block; padding: 5px; color: #333; }
-.section_body { padding: 10px; }
+.section_body { padding: 10px; padding-left: 0px; }
 
 .lalign { text-align: left; }
 .ralign { text-align: right; }
 .lfloat { float: left; }
 .rfloat { float: right; position: relative; z-index: 100; }
+.center { text-align: center; }
 
 #nav label { display: block; position: relative; }
 .heading { padding: 2px; border: 1px solid black; margin-top: 3px; margin-bottom: 3px; }
@@ -48,8 +49,10 @@ a:hover { color: #4f74f7; }
 
 .content { margin-bottom: 20px; clear: none; padding: 20px; border: 1px solid #999; }
 .content .title { color: #666; font-size: 22px; font-family: Arial; letter-spacing: 1px; font-weight: bold; margin: 5px 0px; }
-.content .subtitle { color: #ccc; }
+.content .subtitle { color: #666; font-size: 16px; font-family: Arial; letter-spacing: 1px; font-weight: bold; }
 .results { width: 100%; }
+.complete { border-left: 20px solid #77bb77; padding-left: 10px; }
+.incomplete { border-left: 20px solid #bb7777; padding-left: 10px; }
 .note { letter-spacing: normal; font-size: 10px; font-family: Lucida Sans Unicode; font-weight: normal; color: #999; font-style: italic; margin-left: 20px; }
 tr.even td { background-color: #efefff; }
 

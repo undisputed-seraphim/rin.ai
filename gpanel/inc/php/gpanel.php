@@ -267,7 +267,7 @@ class g {
     </div>
 </div>
 <script type="text/javascript" src="'.WEB_ROOT.'inc/js/gpanel.js"></script>
-'.g::$javascript.'
+<script type="text/javascript">'.g::$javascript.'</script>
 </body>
 </html>';
 	}

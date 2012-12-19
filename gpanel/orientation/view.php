@@ -16,10 +16,8 @@ if( isset( $_POST['search'] ) ) {
 	
 	g::add_post_data( $chosen, $params, $data );
 	//jacobyork7889
-	$res = ori::get_moodle_attempt( $chosen, $params );
-	$results = '<div class="content">';
-	$results .= ori::table_from_results( $res );
-	$results .= '</div>';
+	$res = ori::get_attempts( $chosen, $params );
+	$results = '<div class="content">'.$res.'</div>';
 }
 
 g::start_content( "Orientation - View Attempts", "gPanel - Orientation" );
@@ -66,7 +64,7 @@ $lastname = g::post_string( "lastname" );
     </div>
     <?php echo $results; ?>
 <?php
-g::$javascript .= '<script type="text/javascript">
+g::$javascript .= '
 $("#advanced").bind("onclick", function( e ) {
 	$("#advanced_fieldset").toggleClass( "hidden" );
 	if( $("#advanced_fieldset").hasClass( "hidden" ) )
@@ -74,6 +72,6 @@ $("#advanced").bind("onclick", function( e ) {
 	else
 		this.prop( "value", "Hide Advanced..." );
 });
-</script>';
+';
 g::end_content();
 ?>
