@@ -109,7 +109,7 @@ class db {
 	
 	/* merge two query_result objects */
 	public static function result_merge( $res1, $res2 ) {
-		
+		return query_result::merge( $res1, $res2 );
 	}
 	
 	/* ensure that the given value is of type $type, where $type is a word defining the type */
@@ -212,6 +212,10 @@ class query_result {
 			$fields = array(),
 			$exec_time = "";
 	
+	public static function merge( $res1, $res2 ) {
+		return new query_result( array_merge( $res1->data, $res2->data ), $res1->exec_time + $res2->exec_time );
+	}
+	
 	/* create a query result from an array of data and an execution time */
 	function __construct( $data = array(), $time = 0 ) {
 		$this->data = $data;
@@ -225,28 +229,43 @@ class query_result {
 	
 	/* get specific results from result set */
 	public function get( $col = null, $val = null, $res = null ) {
+		if( $col === null )
+			return $this->data;
+			
 		if( $res === null )
 			$res = $this->data;
 			
-		if( $col === null )
-			return $this->data;
-
 		$return = array();
 		foreach( $res as $i => $result )
 			foreach( $result as $k => $v )
 				if( strtolower( $col ) == strtolower( $k ) )
 					if( strtolower( $v ) == strtolower( $val ) )
 						$return[] = $res[ $i ];
+		
 		if( count( $return ) === 0 )
 			return false;
 		return $return;
 	}
 	
 	/* group results into associative array by column value */
-	public function group_by( $format = "null", $params = array() ) {
-		if( count( $params ) === 0 || strpos( $format, "?" ) === false )
-			return false;
+	public function group_by( $format = null, $params = array() ) {
+		if( strpos( $format, "?" ) === false && $format !== null ) {
+			$data = $this->data;
+			if( count( $params ) > 0 )
+				$data = $params;
+			$res = array();
+			foreach( $data as $i => $result ) {
+				$cur = $result["type"];
+				if( !isset( $res[ $cur ] ) )
+					$res[$cur] = array();
+				$res[$cur][] = $result;
+			}
+			return $res;
+		}
 		
+		if( strpos( $format, "?" ) === false )
+			return false;
+			
 		if( count( $params ) !== substr_count( $format, "?" ) )
 			return false;
 			
@@ -267,6 +286,11 @@ class query_result {
 		}
 		
 		return $res;
+	}
+	
+	/* return limited set of data */
+	public function limit( $n = 100 ) {
+		return new query_result( array_splice( $this->data, 100 ), $this->exec_time );
 	}
 }
 

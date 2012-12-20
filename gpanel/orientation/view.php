@@ -61,6 +61,18 @@ $lastname = g::post_string( "lastname" );
 	            </div>
             </div>
     	</form>
+        <!--<div class="separator"></div>
+        <div class="content_footer">
+	        <div class="legend">
+    	    	<table>
+        	    	<tr>
+            	        <td><p>Pass</p><div class="pass">&nbsp;</div></td>
+                	    <td>Fail<div class="fail">&nbsp;</div></td>
+                    	<td>Incomplete<div class="blank">&nbsp;</div></td>
+	                </tr>
+    	        </table>
+            </div>
+        </div>-->
     </div>
     <?php echo $results; ?>
 <?php
