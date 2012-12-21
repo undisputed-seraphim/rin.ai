@@ -6,15 +6,19 @@ g::init( "orientation" ) or die( "Database connection unsucessful." );
 ( g::login() && g::access( r_ORIENTATION_VIEW ) ) or g::redirect();
 
 $results = "";
-$b_username = 0;
-$b_firstname = 0;
 
 if( isset( $_POST['search'] ) ) {
 	$chosen = array();
 	$params = array();
-	$data = array( "username", "firstname", "lastname" );
 	
+	$data = array( "username", "firstname", "lastname" );
 	g::add_post_data( $chosen, $params, $data );
+	
+	if( isset( $_POST['limit'] ) )
+		if( $_POST['limit'] !== ori::$limit )
+			if( is_numeric( g::clean_data( $_POST['limit'] ) ) )
+				ori::$limit = g::clean_data( $_POST['limit'] );
+			
 	//jacobyork7889
 	$res = ori::get_attempts( $chosen, $params );
 	$results = '<div class="content">'.$res.'</div>';
@@ -46,13 +50,9 @@ $lastname = g::post_string( "lastname" );
             </div></fieldset>
             <fieldset id="advanced_fieldset" class="hidden"><legend>Advanced</legend><div class="inner">
                 <div class="row">
-	                <label class="ralign">Zelda</label>
-   	            	<input type="checkbox" name="zelda" value="1" />
+	                <label class="ralign">Result Limit</label>
+   	            	<input type="text" name="limit" value="<?php echo ori::$limit;?>" />
            	    </div>
-               	<div class="row">
-                    <label class="ralign">Mario</label>
-                    <input type="checkbox" name="mario" value="1" />
-      	        </div>
             </div></fieldset>
             <div class="inner_lr">
     	        <div class="row">

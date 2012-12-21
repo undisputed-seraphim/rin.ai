@@ -120,6 +120,25 @@ class g {
 		echo "";
 	}
 	
+	/* print out a nice box thing for various purposes, notices, warnings, alerts, etc */
+	public static function heads_up( $type = "alert", $str = "This is an alert." ) {
+		$res = '<table class="headsup '.$type.'"><tr>';
+		
+		switch( strtolower( $type ) ) {
+			case "alert": case "notice": $symbol = "!"; break;
+			case "good": case "success": $symbol = "&#x2713;"; break;
+			case "warning": case "error": $symbol = "&#x2717;"; break;
+			case "o<": $symbol = '<span style="line-height: 20px; font-size: 30px; font-family: webdings;">&#151;</span>'; break;
+			default: $symbol = "?"; break;
+		}
+		
+		$res .= '<td class="left" title="'.ucwords( $type ).'"><label>'.$symbol.'</label></td>'.
+			'<td class="right"><label>'.$str.'</label></td>'.
+		'</tr></table>';
+		
+		return $res;
+	}
+	
 	/* get the value of a post string or return empty string */
 	public static function post_string( $name = "" ) {
 		if( $name === "" )

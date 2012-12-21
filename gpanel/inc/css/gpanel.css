@@ -38,6 +38,7 @@ a:hover { color: #4f74f7; }
 .lfloat { float: left; }
 .rfloat { float: right; position: relative; z-index: 100; }
 .center { text-align: center; }
+.height100 { height: 100%; }
 
 #nav label { display: block; position: relative; }
 .heading { padding: 2px; border: 1px solid black; margin-top: 3px; margin-bottom: 3px; }
@@ -52,6 +53,8 @@ a:hover { color: #4f74f7; }
 .legend table td { width: 30%; }
 .legend td * { display: inline; margin: 3px; }
 .separator { margin-top: 15px; border-top: 1px solid #ccc; }
+.spacer { margin-top: 10px; margin-bottom: 10px; height: 0px; }
+.clearboth { clear: both; }
 
 .content { margin-bottom: 20px; clear: none; padding: 20px; border: 1px solid #999; }
 .content .title { color: #666; font-size: 22px; font-family: Arial; letter-spacing: 1px; font-weight: bold; margin: 5px 0px; }
@@ -60,11 +63,17 @@ a:hover { color: #4f74f7; }
 .results { width: 100%; }
 .pass { border-left: 20px solid #77bb77; padding-left: 10px; margin-bottom: 20px; }
 .fail { border-left: 20px solid #bb7777; padding-left: 10px; margin-bottom: 20px; }
+
 .blank { border-left: 20px solid #aaa; padding-left: 10px; margin-bottom: 20px; }
-.alert { border: 1px solid #ddaaaa; background-color: #ffeeee; margin-top: 20px; padding: 10px; text-align: center; }
-.notice { overflow: visible; font-size: 12px; font-family: Arial; color: #666; margin-top: 20px; border: 1px solid #888; }
-.notice label { letter-spacing: 1px; vertical-align: middle; }
-.notice span { border-right: 1px solid #888; font-weight: bold; display: inline-block; padding: 10px; background-color: #FFff33; text-align: center; }
+
+.headsup { color: #666; border: 1px solid #888; width: 100%; text-align: center; }
+.headsup .left { width: 30px; border-right: 1px solid #888; font-weight: bold; text-align: center; }
+.headsup .right { padding-left: 10px; font-family: Lucida Sans Unicode; font-size: 11px; }
+.headsup td { padding: 7px; }
+.headsup.notice .left, .headsup.warning .left { background-color: #ffff88; }
+.headsup.alert .left, .headsup.error .left { background-color: #ffcccc; }
+.headsup.success .left { background-color: #ccffcc; }
+
 .note { letter-spacing: normal; font-size: 10px; font-family: Lucida Sans Unicode; font-weight: normal; color: #999; font-style: italic; margin-left: 20px; }
 tr.even td { background-color: #efefff; }
 

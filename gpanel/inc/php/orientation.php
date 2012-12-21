@@ -6,6 +6,7 @@ define( "ORI_RESULT_LIMIT", 100 );
 /* 'orientation' class with static functions that manage every aspect of orientation part of gpanel */
 class ori {
 	public static $db = "";
+	public static $limit = ORI_RESULT_LIMIT;
 	public static $items = array();
 	
 	public static function init() {
@@ -23,10 +24,6 @@ class ori {
 		
 		return ori::$db->connected;
 	}
-	/* g.userid, u.username, concat(u.firstname, " ", u.lastname) AS "fullname", '.
-	'u.email, i.itemname AS item, i.itemtype AS itemtype, '.
-				'g.finalgrade AS grades, g.timecreated, "moodle" as type, '.
-				'DATE_FORMAT( FROM_UNIXTIME( g.timemodified ), "%W, %M %d, %Y, %h:%i %p" ) as timemodified '.*/
 				
 	/* create the orientation_attempts table, using exact structure of columns from moodle tables */
 	public static function setup_db() {
@@ -85,6 +82,7 @@ class ori {
 			
 		$html = '<input class="rfloat" id="export" type="button" value="Export to Excel" name="export" />';
 		$html .= '<p class="title">Results<span class="note">obtained in '.$results->exec_time.' ms</span></p>';
+		$html .= '~|~|LIMIT|~|~<div class="spacer">&nbsp;</div>';
 		$init = true;
 		$num = 0;
 		/* build the html sections per student */
@@ -96,10 +94,11 @@ class ori {
 			
 			/* loop through moodle entry, then archived entries */
 			$types = ori::split_types( $results, $data );
+			$subhtml = "";
 			foreach( $types as $type => $tdata ) {
 				$incomplete = 0;
 				$grade = 0;
-				$subhtml = '<div class="~|~|PASSFAIL|~|~">';
+				$subhtml .= '<div class="~|~|PASSFAIL|~|~">';
 				$subhtml .= '<p class="subtitle">'.$type.'<span class="note">~|~|STATUS|~|~</span></p>';
 				$subhtml .= '<table class="results">';
 				foreach( ori::$items as $i => $item ) {
@@ -138,12 +137,14 @@ class ori {
 			$subhtml .= '</div></div>';
 			$html .= $subhtml;
 			
-			if( $num > ORI_RESULT_LIMIT ) {
+			if( $num > ori::$limit ) {
 				/* result limit was reached, display message at bottom of results... */
-				$html .= '<div class="notice"><span>!</span><label>Testing</label></div>';
+				$html = str_replace( "~|~|LIMIT|~|~", '<div class="spacer">&nbsp;</div>'.g::heads_up( "notice",
+					"Number of results exceed limit. Showing the first ".ori::$limit." results." ), $html );
 				return $html;
 			}
 		}
+		$html = str_replace( "~|~|LIMIT|~|~", "", $html );
 		return $html;
 	}
 	
