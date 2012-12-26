@@ -1,7 +1,7 @@
 * { margin: 0px; padding: 0px; }
 
 html { height: 100%; font-family: Tahoma; font-size: 12px; color: #5f5f5f; }
-body { height: 100%; }
+body { height: 100%; max-width: 1300px; margin: 0px auto; }
 ul, blockquote { margin-left: 20px; display: block; }
 fieldset { margin-bottom: 15px; }
 input[type="submit"], input[type="button"] { overflow: visible; padding: 2px 3px; font-size: 12px; }
@@ -17,17 +17,21 @@ a:visited { color: #2fa2fa; }
 a:hover { color: #4f74f7; }
 
 .title { position: relative; color: #0054A6; font-size: 16px; font-weight: bold; font-family: Arial; }
+.item { white-space: nowrap; }
 .line { padding: 20px; position: relative; }
+.info { cursor: help; }
 
 .gform { font-family: Lucida Sans Unicode; }
 .gform hr { border: 0px; border-top: 1px solid #ccc; margin: 10px; }
-.gform blockquote { display: inline-block; padding: 15px; }
+.gform blockquote { display: inline; }
 .gform fieldset { border: 1px solid #ccc; }
+.gform fieldset fieldset { display: inline !important; }
 .gform legend { font-family: Tahoma; color: #4B77A4; padding: 2px 4px; font-size: 14px; letter-spacing: 1px; }
+.gform fieldset fieldset legend { font-family: Tahoma; color: #4B77A4; padding: 2px 4px; font-size: 12px; letter-spacing: 1px; }
 .gform label { font-size: 11px; width: 100px; letter-spacing: 1px; }
 .gform input[type="checkbox"] { }
-.gform input[type="text"] { color: #666; letter-spacing: 1px; font-size: 12px; width: 150px; }
-.gform .row>* { display: inline-block; vertical-align: middle; margin: 4px; }
+.gform input[type="text"], .gform input[type="password"] { color: #666; letter-spacing: 1px; font-size: 12px; width: 150px; }
+.gform .row>*, .gform .row .item>* { display: inline-block; vertical-align: middle; margin: 4px; }
 
 .section { border: 1px solid #666; margin-top: 2px; }
 .section_title { display: block; padding: 5px; color: #333; }
@@ -43,9 +47,9 @@ a:hover { color: #4f74f7; }
 #nav label { display: block; position: relative; }
 .heading { padding: 2px; border: 1px solid black; margin-top: 3px; margin-bottom: 3px; }
 .current { color: black; font-weight: bold; }
-.inner { margin: 15px; }
+.inner { margin: 15px; display: inline-block; }
 .inner_lr { margin-left: 15px; margin-right: 15px; }
-.row { white-space: nowrap; }
+.row { clear: both; /*white-space: nowrap;*/ }
 .hidden { display: none !important; }
 
 .legend { width: 100%; margin: 7px; }
@@ -63,15 +67,15 @@ a:hover { color: #4f74f7; }
 .results { width: 100%; }
 .pass { border-left: 20px solid #77bb77; padding-left: 10px; margin-bottom: 20px; }
 .fail { border-left: 20px solid #bb7777; padding-left: 10px; margin-bottom: 20px; }
-
 .blank { border-left: 20px solid #aaa; padding-left: 10px; margin-bottom: 20px; }
 
-.headsup { color: #666; border: 1px solid #888; width: 100%; text-align: center; }
-.headsup .left { width: 30px; border-right: 1px solid #888; font-weight: bold; text-align: center; }
+.headsup { color: #666; border: 1px solid #aaa; width: 100%; text-align: center; }
+.headsup .left { width: 30px; border-right: 1px solid #aaa; font-weight: bold; text-align: center; }
 .headsup .right { padding-left: 10px; font-family: Lucida Sans Unicode; font-size: 11px; }
 .headsup td { padding: 7px; }
 .headsup.notice .left, .headsup.warning .left { background-color: #ffff88; }
 .headsup.alert .left, .headsup.error .left { background-color: #ffcccc; }
+.headsup.desc .left { display: none; }
 .headsup.success .left { background-color: #ccffcc; }
 
 .note { letter-spacing: normal; font-size: 10px; font-family: Lucida Sans Unicode; font-weight: normal; color: #999; font-style: italic; margin-left: 20px; }

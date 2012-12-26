@@ -113,7 +113,7 @@ set.prototype = {
 	},
 	
 	/* set the direct properties of items within a set */
-	prop: function( prop, value ) {
+	property: function( prop, value ) {
 		if( this.length === 1 )
 			return this.elements[0].prop( prop, value );
 		return this.each( function() { return this.prop( prop, value ); } );
@@ -124,6 +124,13 @@ set.prototype = {
 		if( this.length === 1 )
 			return this.elements[0].attribute( prop, value );
 		return this.each( function() { return this.attribute( prop, value ); } );
+	},
+	
+	/* get or set value attribute of elements */
+	value: function( val ) {
+		if( this.length > 0 )
+			return this.elements[0].value( val );
+		return this.each( function() { return this.value( val ); } );
 	},
 	
 	/* get or set style of items within a set */
@@ -187,7 +194,7 @@ element.prototype = {
 	},
 	
 	/* get or set a direct property of the dom target */
-	prop: function( prop, value ) {
+	property: function( prop, value ) {
 		if( typeof value == "undefined" && typeof prop == "string" )
 			return this.target[prop] || "";
 		if( typeof prop == "object" )
@@ -206,6 +213,18 @@ element.prototype = {
 		else
 			this.target.setAttribute( prop, value );
 		return this;
+	},
+	
+	/* get or set value of element */
+	value: function( val ) {
+		if( this.target.tagName.toLowerCase() == "select" ) {
+			if( typeof val == "undefined" )
+				return this.children("option").get( this.target.selectedIndex ).value() || "";
+			if( typeof val == "number" ) {
+			}
+		} else {
+			return this.target.getAttribute( "value" ) || this.target.value || "";
+		}
 	},
 	
 	/* get or set properties of an element object's style */
@@ -252,10 +271,7 @@ element.prototype = {
 	
 	/* remove class if it exists, or add if it doesnt */
 	toggleClass: function( cls ) {
-		if( this.hasClass( cls ) )
-			this.removeClass( cls );
-		else
-			this.addClass( cls );
+		this.hasClass( cls ) ? this.removeClass( cls ) : this.addClass( cls );
 		return this;
 	},
 	
@@ -309,13 +325,16 @@ element.prototype = {
 	focus: function() { this.target.focus(); return this; }
 };
 
-/* alias functions */
+/* alias functions (shortcuts) */
 if( !window.$ )
 	window.$ = window.g;
 set.prototype.css = set.prototype.style;
 set.prototype.previous = set.prototype.prev;
-set.prototype.property = set.prototype.prop;
+
+set.prototype.prop = set.prototype.property;
+
 set.prototype.attr = set.prototype.attribute;
+element.prototype.attr = element.prototype.attribute;
 
 /* helper functions for this mini library */
 function trim( str ) { return str.replace( /^\s+|\s+$/g, "" ); }

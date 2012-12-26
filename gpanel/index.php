@@ -1,10 +1,10 @@
 <?php
 session_start();
 include_once( 'config.php' );
-	
+
 g::init() or die( "Database connection unsucessful." );
 
-$msg = g::heads_up( "notice", "Enter your credentials below to login." );
+$msg = g::heads_up( "desc", "Enter your credentials below to login." );
 
 if( isset( $_POST[ 'submit' ] ) )
 	if( !g::login( true ) )
@@ -35,7 +35,7 @@ if( g::login() ) {
                     </div>
                 	<div class="row">
                     	<label>&nbsp;</label>
-                        <input name="submit" type="submit" value="login" />
+                        <input name="submit" type="submit" value="Login" />
                     </div>
 	            </form>
             </div><?php

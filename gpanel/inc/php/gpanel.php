@@ -1,6 +1,5 @@
 <?php
 include_once( ROOT.'inc/php/db.php' );
-include_once( ROOT.'inc/php/html.php' );
 include_once( ROOT.'inc/php/role.php' );
 
 /* 'global' class with static functions that manage every aspect of the gpanel */
@@ -16,7 +15,7 @@ class g {
 		g::$app = strtolower( $app );
 		g::$nav = array(
 		array( "text" => "Home", "url" => WEB_ROOT."index.php", "access" => "", "nodes" => array(
-			array( "text" => "Manage Users", "url" => WEB_ROOT."index.php", "access" => r_MANAGE ),
+			array( "text" => "Manage Users", "url" => WEB_ROOT."manage.php", "access" => r_MANAGE ),
 			array( "text" => "Orientation", "url" => WEB_ROOT."orientation/", "access" => r_ORIENTATION_VIEW, "nodes" => array(
 				array( "text" => "View Attempts", "url" => WEB_ROOT."orientation/view.php", "access" => r_ORIENTATION_VIEW ),
 				array( "text" => "Track Attempts", "url" => WEB_ROOT."orientation/track.php", "access" => r_ORIENTATION_TRACK ),
@@ -128,7 +127,7 @@ class g {
 			case "alert": case "notice": $symbol = "!"; break;
 			case "good": case "success": $symbol = "&#x2713;"; break;
 			case "warning": case "error": $symbol = "&#x2717;"; break;
-			case "o<": $symbol = '<span style="line-height: 20px; font-size: 30px; font-family: webdings;">&#151;</span>'; break;
+			case "desc": $symbol = "•"; break;
 			default: $symbol = "?"; break;
 		}
 		
@@ -137,6 +136,19 @@ class g {
 		'</tr></table>';
 		
 		return $res;
+	}
+	
+	/* determinds if selected="selected" should be printed for <select> options */
+	public static function selected( $id = "", $val = "" ) {
+		if( isset( $_POST[$id] ) )
+			if( $_POST[$id] == $val )
+				return 'selected="selected"';
+		return '';
+	}
+	
+	/* determines if checkbox needs checked="checked" or if its defaulted to checked */
+	public static function checked( $name = "", $default = false ) {
+		
 	}
 	
 	/* get the value of a post string or return empty string */
@@ -289,6 +301,12 @@ class g {
 <script type="text/javascript">'.g::$javascript.'</script>
 </body>
 </html>';
+	}
+	
+	public static function add_user( $post = "" ) {
+		if( g::post_not_empty( $post ) )
+			return true;
+		return false;
 	}
 }
 

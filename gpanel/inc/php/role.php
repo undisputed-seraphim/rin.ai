@@ -21,7 +21,7 @@ class role {
 	/* check if user has role or is granted child role, add 'true' to check for specific role only */
 	public static function check( $role = r_ALL, $direct = false ) {
 		if( $direct === true )
-			return role::has_role( array( $role ) );
+			return role::has_role( array( $role, r_ALL ) );
 			
 		switch( $role ) {
 			/* gpanel roles */
