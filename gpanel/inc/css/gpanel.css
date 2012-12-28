@@ -3,7 +3,6 @@
 html { height: 100%; font-family: Tahoma; font-size: 12px; color: #5f5f5f; }
 body { height: 100%; max-width: 1300px; margin: 0px auto; }
 ul, blockquote { margin-left: 20px; display: block; }
-fieldset { margin-bottom: 15px; }
 input[type="submit"], input[type="button"] { overflow: visible; padding: 2px 3px; font-size: 12px; }
 
 table { border-collapse: collapse; border: 1px solid #bfbfff; font-size: 12px; }

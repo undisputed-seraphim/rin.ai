@@ -20,8 +20,20 @@ class ori {
 				"3. Discussion Forum: Introduce Yourself! - Required",
 				"4. Assignment - Required"
 			);
+			
+			/* see if orientation_attempts table exists */
+			$check = @mysqli_query( ori::$db->conn, 'show tables like "orientation_attempts"' );
+			$exists = $check->num_rows > 0 ? true : false;
+		
+			/* if not exists, setup the orientation table */
+			if( !$exists )
+				if( !ori::setup_db() )
+					g::log( "db", "orientation table creation failed." );
 		}
 		
+		if( !ori::$db->connected )
+			g::log( "db", "Connection to orientation database failed: ".@mysqli_connect_error() );
+			
 		return ori::$db->connected;
 	}
 				
@@ -149,16 +161,7 @@ class ori {
 	}
 	
 	/* get entries based on what fields the user asked for */
-	public static function get_attempts( $fields, $params ) {
-		/* see if orientation_attempts table exists */
-		$check = @mysqli_query( ori::$db->conn, 'show tables like "orientation_attempts"' );
-		$exists = $check->num_rows > 0 ? true : false;
-		
-		/* if not exists, setup the orientation table */
-		if( !$exists )
-			if( !ori::setup_db() )
-				return '<div class="center">Table creation failed.</div>';
-				
+	public static function get_attempts( $fields, $params ) {				
 		$q = ori::construct_main_query( $fields );
 		$moodle_query = ori::$db->prepare( $q ) or die( mysqli_error( ori::$db->conn ) );
 		

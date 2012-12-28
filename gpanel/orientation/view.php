@@ -3,7 +3,7 @@ session_start();
 include_once( '../config.php' );
 
 g::init( "orientation" ) or die( "Database connection unsucessful." );
-( g::login() && g::access( r_ORIENTATION_VIEW ) ) or g::redirect();
+( g::login() && g::access( "r_ORI_VIEW" ) ) or g::redirect();
 
 $results = "";
 
@@ -48,12 +48,16 @@ $lastname = g::post_string( "lastname" );
                     <input type="text" name="lastname" value="<?php echo $lastname;?>" />
                 </div>
             </div></fieldset>
-            <fieldset id="advanced_fieldset" class="hidden"><legend>Advanced</legend><div class="inner">
-                <div class="row">
-	                <label class="ralign">Result Limit</label>
-   	            	<input type="text" name="limit" value="<?php echo ori::$limit;?>" />
-           	    </div>
-            </div></fieldset>
+            <div id="advanced_fieldset" class="hidden">
+	            <div class="spacer">&nbsp;</div>
+    	        <fieldset><legend>Advanced</legend><div class="inner">
+        	        <div class="row">
+	        	        <label class="ralign">Result Limit</label>
+   	            		<input type="text" name="limit" value="<?php echo ori::$limit;?>" />
+	           	    </div>
+    	        </div></fieldset>
+            </div>
+            <div class="spacer">&nbsp;</div>
             <div class="inner_lr">
     	        <div class="row">
         	    	<label>&nbsp;</label>
@@ -80,9 +84,9 @@ g::$javascript .= '
 $("#advanced").bind("onclick", function( e ) {
 	$("#advanced_fieldset").toggleClass( "hidden" );
 	if( $("#advanced_fieldset").hasClass( "hidden" ) )
-		this.prop( "value", "Show Advanced..." );
+		this.attribute( "value", "Show Advanced..." );
 	else
-		this.prop( "value", "Hide Advanced..." );
+		this.attribute( "value", "Hide Advanced..." );
 });
 ';
 g::end_content();
