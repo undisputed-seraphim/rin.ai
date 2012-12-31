@@ -2,7 +2,7 @@
 session_start();
 include_once( 'config.php' );
 
-g::init() or die( "Database connection unsucessful." );
+g::init() or g::toast( "error", "Could not initialize gPanel." );
 
 $msg = g::heads_up( "desc", "Enter your credentials below to login." );
 

@@ -7,7 +7,7 @@ class db {
 			$pass = "",
 			$conn = "",
 			$dbname = "",
-			$log_query = "";
+			$mysqli = false;
 	
 	/* object state flags */
 	public  $connected = false,
@@ -15,11 +15,19 @@ class db {
 	
 	/* constructor, allows for initializing mysql connection upon creation of object */
 	function __construct( $host = "", $user = "", $pass = "", $dbname = "" ) {
+		$this->mysqli = function_exists( "mysqli_connect" );
+
 		if( $host !== "" && $user !== "" )
 			$this->connect( $host, $user, $pass );
 		
 		if( $dbname !== "" )
 			$this->select_db( $dbname );
+	}
+	
+	/* close the db connection */
+	function __destruct() {
+		if( $this->connected )
+			$this->conn->close();
 	}
 	
 	/* connect function, for connecting to mysql instance */
@@ -28,11 +36,20 @@ class db {
 		$this->user = $user === "" ? $this->user : $user;
 		$this->pass = $pass;
 		
-		/* attempt to connect to mysql */
-		$this->conn = @mysqli_connect( $this->host, $this->user, $this->pass );
-		if( !$this->conn ) {
-			$this->connected = false;
-			return @mysqli_connect_error();
+		/* attempt to connect to mysqlii */
+		if( $this->mysqli ) {
+			$this->conn = @mysqli_connect( $this->host, $this->user, $this->pass );
+			if( !$this->conn ) {
+				$this->connected = false;
+				return @mysqli_connect_error();
+			}
+		/* or use regular mysql */
+		} else {
+			$this->conn = @mysql_connect( $this->host, $this->user, $this->pass );
+			if( !$this->conn ) {
+				$this->connected = false;
+				return @mysql_error( $this->conn );
+			}
 		}
 
 		/* successful, object is now 'connected' to mysql */
@@ -50,18 +67,13 @@ class db {
 		$temp = @mysqli_select_db( $this->conn, $name );
 		if( !$temp ) {
 			$this->ready = false;
-			return @mysqli_connect_error();
+			return @mysqli_error( $this->conn );
 		}
 		
 		/* successful, object is now 'ready' for database queries */
 		$this->dbname = $name;
 		$this->ready = true;
 		return true;
-	}
-	
-	/* set name of the log table */
-	public function set_log_info( $query = "", $params = array() ) {
-		
 	}
 	
 	/* create a prepared query */
@@ -102,24 +114,21 @@ class db {
 		if( get_magic_quotes_gpc() )
 			$str = stripslashes( $str );
 		
-		return @mysqli_real_escape_string( $this->conn, htmlentities( $str ) );
+		if( $this->mysqli )
+			return @mysqli_real_escape_string( $this->conn, htmlentities( $str ) );
+		return @mysql_real_escape_string( htmlentities( $str ) );
 	}
 	
-	/* static functions useful for database operations */
-	
-	/* merge two query_result objects */
-	public static function result_merge( $res1, $res2 ) {
-		return query_result::merge( $res1, $res2 );
-	}
-	
-	/* ensure that the given value is of type $type, where $type is a word defining the type */
-	public static function ensure( $val, $type = "string" ) {
-		switch( strtolower( $type ) ) {
-			case "array": return is_array( $val );
-			case "object": return is_object( $val );
-			case "number": return is_numeric( $val );
-			case "string": return is_string( $val );
-			default: return false;
+	public function query( $q ) {
+		$msc = microtime( true );
+		if( $this->mysqli ) {
+			$result = @mysqli_query( $this->conn, $q );
+			$msc = ( microtime( true ) - $msc ) * 1000;
+			if( !$result )
+				return false;
+			$res = new query_result( $result, $msc );
+			$result->close();
+			return $res;
 		}
 	}
 }
@@ -210,18 +219,23 @@ class premade_query {
 class query_result {
 	public  $data = "",
 			$fields = array(),
-			$exec_time = "";
-	
-	public static function merge( $res1, $res2 ) {
-		return new query_result( array_merge( $res1->data, $res2->data ), $res1->exec_time + $res2->exec_time );
-	}
+			$exec_time = "",
+			$rows = 0;
 	
 	/* create a query result from an array of data and an execution time */
 	function __construct( $data = array(), $time = 0 ) {
+		if( gettype( $data ) !== "Array" ) {
+			$res = array();
+			while( $row = @mysqli_fetch_assoc( $data ) )
+				$res[] = $row;
+			$data = $res;
+		}
+		
 		$this->data = $data;
 		$this->exec_time = $time;
+		$this->rows = count( $data );
 		
-		if( count( $data ) > 0 )
+		if( $this->rows )
 			foreach( $data[0] as $k => $v )
 				$this->fields[] = $k;
 			return;

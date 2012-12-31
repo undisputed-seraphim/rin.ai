@@ -56,7 +56,7 @@ a:hover { color: #4f74f7; }
 .legend table td { width: 30%; }
 .legend td * { display: inline; margin: 3px; }
 .separator { margin-top: 15px; border-top: 1px solid #ccc; }
-.spacer { margin-top: 10px; margin-bottom: 10px; height: 0px; }
+.spacer { margin-top: 10px; margin-bottom: 10px; height: 0px; clear: both; }
 .clearboth { clear: both; }
 
 .content { margin-bottom: 20px; clear: none; padding: 20px; border: 1px solid #999; }
@@ -73,9 +73,20 @@ a:hover { color: #4f74f7; }
 .headsup .right { padding-left: 10px; font-family: Lucida Sans Unicode; font-size: 11px; }
 .headsup td { padding: 7px; }
 .headsup.notice .left, .headsup.warning .left { background-color: #ffff88; }
-.headsup.alert .left, .headsup.error .left { background-color: #ffcccc; }
+#toast.alert, #toast.error, .headsup.alert .left, .headsup.error .left { background-color: #ffcccc; }
 .headsup.desc .left { display: none; }
 .headsup.success .left { background-color: #ccffcc; }
+
+#toast {
+	position: fixed; left: 20px; bottom: 20px;
+	padding: 20px;
+	border: 1px solid #666;
+	width: 200px;
+	text-align: center; font-weight: bold; font-size: 11px;
+}
+#toast .note { position: absolute; bottom: 0px; right: 7px; }
+#toast { cursor: default; }
+
 
 .note { letter-spacing: normal; font-size: 10px; font-family: Lucida Sans Unicode; font-weight: normal; color: #999; font-style: italic; margin-left: 20px; }
 tr.even td { background-color: #efefff; }

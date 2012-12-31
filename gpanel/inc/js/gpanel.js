@@ -102,6 +102,9 @@ set.prototype = {
 	/* check if set is empty */
 	empty: function() { return this.length == 0; },
 	
+	/* remove elements in set from the dom */
+	remove: function() { return this.each( function() { return this.remove(); } ); },
+	
 	/* get previous sibling of element */
 	previous: function() {
 		if( this.length === 1 )
@@ -163,6 +166,9 @@ set.prototype = {
 	
 	/* focus the first element in a set */
 	focus: function() { if( this.length > 0 ) this.elements[0].focus(); return this; }
+	
+	/* effect functions, most allow an optional callback to execute when an effect is complete */
+	//TODO:
 };
 
 /* element object, points to a target dom element */
@@ -170,6 +176,12 @@ function element( dom ) { this.target = dom; }
 
 /* functionality of element objects */
 element.prototype = {
+	/* remove an element from the dom */
+	remove: function() {
+		if( this.target.parentNode )
+			return this.target.parentNode.removeChild( this.target );
+		return false;
+	},
 	
 	/* get previous sibling of an element */
 	previous: function() {
@@ -244,7 +256,7 @@ element.prototype = {
 	
 	/* get or set properties of an element object's style */
 	style: function( prop, val ) {
-		var style = this.target.getAttribute( "style" ) || "";
+		var style = new String( this.target.getAttribute( "style" ) ) || "";
 		if( typeof prop == "string" && typeof val == "undefined" )
 			return style.indexOf( prop ) != -1 ?
 				new RegExp( prop+":(.*?);", "ig" ).exec(style)[1].replace(/^\s\s*/, '').replace(/\s\s*$/, '') : "";
@@ -333,31 +345,68 @@ element.prototype = {
 		return new set( results );
 	},
 	
-	/* bind a function as an event callback */
+	/* bind a function as an event callback, using this object as 'this' during function */
 	bind: function( ev, callback ) { var el = this; this.target[ev] = function( e ) { return callback.call( el, e ); }; },
 	
 	/* focus on an element */
 	focus: function() { this.target.focus(); }
+	
+	/* effect functions */
+	//TODO:
 };
+
+/* effects subclass for performing effects on elements */
+g.effects = {
+}
+
+var queue = [];
+g.queue = function queue( func ) {
+}
 
 /* alias functions (shortcuts) */
 if( !window.$ )
 	window.$ = window.g;
-set.prototype.css = set.prototype.style;			element.prototype.css = element.prototype.style;
 set.prototype.prev = set.prototype.previous;		element.prototype.prev = element.prototype.previous;
 set.prototype.prop = set.prototype.property;		element.prototype.prop = element.prototype.property;
 set.prototype.attr = set.prototype.attribute;		element.prototype.attr = element.prototype.attribute;
 
 /* helper functions for this mini library */
+//TODO: create functions that obtain elements by class/id/attribute and use those in the super $ function
 function trim( str ) { return str.replace( /^\s+|\s+$/g, "" ); }
 function map( arr, func ) { for( var i = 0; i < arr.length; i++ ) arr[i] = func( arr[i] ); return arr; }
 function inArray( arr, el ) { for( var i = 0; i < arr.length; i++ ) if( arr[i] === el ) return true; return false; }
 function makeArray( arr ) { arr = arr instanceof Array ? arr : [ arr ]; return arr; }
 function trueArray( arr ) { arr = makeArray( arr ); for( var i in arr ) if( arr[i] !== true ) return false; return true; }
-function byClass( cls, set ) { }
+function strIndexOf( str, of ) { var res = str.split(""); for( var i in res ) console.log( i ); }
+/*if ( !window.getComputedStyle ) {
+    window.getComputedStyle = function(el, pseudo) {
+        this.el = el;
+        this.getPropertyValue = function(prop) {
+            var re = /(\-([a-z]){1})/g;
+            if (prop == 'float') prop = 'styleFloat';
+            if (re.test(prop)) {
+                prop = prop.replace(re, function () {
+                    return arguments[2].toUpperCase();
+                });
+            }
+            return el.currentStyle[prop] ? el.currentStyle[prop] : null;
+        }
+        return this;
+    }
+}
+function getCSS( el, prop ) {
+	var style = "";
+	if( window.getComputedStyle )
+		style = window.getComputedStyle( el );
+	else
+		style = el.currentStyle;
+	
+	return style[prop] ? style[prop] : "";
+}*/
 
 })();
 
+/* ajax function used to perform db operations dynamically */
 function ajax( file, callback ) {
 	var ajax = new XMLHttpRequest();
 	ajax.onreadystatechange = function() {
@@ -366,6 +415,38 @@ function ajax( file, callback ) {
 	}
 	ajax.open( "get", file, true );
 	ajax.send();
+}
+
+/* queue to keep track of toasts */
+var toast_queue = [];
+function toastQueue() {
+	if( $("#toast").length === 0 )
+		if( toast_queue.length > 0 )
+			document.body.appendChild( toast_queue.shift() );
+}
+
+/* toast popup windows for messaging */
+function toast( type, text ) {
+	type = type || "";
+	text = text || "";
+	var toast = document.createElement( "div" ),
+		note = document.createElement( "span" );
+	
+	toast.id = "toast";
+	toast.className = type;
+	toast.innerHTML = text;
+	toast.onclick = function( e ) {
+		$("#toast").bind("onclick", function() {} );
+		$("#toast").remove();
+		toastQueue();
+	};
+	
+	note.innerHTML = "click to close";
+	note.className = "note";
+	
+	toast.appendChild( note );
+	toast_queue.push( toast );
+	toastQueue();
 }
 
 if( $("#focus").length )

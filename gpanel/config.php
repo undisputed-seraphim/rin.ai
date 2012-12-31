@@ -12,8 +12,9 @@ define( "ORI_DB_NAME", "orientation" );
 
 define( "COPYRIGHT", "2012" );
 
-define( "ROOT", $_SERVER[ 'DOCUMENT_ROOT' ].'gpanel/' );
-define( "WEB_ROOT", 'http://'.$_SERVER[ 'HTTP_HOST' ].'/gpanel/' );
+define( "ROOT", dirname( __FILE__ ).'/' );
+define( "WEB_ROOT", 'http://'.$_SERVER[ 'HTTP_HOST' ].'/musashi/gpanel/' );
+
 include_once( ROOT.'inc/php/gpanel.php' );
 
 ?>

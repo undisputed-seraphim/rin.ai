@@ -43,11 +43,11 @@ class g {
 		
 		g::$db = new db( DB_HOST, DB_USER, DB_PASS, DB_NAME );
 		if( !g::$db->connected )
-			g::log( "db", "Connection to gpanel database failed: ".@mysqli_connect_error() );
+			g::log( "db", "Connection to gpanel database failed: ".g::db_error(g::$db,true) );
 		else {
 			/* see if users table exists */
-			$check = @mysqli_query( g::$db->conn, 'show tables like "gpanel_users"' );
-			$exists = $check->num_rows > 0 ? true : false;
+			$check = g::$db->query( 'show tables like "gpanel_users"' );
+			$exists = $check->rows > 0 ? true : false;
 		
 			/* if not exists, setup the orientation table */
 			if( !$exists )
@@ -99,10 +99,19 @@ class g {
 			return false;
 		$result = $query->execute();
 		if( !$result )
-		echo mysqli_error( g::$db->conn );
 			return false;
 		
 		return true;
+	}
+	
+	public static function db_error( $link, $connect = false ) {
+		if( $link->mysqli ) {
+			if( $connect )
+				return @mysqli_connect_error();
+			else
+				return @mysqli_error( $link->conn );
+		} else
+			return @mysql_error( $link->conn );
 	}
 	
 	/* log something in one of the log files */
@@ -148,7 +157,11 @@ class g {
 			/* ldap login successful */
 			if( array_key_exists( "success", $res ) ) {
 				$check = g::$db->prepare( 'select * from gpanel_users where username = ?' );
+				if( !$check )
+					return false;
 				$result = $check->execute( array( array( "s" => $res["success"]["username"] ) ) );
+				if( !$result )
+					return false;
 
 				/* user was not added to the gpanel_users table */
 				if( !( count( $result->data ) > 0) ) {
@@ -231,6 +244,11 @@ class g {
 		'</tr></table>';
 		
 		return $res;
+	}
+	
+	/* make a toast window appear after the page loads, with a message */
+	public static function toast( $type = "alert", $str = "This is some toast." ) {
+		g::$javascript .= 'toast( "'.$type.'", "'.$str.'" );'."\n";
 	}
 	
 	/* get clean_data'd post_string */

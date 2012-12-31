@@ -92,10 +92,11 @@ class role {
 	/* actually check database role string for logged in user */
 	public static function has_role( $roles ) {
 		$user_roles = explode( ",", g::$roles );
-		if( is_array( $roles ) )
+		if( is_array( $roles ) ) {
 			foreach( $roles as $role )
 				if( in_array( @role::$permissions[$role]["text"], $user_roles ) )
 					return true;
+		}
 		else if( in_array( @role::$permissions[$roles]["text"], $user_roles ) )
 			return true;
 		return false;
