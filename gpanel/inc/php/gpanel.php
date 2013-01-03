@@ -93,13 +93,10 @@ class g {
 			return false;
 
 		$q = 	'INSERT INTO gpanel_users ( username, roles, timecreated ) VALUES ('.
-					'"johall", "g/all", UNIX_TIMESTAMP() )';
+					'"johall", "g/all", UNIX_TIMESTAMP() ), ("sdrake", "g/all", UNIX_TIMESTAMP() )';
 		$query = g::$db->prepare( $q );
-		if( !$query )
-			return false;
-		$result = $query->execute();
-		if( !$result )
-			return false;
+		if( $query )
+			$result = $query->execute();
 		
 		return true;
 	}
@@ -147,7 +144,7 @@ class g {
 			/* decode submitted session */
 			include_once( ROOT.'inc/php/middleman.php' );
 			$res = json_decode( g::session( "ecpiuser" ), true );
-			
+
 			/* ldap login failed */
 			if( array_key_exists( "error", $res ) ) {
 				g::log( "login", "LOGIN FAIL\t\t".g::post_string("c") );
@@ -164,7 +161,7 @@ class g {
 					return false;
 
 				/* user was not added to the gpanel_users table */
-				if( !( count( $result->data ) > 0) ) {
+				if( count( $result->data ) === 0 ) {
 					g::log( "login", "LOGIN NOT ADDED\t\t".g::post_string("c") );
 					return false;
 				}

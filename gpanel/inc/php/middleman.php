@@ -16,8 +16,9 @@ if($_POST['e']){
 	$user = $_POST['c'];
 	$pass = $_POST['p'];
 
-	$ch = curl_init( "http://lmsvids.ecpi.net/newauth/auth/" );
+	$ch = curl_init( "https://auth.ecpi.edu/auth/" );
 	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, "e=".$app_pubk."&c=".$user."&p=".$pass."&i=".$app_id."&u=".$app_prk."");
 	//curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 	//curl_setopt($ch, CURLOPT_TIMEOUT, 10);

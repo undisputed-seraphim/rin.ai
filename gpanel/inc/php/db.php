@@ -119,6 +119,8 @@ class db {
 		return @mysql_real_escape_string( htmlentities( $str ) );
 	}
 	
+	/* plain and simple, run a query and return query_result object with results. */
+	//WARNING: DO NOT USE FOR QUERIES WITH USER PROVIDED INFO. exploitable.
 	public function query( $q ) {
 		$msc = microtime( true );
 		if( $this->mysqli ) {
@@ -130,6 +132,82 @@ class db {
 			$result->close();
 			return $res;
 		}
+	}
+	
+	/* bit_query constructors for each sql statement type */
+	public function select( $what = array() ) {
+		$bquery = new bit_query( $this, "select" );
+		if( count( $what ) === 0 || $what === "" )
+			$what = "*";
+		$bquery->setWhat( $what );
+			
+		return $bquery;
+	}
+}
+
+/* object used to create queries on the fly but still use mysqli's prepared queries */
+class bit_query {
+	private $db,
+			$has_errors = 0,
+			$errors = array(),
+			
+			$qstr = "",
+			$query = false,
+			$params = array(),
+			
+			$type = "",
+			$what = "",
+			$from = "",
+			$where = "";
+	
+	public function __construct( $db, $type = "select" ) { $this->db = $db; $this->type = $type; }
+	public function __destruct() { }
+	
+	public function setWhat( $what = "*" ) { $this->what = $what; }
+	
+	public function from( $table = "" ) {
+		if( $table === "" ) {
+			$this->has_errors = 1;
+			$this->errors[] = "No table selected.";
+		}
+		$this->from .= $table;
+		return $this;
+	}
+	
+	public function where( $col = "" ) {
+		$this->where .= $col;
+		return $this;
+	}
+	
+	public function equals( $val = "" ) {
+		$this->where .= " = ?";
+		$this->params[] = array( "s" => $val );
+		return $this;
+	}
+	
+	public function _and( $col = "" ) {
+		$this->where .= ' AND '.$col;
+		return $this;
+	}
+	
+	public function _or( $col = "" ) {
+		$this->where .= ' OR '.$col;
+		return $this;
+	}
+	
+	public function execute() {
+		switch( $this->type ) {
+			case "select":
+				$this->qstr = 'SELECT '.$this->what.' FROM '.$this->from;
+				if( $this->where !== "" )
+					$this->qstr .= ' WHERE '.$this->where;
+				$this->query = $this->db->prepare( $this->qstr );
+				break;
+		}
+		
+		if( !$this->query )
+			return false;
+		return $this->query->execute( $this->params );
 	}
 }
 
@@ -224,7 +302,7 @@ class query_result {
 	
 	/* create a query result from an array of data and an execution time */
 	function __construct( $data = array(), $time = 0 ) {
-		if( gettype( $data ) !== "Array" ) {
+		if( gettype( $data ) !== "array" ) {
 			$res = array();
 			while( $row = @mysqli_fetch_assoc( $data ) )
 				$res[] = $row;
