@@ -45,3 +45,4 @@
 2012-12-31 3:42:13 PM		gpanel_users table creation failed.		127.0.0.1
 2012-12-31 3:42:30 PM		gpanel_users table creation failed.		127.0.0.1
 2012-12-31 8:41:13 PM		Connection to gpanel database failed: php_network_getaddresses: getaddrinfo failed: No such host is known. 		127.0.0.1
+2013-01-08 5:28:59 PM		Connection to orientation database failed: Access denied for user 'orientation'@'localhost' (using password: YES)		127.0.0.1

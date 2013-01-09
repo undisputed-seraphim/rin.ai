@@ -17,19 +17,20 @@ class g {
 	public static function init( $app = "home" ) {
 		g::$app = strtolower( $app );
 		g::$nav = array(
-		array( "text" => "Home", "url" => WEB_ROOT."index.php", "access" => "", "nodes" => array(
-			array( "text" => "Manage Users", "url" => WEB_ROOT."manage.php", "access" => "r_MANAGE" ),
-			array( "text" => "Orientation", "url" => WEB_ROOT."orientation/", "access" => "r_ORI_VIEW", "nodes" => array(
-				array( "text" => "View Attempts", "url" => WEB_ROOT."orientation/view.php", "access" => "r_ORI_VIEW" ),
-				array( "text" => "Track Attempts", "url" => WEB_ROOT."orientation/track.php", "access" => "r_ORI_TRACK" ),
-				array( "text" => "Reset Attempts", "url" => WEB_ROOT."orientation/reset.php", "access" => "r_ORI_RESET" )
-			) ),
-			array( "text" => "Risk", "url" => WEB_ROOT."risk/", "access" => "r_RISK_VIEW", "nodes" => array(
-				array( "text" => "View Attempts", "url" => WEB_ROOT."risk/view.php", "access" => "r_RISK_VIEW" ),
-				array( "text" => "Track Attempts", "url" => WEB_ROOT."risk/track.php", "access" => "r_RISK_TRACK" ),
-				array( "text" => "Reset Attempts", "url" => WEB_ROOT."risk/reset.php", "access" => "r_RISK_RESET" )
-			) )
-		) ) );
+			array(	"text" => "Home",
+				  	"id" => "home",
+					"url" => WEB_ROOT,
+					"access" => "",
+					"desc" => '<p>On this page you can...</p>'
+			),
+
+			array(	"text" => "Orientation",
+				  	"id" => "orientation",
+					"url" => WEB_ROOT."orientation/",
+					"access" => "r_ORI_VIEW",
+					"desc" => '<p>On this page you can...</p>'
+			)
+		);
 		
 		/* if inside an application, initialize that application */
 		$appinit = true;
@@ -200,7 +201,8 @@ class g {
 	public static function login_string() {
 		if( g::login() ) {
 			$name = g::session( "gpanel_login" );
-			$name = $name["success"]["surname"].", ".$name["success"]["fname"];
+			$name = '<span id="user_tag">'.$name["success"]["surname"].', '.$name["success"]["fname"].' &#9660;</span>';
+			
 			$revert = "";
 			if( g::$temp_roled )
 				$revert = ' | <a href="'.WEB_ROOT.'inc/php/revert.php">revert role</a>';
@@ -339,52 +341,51 @@ class g {
 	/* helper html functions */
 	public static function print_head( $title = "Global Admin Panel" ) {
 		echo
-'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<link href="'.WEB_ROOT.'inc/css/gpanel.css" title="gpanel_css" rel="stylesheet" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>'.$title.'</title>
-</head>
-<body>
-<div id="main">';
+		'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	'.
+			'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+		<html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+		<link href="'.WEB_ROOT.'inc/css/gpanel.css" title="gpanel_css" rel="stylesheet" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>'.$title.'</title>
+		</head>
+		<body>
+		<div id="main">';
 	}
 	
 	public static function print_header( $page = "gPanel" ) {
 		echo
-	'<div id="header">
-    	<div class="line">
-        	<div class="lalign lfloat">
-	        	<img src="http://ecpicollege.com/logos/ECPI_Logo_200px.png" alt="ECPI University" />
-            </div>
-            <div class="ralign rfloat">
-	            <label class="title">'.$page.'</label><br />
-            	<label>'.g::login_string().'</label>
-            </div>
-        </div>
-    </div>
-    <div id="page">';
-	}
-	
-	/* loop through nav elements recursively to print navigation */
-	public static function nav_loop( $nav ) {
-		if( array_key_exists( "nodes", $nav ) ) {
-			g::secure_print( $nav["access"], '<div><label class="heading"><a href="'.$nav["url"].'">'.$nav["text"].'</a></label>' );
-			g::secure_print( $nav["access"], '<blockquote'.(g::$app == strtolower( $nav["text"] ) || $nav["text"] == "Home" ? '' : ' class="hidden"').'>' );
-			foreach( $nav["nodes"] as $cur )
-				g::nav_loop( $cur );
-			g::secure_print( $nav["access"], '</blockquote></div>' );
-		} else {
-			$cur = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'] == $nav["url"] ? ' class="current"' : '';
-			g::secure_print( $nav["access"], '<div><label><a href="'.$nav["url"].'"'.$cur.'>'.$nav["text"].'</a></label></div>' );
-		}
+		'<div id="header">
+    		<div class="line">
+        		<div class="lalign lfloat">
+	        		<img src="http://ecpicollege.com/logos/ECPI_Logo_200px.png" alt="ECPI University" />
+	            </div>
+    	        <div class="ralign rfloat">
+	    	        <label class="title">'.$page.'</label><br />
+            		<label>'.g::login_string().'</label>
+	            </div>
+    	    </div>
+	    </div>
+    	<div id="page">';
 	}
 	
 	/* print header with a parameter for current app */
 	public static function print_nav() {
-		echo '<div id="nav">';
-		g::nav_loop( g::$nav[0] );
-		echo '</div><div id="content">';
+		$desc = "";
+		$nav = '<div id="nav">';
+		foreach( g::$nav as $item ) {
+			if( g::access( $item["access"] ) || $item["access"] === "" ) {
+				$class = "navheading";
+				if( $item["id"] == g::$app ) {
+					$desc = $item["desc"];
+					$class = "navheading current";
+				}
+					
+				$nav .= '<label class="'.$class.'"><a href="'.$item["url"].'">'.$item["text"].'</a></label>';
+			}
+		}
+		$nav .= '<div id="nav_desc">'.$desc.'</div></div><div id="content">';
+		echo $nav;
 	}
 	
 	public static function print_footer() {
@@ -396,13 +397,17 @@ class g {
 				<a href="http://olexams.ecpi.net" target="_blank">Online Entrance Exams</a> |
 				<a href="http://olorientation.ecpi.net" target="_blank">Online Orientation</a><br/>
             (C) '.COPYRIGHT.' ECPI University</label>
-        </div>
-    </div>
-</div>
-<script type="text/javascript" src="'.WEB_ROOT.'inc/js/gpanel.js"></script>
-<script type="text/javascript">'.g::$javascript.'</script>
-</body>
-</html>';
+        	</div>
+    		</div>
+		</div>
+		<script type="text/javascript">
+			var IMAGE_DIR = "'.WEB_ROOT.'/inc/img/";
+			var USER_MENU = \'<br/><a href="settings.php">User settings</a><br/><a href="something.php">something</a>\';
+		</script>
+		<script type="text/javascript" src="'.WEB_ROOT.'inc/js/gpanel.js"></script>
+		<script type="text/javascript">'.g::$javascript.'</script>
+		</body>
+		</html>';
 	}
 	
 	public static function add_user( $post = "" ) {

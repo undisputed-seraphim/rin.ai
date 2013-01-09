@@ -4,9 +4,12 @@ include_once( 'config.php' );
 
 g::init() or g::toast( "error", "Could not initialize gPanel." );
 
-if( $res = g::$db->select( "*" )->from( "gpanel_users" )->where( "username" )->equals( "johall" )->_or( "lastlogin" )->equals( 1356716097 )->execute() );
-	print_r( $res );
-
+/*if( $res = g::$db->select( "*" )
+			->from( "gpanel_users" )
+			->where( "username" )->equals( "johall" )->or( "lastlogin" )->equals( 1356716097 )
+			->execute() );
+	print_r( $res );*/
+	
 $msg = g::heads_up( "desc", "Enter your credentials below to login." );
 
 if( isset( $_POST[ 'submit' ] ) )

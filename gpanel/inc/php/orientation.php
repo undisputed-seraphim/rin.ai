@@ -2,6 +2,7 @@
 /* defines for orientation vars */
 define( "ORI_PASS_LIMIT", 70.00 );
 define( "ORI_RESULT_LIMIT", 100 );
+//add defines for: course name in moodle shell
 
 /* 'orientation' class with static functions that manage every aspect of orientation part of gpanel */
 class ori {
@@ -87,76 +88,71 @@ class ori {
 		if( count( $results->data ) === 0 )
 			return '<table class="results"><tr><td>No Results</td></tr></table>';
 		
-		/* sort the results by unique student id (username) */
-		$res = $results->group_by( "? [ ? ]", array( "fullname", "username" ) );
-		if( !$res )
-			return '<table class="results"><tr><td>No Results</td></tr></table>';
-			
 		$html = '<input class="rfloat" id="export" type="button" value="Export to Excel" name="export" />';
 		$html .= '<p class="title">Results<span class="note">obtained in '.$results->exec_time.' ms</span></p>';
-		$html .= '~|~|LIMIT|~|~<div class="spacer">&nbsp;</div>';
+		$html .= '<div class="spacer">&nbsp;</div>';
 		$init = true;
-		$num = 0;
-		/* build the html sections per student */
-		foreach( $res as $student => $data ) {
-			$num++;
-			$html .= '<div class="section"><div class="section_title"><label>'.$student.'</label></div><div class="section_body';
-			$html .= $init ? '">' : ' hidden">';
+		
+		foreach( $results->data as $i => $data ) {
+			$tmp = explode( "-|-", $data["items"] );
+			$items = array();
+			foreach( $tmp as $i ) {
+				$it = explode( "||", $i );
+				
+				if( !isset( $items[$it[0]] ) )
+					$items[$it[0]] = array();
+				$items[$it[0]][] = $it;
+			}
+			
+			$sec = '<div class="section"><div class="section_title"><label>'.$data["fullname"].'</label>';
+			$sec .= '</div><div class="section_body';
+			$sec .= $init ? '">' : ' hidden">';
+			$sec .= '<div class="~|~|PASSFAIL|~|~">';
+			$sec .= '<p class="subtitle">Moodle<span class="note">~|~|STATUS|~|~</span></p>';
+			$sec .= '<table class="results">';
 			$init = false;
+			$incomplete = 0;
+			$grade = 0;
 			
-			/* loop through moodle entry, then archived entries */
-			$types = ori::split_types( $results, $data );
-			$subhtml = "";
-			foreach( $types as $type => $tdata ) {
-				$incomplete = 0;
-				$grade = 0;
-				$subhtml .= '<div class="~|~|PASSFAIL|~|~">';
-				$subhtml .= '<p class="subtitle">'.$type.'<span class="note">~|~|STATUS|~|~</span></p>';
-				$subhtml .= '<table class="results">';
-				foreach( ori::$items as $i => $item ) {
-					if( $i === 0 )
-						$subhtml .= '<tr><th>Item</th><th>Grade</th><th>Last Modified</th></tr>';
-
-					$tmp = $results->get( "item", $item, $tdata );
-					if( $tmp )
-						foreach( $tmp as $t ) {
-							$subhtml .= '<tr class="'.( ($i+1) % 2 === 0 ? "even" : "odd" ).'"><td>'.$item.'</td>';
-							$subhtml .= '<td>'.$t["grades"].'</td><td>'.$t["timemodified"].'</td>';
-							$grade += $t["grades"];
-						}
-					else {
-						$subhtml .= '<tr class="'.( ($i+1) % 2 === 0 ? "even" : "odd" ).'"><td>'.$item.'</td>';
-						$subhtml .= '<td colspan="2">No Entry</td>';
-						$incomplete = 1;
+			foreach( ori::$items as $i => $item ) {
+				if( $i === 0 )
+					$sec .= '<tr><th>Item</th><th>Grade</th><th>Last Modified</th></tr>';
+				
+				if( isset( $items[ $item ] ) ) {
+					foreach( $items[$item] as $it ) {
+						$sec .= '<tr class="'.( ($i+1) % 2 === 0 ? "even" : "odd" ).'"><td>'.$item.'</td>';
+						$sec .= '<td>'.$it[1].'</td><td>'.$it[3].'</td>';
+						if( !is_numeric( $it[1] ) )
+							$incomplete = 1;
+						else $grade += $it[1];
+						$sec .= '</tr>';
 					}
-					$subhtml .= '</tr>';
-					/* grab student's archived entries if any */
+				} else {
+					$sec .= '<tr class="'.( ($i+1) % 2 === 0 ? "even" : "odd" ).'"><td>'.$item.'</td>';
+					$sec .= '<td colspan="2">No Entry</td>';
+					$incomplete = 1;
+					$sec .= '</tr>';
 				}
-				$subhtml .= '</table></div>';
-				$grade /= count( ori::$items );
+			}
 			
-				/* set the note for the entry as complete or incomplete */
-				$subhtml = $incomplete ?	str_replace( "~|~|STATUS|~|~", "incomplete", $subhtml ) :
-											str_replace( "~|~|STATUS|~|~", "complete", $subhtml );
+			$sec .= '</table></div>';
+			$grade /= count( ori::$items );
+			
+			/* set the note for the entry as complete or incomplete */
+			$sec = $incomplete ?	str_replace( "~|~|STATUS|~|~", "incomplete", $sec ) :
+									str_replace( "~|~|STATUS|~|~", "complete", $sec );
 									
-				/* set the color for the sidebar based on pass/fail ( if complete ) */
-				if( !$incomplete ) {
-					$subhtml = $grade >= ORI_PASS_LIMIT ?	str_replace( "~|~|PASSFAIL|~|~", "pass", $subhtml ) :
-															str_replace( "~|~|PASSFAIL|~|~", "fail", $subhtml );
-				} else $subhtml = str_replace( "~|~|PASSFAIL|~|~", "blank", $subhtml );
-			}
-
-			$subhtml .= '</div></div>';
-			$html .= $subhtml;
+			/* set the color for the sidebar based on pass/fail ( if complete ) */
+			if( !$incomplete ) {
+				$sec = $grade >= ORI_PASS_LIMIT ?	str_replace( "~|~|PASSFAIL|~|~", "pass", $sec ) :
+													str_replace( "~|~|PASSFAIL|~|~", "fail", $sec );
+			} else $sec = str_replace( "~|~|PASSFAIL|~|~", "blank", $sec );
+				
+			$sec .= '</div></div>';
 			
-			if( $num > ori::$limit ) {
-				/* result limit was reached, display message at bottom of results... */
-				$html = str_replace( "~|~|LIMIT|~|~", '<div class="spacer">&nbsp;</div>'.g::heads_up( "notice",
-					"Number of results exceed limit. Showing the first ".ori::$limit." results." ), $html );
-				return $html;
-			}
+			$html .= $sec;
 		}
-		$html = str_replace( "~|~|LIMIT|~|~", "", $html );
+		
 		return $html;
 	}
 	
@@ -170,9 +166,34 @@ class ori {
 
 		$results = $moodle_query->execute( array_merge( $params, $params ) );		
 		return ori::print_results( $results );
+		print_r( $results );
 	}
 	
 	public static function construct_main_query( $fields ) {
+		$items = "";
+		foreach( ori::$items as $i => $item ) {
+			if( $i !== 0 )
+				$items .= ' OR ';
+			$items .= 'itemname = "'.$item.'"';
+		}
+		
+		$q = 'SELECT g.userid, u.username, CONCAT( u.firstname, " ", u.lastname ) AS "fullname", '.
+				'(SELECT GROUP_CONCAT( '.
+					'CONCAT( '.
+						'IFNULL( ii.itemname, "No Name" ), "||", '.
+						'IFNULL( gg.finalgrade, "RESET" ), "||", '.
+						'IFNULL( gg.timecreated, "Null" ), "||", '.
+						'IFNULL( DATE_FORMAT( FROM_UNIXTIME( gg.timemodified ), "%W, %M %d, %Y, %h:%i %p" ), "Null" ) ) '.
+						'ORDER BY itemname SEPARATOR "-|-" ) '.
+				  	'FROM mdl_grade_grades gg '.
+						'JOIN mdl_grade_items ii on ii.id = gg.itemid '.
+					'WHERE gg.userid = g.userid './/AND ( '.$items.' ) '.
+					'GROUP BY userid ) as items '.
+			'FROM mdl_grade_grades g '.
+				'JOIN mdl_user u ON u.id = g.userid '.
+			'GROUP BY userid';
+		return $q;
+		
 		$q = '(SELECT g.userid, u.username, CONCAT(u.firstname, " ", u.lastname) AS "fullname", '.
 				'u.email, i.itemname AS item, i.itemtype AS itemtype, '.
 				'g.finalgrade AS grades, g.timecreated, "moodle" AS type, "current" AS attempt, '.
@@ -190,6 +211,10 @@ class ori {
 				case "firstname": $q .= 'AND u.firstname LIKE CONCAT(\'%\', ?, \'%\') '; break;
 				case "lastname": $q .= 'AND u.lastname LIKE CONCAT(\'%\', ?, \'%\') '; break;
 		}
+		
+		/* syphon */
+		$q .= ')';
+		return $q;
 		
 		$q .=	') UNION '.
 			'(SELECT userid, username, concat( firstname, " ", lastname ) AS "fullname", '.

@@ -4,14 +4,20 @@ class role {
 	public static $roles = array(
 		"gPanel Manager" => array( "r_LOGIN", "r_MANAGE" ),
 		"Orientation Viewer" => array( "r_LOGIN", "r_ORI_VIEW" ),
+		"Orientation Manager" => array( "r_LOGIN", "r_ORI_VIEW", "r_ORI_MANAGE" ),
 		"root" => array( "r_ALL" )
 	);
 	/* permission heirarchy; parent permissions grant all children */
 	public static $permissions = array(
+									   
+		// gpanel
 		"r_ALL" => array( "text" => "g/all" ),
 		"r_LOGIN" => array( "text" => "g/login" ),
 		"r_MANAGE" => array( "text" => "g/manage" ),
-		"r_ORI_VIEW" => array( "text" => "g/ori/view" )
+		
+		// orientation
+		"r_ORI_VIEW" => array( "text" => "g/ori/view" ),
+		"r_ORI_MANAGE" => array( "text" => "g/ori/manage" )
 	);
 
 	/* check if user has role or is granted child role, add 'true' to check for specific role only */

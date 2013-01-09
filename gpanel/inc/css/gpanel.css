@@ -12,6 +12,8 @@ td, th { vertical-align: middle; padding: 3px; }
 
 a { text-decoration: none; display: inline; }
 a:link { color: #2fa2fa; }
+.current a:link { color: #4f74f7; }
+.current a:visited { color: #4f74f7; }
 a:visited { color: #2fa2fa; }
 a:hover { color: #4f74f7; }
 
@@ -43,9 +45,10 @@ a:hover { color: #4f74f7; }
 .center { text-align: center; }
 .height100 { height: 100%; }
 
-#nav label { display: block; position: relative; }
-.heading { padding: 2px; border: 1px solid black; margin-top: 3px; margin-bottom: 3px; }
-.current { color: black; font-weight: bold; }
+#nav label { display: block; font-size: 14px; font-weight: bold; }
+.navheading { border-left: 5px solid #fff; padding: 6px; padding-left: 8px; }
+.current { border-left: 5px solid #4f74f7; font-weight: bold; }
+
 .inner { margin: 15px; display: inline-block; }
 .inner_lr { margin-left: 15px; margin-right: 15px; }
 .row { clear: both; /*white-space: nowrap;*/ }
@@ -56,8 +59,12 @@ a:hover { color: #4f74f7; }
 .legend table td { width: 30%; }
 .legend td * { display: inline; margin: 3px; }
 .separator { margin-top: 15px; border-top: 1px solid #ccc; }
-.spacer { margin-top: 10px; margin-bottom: 10px; height: 0px; clear: both; }
+.spacer { margin-top: 10px; margin-bottom: 10px; height: 0px; }
 .clearboth { clear: both; }
+
+#user_tag { padding-left: 2px; padding-right: 2px; margin: 2px; border: 1px solid white; position: relative; }
+#user_tag:hover { background-color: #efefef; border: 1px solid #cdcdcd; }
+#user_menu { position: absolute; top: 0px; right: 0px; }
 
 .content { margin-bottom: 20px; clear: none; padding: 20px; border: 1px solid #999; }
 .content .title { color: #666; font-size: 22px; font-family: Arial; letter-spacing: 1px; font-weight: bold; margin: 5px 0px; }
@@ -104,9 +111,9 @@ tr.even td { background-color: #efefff; }
 #header img { vertical-align: middle; }
 
 #page { padding-top: 10px; padding-bottom: 100px; margin-left: 20px; margin-right: 20px; }
-#nav { float: left; min-width: 200px; max-width: 200px; padding: 15px; }
+#nav { float: left; min-width: 140px; max-width: 140px; padding: 15px; }
 #nav a { display: inline; position: relative; }
-#content { margin-left: 240px; padding: 15px; }
+#content { margin-left: 180px; padding: 15px; }
 
 #footer {
 	position: absolute;

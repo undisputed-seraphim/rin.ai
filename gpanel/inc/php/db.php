@@ -143,6 +143,10 @@ class db {
 			
 		return $bquery;
 	}
+	
+	public function update( $table = "" ) { }
+	public function insert( $table = "" ) { }
+	public function create_table( $table = "" ) { }
 }
 
 /* object used to create queries on the fly but still use mysqli's prepared queries */
@@ -158,9 +162,22 @@ class bit_query {
 			$type = "",
 			$what = "",
 			$from = "",
-			$where = "";
+			$where = "";			
 	
-	public function __construct( $db, $type = "select" ) { $this->db = $db; $this->type = $type; }
+	public function __construct( $db, $type = "select" ) {
+		$this->db = $db;
+		$this->type = $type;
+	}
+	
+	public function __call( $method, $args ) {
+		/* allow the use of convenience keywords */
+		if( $method === "or" )
+			return call_user_func_array( array( $this, "_or" ), $args );
+		if( $method === "and" )
+			return call_user_func_array( array( $this, "_and" ), $args );
+			
+		return parent::__call( $method, $args );
+	}
 	public function __destruct() { }
 	
 	public function setWhat( $what = "*" ) { $this->what = $what; }
@@ -174,12 +191,18 @@ class bit_query {
 		return $this;
 	}
 	
+	public function join( $table = "" ) {
+	}
+	
+	public function on( $col = "" ) {
+	}
+	
 	public function where( $col = "" ) {
 		$this->where .= $col;
 		return $this;
 	}
 	
-	public function equals( $val = "" ) {
+	public function equals( $val = null ) {
 		$this->where .= " = ?";
 		$this->params[] = array( "s" => $val );
 		return $this;
@@ -195,7 +218,7 @@ class bit_query {
 		return $this;
 	}
 	
-	public function execute() {
+	public function execute( $params = array() ) {
 		switch( $this->type ) {
 			case "select":
 				$this->qstr = 'SELECT '.$this->what.' FROM '.$this->from;
@@ -207,6 +230,9 @@ class bit_query {
 		
 		if( !$this->query )
 			return false;
+		
+		if( count( $params ) > 0 )
+			$this->params = $params;
 		return $this->query->execute( $this->params );
 	}
 }

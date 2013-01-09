@@ -146,6 +146,12 @@ set.prototype = {
 		return typeof val == "undefined" ? res : this;
 	},
 	
+	/* change innerhtml of element */
+	html: function( str ) { return this.each( function() { return this.html( str ); } ); },
+	
+	/* get text content of an element */
+	text: function() { return this.each( function() { return this.text(); } ); },
+	
 	/* check if items within a set all contain particular class */
 	hasClass: function( cls ) { return trueArray( this.each( function() { return this.hasClass( cls ); } ) ); },
 	
@@ -256,19 +262,37 @@ element.prototype = {
 	
 	/* get or set properties of an element object's style */
 	style: function( prop, val ) {
-		var style = new String( this.target.getAttribute( "style" ) ) || "";
+		var style = this.target.getAttribute( "style" ) || "";
+		style = new String( style );
 		if( typeof prop == "string" && typeof val == "undefined" )
 			return style.indexOf( prop ) != -1 ?
 				new RegExp( prop+":(.*?);", "ig" ).exec(style)[1].replace(/^\s\s*/, '').replace(/\s\s*$/, '') : "";
 		if( typeof prop == "object" )
 			for( var i in prop ) {
 				style = style.replace( new RegExp( i + ":.*?;", "ig" ), "" );
-				prop[i] != "" ? style += i + ": " + prop[i] + ";" : style = style;
+				style += prop[i] != "" ? ( i + ": " + prop[i] + ";" ) : ( "" );
 			}
-		else if( typeof prop == "string" && typeof val == "string" )
-			style = style.replace( new RegExp( prop+":.*?;", "ig"), "" ); style += prop+": "+val+";";
+		else if( typeof prop == "string" && typeof val == "string" ) {
+			this.target.style[prop] = val;
+			return this;
+			var reg = new RegExp( prop+":.*?;", "ig" );
+			style = style.replace( reg, "" );
+		}
+		style += prop+": "+val+";";
+		//this.target.style = style;
 		this.attribute( "style", style );
 		return this;
+	},
+	
+	html: function( str ) {
+		if( typeof str == "undefined" )
+			return this.target.innerHTML;
+		this.target.innerHTML = str;
+		return this;
+	},
+	
+	text: function() {
+		return this.target.textContent || this.target.innerText;
 	},
 	
 	/* check if element has a particular class */
@@ -449,14 +473,25 @@ function toast( type, text ) {
 	toastQueue();
 }
 
-if( $("#focus").length )
-	$("#focus").focus();
+/* shows the user menu */
+function showUserMenu() {
+	$("#user_menu").remove();
+	var div = document.createElement( "div" );
+	div.setAttribute( "id", "user_menu" );
+	div.innerHTML = USER_MENU;
+	$( "#user_tag" ).elements[0].target.appendChild( div );
+}
 
-$(".heading").bind( "onclick", function( e ) {
-	if( e.target.tagName !== "A" )
-		this.next().toggleClass( "hidden" );
+if( $( "#focus" ).length )
+	$( "#focus" ).focus();
+
+$( "#user_tag" ).bind( "onclick", function( e ) {
+	if( $("#user_menu").length === 0 ) {
+		console.log( "moused over user tag" );
+		showUserMenu();
+	}
 });
 
-$(".section_title").bind( "onclick", function( e ) {
-	this.parent().children(".section_body").toggleClass( "hidden" );
+$( ".section_title" ).bind( "onclick", function( e ) {
+	this.parent().children( ".section_body" ).toggleClass( "hidden" );
 });
